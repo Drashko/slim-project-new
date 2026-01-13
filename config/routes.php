@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Web\Admin\Controller\AuditLog\AuditLogController;
 use App\Web\Admin\Controller\Auth\LoginController as AdminLoginController;
 use App\Web\Admin\Controller\Category\CategoryManagementController;
+use App\Web\Admin\Controller\Digiboard\DigiboardPageController;
 use App\Web\Admin\Controller\Home\HomeController;
 use App\Web\Admin\Controller\Permission\PermissionMatrixController;
 use App\Web\Admin\Controller\Profile\ProfileController as AdminProfileController;
@@ -118,6 +119,10 @@ return static function (App $app): void {
                     ->setName('admin.permissions');
                 $protectedGroup->map(['GET', 'POST'], '/categories', CategoryManagementController::class)
                     ->setName('admin.categories');
+                $protectedGroup->get('/digiboard[/{page}]', DigiboardPageController::class)
+                    ->setName('admin.digiboard.page');
+                $protectedGroup->get('/{page:[^/]+\\.html}', DigiboardPageController::class)
+                    ->setName('admin.digiboard.html');
                 $protectedGroup->get('/ads', AdManagementController::class)->setName('admin.ads');
                 $protectedGroup->map(['GET', 'POST'], '/ads/{id}', AdDetailController::class)->setName('admin.ad_detail');
                 $protectedGroup->get('/audit', AuditLogController::class)->setName('admin.audit');
