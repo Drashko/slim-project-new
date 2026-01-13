@@ -121,11 +121,11 @@ return static function (App $app): void {
                     ->setName('admin.categories');
                 $protectedGroup->get('/digiboard[/{page}]', DigiboardPageController::class)
                     ->setName('admin.digiboard.page');
-                $protectedGroup->get('/{page:[^/]+\\.html}', DigiboardPageController::class)
-                    ->setName('admin.digiboard.html');
                 $protectedGroup->get('/ads', AdManagementController::class)->setName('admin.ads');
                 $protectedGroup->map(['GET', 'POST'], '/ads/{id}', AdDetailController::class)->setName('admin.ad_detail');
                 $protectedGroup->get('/audit', AuditLogController::class)->setName('admin.audit');
+                $protectedGroup->get('/{page:[^/]+(?:\\.html)?}', DigiboardPageController::class)
+                    ->setName('admin.digiboard.template');
                 $protectedGroup->get('', HomeController::class);
             })->add(AdminAuthenticationMiddleware::class);
         });
