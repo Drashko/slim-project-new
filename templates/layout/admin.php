@@ -8,6 +8,14 @@ $canAccessAdminArea = $this->can('admin.access', $user ?? null);
 $canManageUsers = $this->can('admin.users.manage', $user ?? null);
 $isAdminAuthenticated = $canAccessAdminArea && $user !== null && isset($user['email']);
 $adminNavMode = 'top';
+$availableLocales = $this->available_locales();
+$currentLocale = $this->current_locale();
+if (!is_string($currentLocale) || $currentLocale === '') {
+    $currentLocale = (string) array_key_first($availableLocales);
+}
+if ($currentLocale === '') {
+    $currentLocale = 'en';
+}
 
 if ($isAdminAuthenticated) {
     $cookieNavMode = $_COOKIE['admin_nav_mode'] ?? 'top';
@@ -133,6 +141,25 @@ $primaryLinks = $isAdminAuthenticated
             </div>
             <div class="col-xxl-6 col-xl-7 col-lg-8 col-4">
                 <div class="header-right-btns d-flex justify-content-end align-items-center">
+                    <div class="me-3 d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-globe text-muted" aria-hidden="true"></i>
+                        <label class="visually-hidden" for="admin-language-switch"><?= $this->e($this->trans('layout.language.switch')) ?></label>
+                        <select
+                            id="admin-language-switch"
+                            class="form-select form-select-sm"
+                            aria-label="<?= $this->e($this->trans('layout.language.switch')) ?>"
+                            onchange="if (this.value) { window.location.href = this.value; }"
+                        >
+                            <?php foreach ($availableLocales as $locale => $label): ?>
+                                <option
+                                    value="<?= $this->e($this->locale_switch_url($locale)) ?>"
+                                    <?= $currentLocale === $locale ? 'selected' : '' ?>
+                                >
+                                    <?= $this->e($label) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                     <div class="dropdown profile-dropdown">
                         <button class="header-btn" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-light fa-user"></i>
@@ -209,6 +236,25 @@ $primaryLinks = $isAdminAuthenticated
 <?php else: ?>
     <!-- unauthenticated admin pages (e.g. login) -->
     <div class="main-content">
+        <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+            <i class="fa-solid fa-globe text-muted" aria-hidden="true"></i>
+            <label class="visually-hidden" for="admin-language-switch-guest"><?= $this->e($this->trans('layout.language.switch')) ?></label>
+            <select
+                id="admin-language-switch-guest"
+                class="form-select form-select-sm w-auto"
+                aria-label="<?= $this->e($this->trans('layout.language.switch')) ?>"
+                onchange="if (this.value) { window.location.href = this.value; }"
+            >
+                <?php foreach ($availableLocales as $locale => $label): ?>
+                    <option
+                        value="<?= $this->e($this->locale_switch_url($locale)) ?>"
+                        <?= $currentLocale === $locale ? 'selected' : '' ?>
+                    >
+                        <?= $this->e($label) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
         <?= $this->section('content') ?>
     </div>
 <?php endif; ?>
