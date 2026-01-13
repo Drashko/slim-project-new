@@ -4,7 +4,7 @@
 
 $user = is_array($user ?? null) ? $user : null;
 $title = $title ?? $this->trans('app.default_title');
-$bodyClass = 'public-layout hold-transition layout-top-nav bg-light';
+$bodyClass = 'public-layout light-theme';
 $primaryLinks = [
     ['href' => $this->locale_url(null, null, 'public'), 'label' => $this->trans('layout.nav.public_home')],
     ['href' => $this->locale_url('auth/login', null, 'public'), 'label' => $this->trans('layout.nav.profile_login')],
@@ -19,9 +19,14 @@ $primaryLinks = [
     <meta name="api-base" content="<?= $this->e($_ENV['API_BASE'] ?? '/') ?>">
     <title><?= $this->e($title) ?></title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-alpha3/dist/css/adminlte.min.css" integrity="sha384-NrMdBkOMZolWA4cTnC0V4P/anRf1Yy9sMwhW3iHjZylWus6YtRHAYN3dBkNDTDpO" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="/digiboard/assets/vendor/css/all.min.css">
+    <link rel="stylesheet" href="/digiboard/assets/vendor/css/jquery-ui.min.css">
+    <link rel="stylesheet" href="/digiboard/assets/vendor/css/OverlayScrollbars.min.css">
+    <link rel="stylesheet" href="/digiboard/assets/vendor/css/daterangepicker.css">
+    <link rel="stylesheet" href="/digiboard/assets/vendor/css/select2.min.css">
+    <link rel="stylesheet" href="/digiboard/assets/vendor/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/digiboard/assets/css/style.css">
+    <link rel="stylesheet" id="primaryColor" href="/digiboard/assets/css/blue-color.css">
     <link rel="stylesheet" href="/assets/front.css">
     <?= $this->section('head') ?>
 </head>
@@ -87,8 +92,14 @@ $primaryLinks = [
     </footer>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-alpha3/dist/js/adminlte.min.js" integrity="sha384-wXsemv8Vpb8OdOOs3OH9fQLYCw16SHX87x2YxyuGGYJifjb7/SFZ+jOEWuubcdJ4" crossorigin="anonymous" defer></script>
+<script src="/digiboard/assets/vendor/js/jquery-3.6.0.min.js"></script>
+<script src="/digiboard/assets/vendor/js/jquery-ui.min.js"></script>
+<script src="/digiboard/assets/vendor/js/OverlayScrollbars.min.js"></script>
+<script src="/digiboard/assets/vendor/js/moment.min.js"></script>
+<script src="/digiboard/assets/vendor/js/daterangepicker.js"></script>
+<script src="/digiboard/assets/vendor/js/select2.min.js"></script>
+<script src="/digiboard/assets/vendor/js/bootstrap.bundle.min.js"></script>
+<script src="/digiboard/assets/js/main.js"></script>
 <?= $this->section('scripts') ?>
 </body>
 </html>
