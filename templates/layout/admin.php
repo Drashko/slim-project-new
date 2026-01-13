@@ -141,7 +141,8 @@ $primaryLinks = $isAdminAuthenticated
             </div>
             <div class="col-xxl-6 col-xl-7 col-lg-8 col-4">
                 <div class="header-right-btns d-flex justify-content-end align-items-center">
-                    <div class="me-3">
+                    <div class="me-3 d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-globe text-muted" aria-hidden="true"></i>
                         <label class="visually-hidden" for="admin-language-switch"><?= $this->e($this->trans('layout.language.switch')) ?></label>
                         <select
                             id="admin-language-switch"
@@ -235,7 +236,8 @@ $primaryLinks = $isAdminAuthenticated
 <?php else: ?>
     <!-- unauthenticated admin pages (e.g. login) -->
     <div class="main-content">
-        <div class="d-flex justify-content-end mb-3">
+        <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+            <i class="fa-solid fa-globe text-muted" aria-hidden="true"></i>
             <label class="visually-hidden" for="admin-language-switch-guest"><?= $this->e($this->trans('layout.language.switch')) ?></label>
             <select
                 id="admin-language-switch-guest"
