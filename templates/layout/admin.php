@@ -14,9 +14,11 @@ if ($isAdminAuthenticated) {
     $adminNavMode = in_array($cookieNavMode, ['top', 'aside'], true) ? $cookieNavMode : 'top';
 }
 
-    // Match Digiboard demo layout classes for 1:1 spacing/behavior.
-    // body-padding + body-p-top are required for correct sidebar/content sizing.
-    $bodyClass = 'body-padding body-p-top light-theme' . ($isAdminAuthenticated ? '' : '');
+// Match Digiboard demo layout classes for 1:1 spacing/behavior.
+// body-padding + body-p-top are required for correct sidebar/content sizing.
+$bodyClass = $isAdminAuthenticated
+    ? 'body-padding body-p-top light-theme'
+    : 'light-theme';
 
 $primaryLinks = $isAdminAuthenticated
     ? array_values(array_filter([
