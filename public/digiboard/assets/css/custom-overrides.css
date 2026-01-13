@@ -1,0 +1,50 @@
+/* Project overrides for Digiboard integration (admin area) */
+
+/* Remove unwanted borders/outlines from sidebar links */
+.sidebar-menu li a,
+.sidebar-menu li .sidebar-link,
+.sidebar-menu li .sidebar-link-group-title {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.sidebar-menu li { border: none !important; }
+
+/* Layout: Digiboard sidebar is fixed; keep content visible on desktop */
+@media (min-width: 992px) {
+  body.digiboard-admin.has-sidebar .main-wrapper > .flex-grow-1 {
+    margin-left: 270px;
+  }
+}
+
+/* Mobile/Tablet: off-canvas sidebar (opens via body.sidebar-open) */
+@media (max-width: 991px) {
+  body.digiboard-admin.has-sidebar .main-wrapper > .flex-grow-1 {
+    margin-left: 0;
+  }
+
+  .main-sidebar {
+    transform: translateX(-110%);
+    transition: transform 0.25s ease;
+  }
+
+  body.sidebar-open .main-sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 10; /* below sidebar (11) */
+  }
+
+  body.sidebar-open .sidebar-backdrop {
+    display: block;
+  }
+
+  body.sidebar-open {
+    overflow: hidden;
+  }
+}

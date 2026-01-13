@@ -1,0 +1,199 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Integration\System\AppEnvironment;
+use Dotenv\Dotenv;
+use Monolog\Level;
+
+(Dotenv::createImmutable(__DIR__ . '/../'))->safeLoad();
+
+$projectRoot = dirname(__DIR__);
+
+$boolean = static function (mixed $value): bool {
+    if (in_array($value, ['true', 1, '1', true, 'yes'], true)) {
+        return true;
+    }
+
+    return false;
+};
+
+$normalizeDoctrineDriver = static function (?string $driver): string {
+    if ($driver === null || $driver === '') {
+        return 'pdo_mysql';
+    }
+
+    $map = [
+        'mariadb' => 'pdo_mysql',
+        'mysql' => 'pdo_mysql',
+        'pdo_mariadb' => 'pdo_mysql',
+    ];
+
+    $normalized = strtolower($driver);
+
+    return $map[$normalized] ?? $normalized;
+};
+
+$normalizeServerVersion = static function (?string $version): ?string {
+    if ($version === null) {
+        return null;
+    }
+
+    $version = trim($version);
+
+    if ($version === '') {
+        return null;
+    }
+
+    if (preg_match('/^(?P<prefix>.*?)(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?(?P<suffix>.*)$/', $version, $matches) === 1) {
+        $patch = ($matches['patch'] ?? '') !== '' ? $matches['patch'] : '0';
+
+        return sprintf(
+            '%s%s.%s.%s%s',
+            $matches['prefix'],
+            $matches['major'],
+            $matches['minor'],
+            $patch,
+            $matches['suffix']
+        );
+    }
+
+    return $version;
+};
+
+$normalizePublicPrefix = static function (?string $prefix): string {
+    if ($prefix === null) {
+        return '/assets/react/';
+    }
+
+    $normalized = trim(str_replace('\\', '/', $prefix));
+
+    if ($normalized === '') {
+        return '/assets/react/';
+    }
+
+    return rtrim($normalized, '/') . '/';
+};
+
+$appEnv = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'prod';
+$environment = new AppEnvironment($appEnv);
+
+$appSnakeName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME'] ?? 'slim_access_control'));
+
+$resolveBuildPath = static function (string $path) use ($projectRoot): string {
+    if ($path === '') {
+        return $projectRoot;
+    }
+
+    if (preg_match('#^(?:[a-zA-Z]:[\\/]|\\\\|/)#', $path) === 1) {
+        return $path;
+    }
+
+    return rtrim($projectRoot, '/\\') . '/' . ltrim(str_replace('\\', '/', $path), '/');
+};
+
+$reactBuildPath = $resolveBuildPath($_ENV['REACT_ASSET_BUILD_PATH'] ?? 'public/assets/react');
+$reactPublicPrefix = $normalizePublicPrefix($_ENV['REACT_ASSET_PUBLIC_PREFIX'] ?? '/assets/react/');
+
+error_reporting(E_ALL);
+ini_set('display_errors', $boolean($_ENV['APP_DEBUG'] ?? 0));
+
+return [
+    'session' => ['name' => 'webapp'],
+    'public' => __DIR__ . '/../public',
+    'error' => [
+        'display_error_details' => $boolean($_ENV['APP_DEBUG'] ?? 0),
+        'log_errors' => true,
+        'log_error_details' => true,
+        'log_file' => 'error.log',
+    ],
+    'logger' => [
+        'name' => 'app',
+        'path' => __DIR__ . '/../logs',
+        'filename' => 'app.log',
+        'level' => Level::Debug,
+        'file_permission' => 0775,
+    ],
+    'templates' => [
+        'path' => __DIR__ . '/../templates',
+        'extension' => 'php',
+    ],
+    'doctrine' => [
+        'dev_mode' => $environment->isDevelopment(),
+        'cache_dir' => __DIR__ . '/tmp/var/doctrine',
+        'metadata_dirs' => [
+            __DIR__ . '/../src/Domain/Auth',
+            __DIR__ . '/../src/Domain/User',
+            __DIR__ . '/../src/Domain/Role',
+            __DIR__ . '/../src/Domain/Permission',
+            __DIR__ . '/../src/Domain/Category',
+            __DIR__ . '/../src/Domain/Shared',
+            __DIR__ . '/../src/Domain/Ad',
+        ],
+        'connection' => [
+            'driver' => $normalizeDoctrineDriver($_ENV['DB_DRIVER'] ?? null),
+            'host' => $_ENV['DB_HOST'] ?? 'localhost',
+            'port' => $_ENV['DB_PORT'] ?? 3306,
+            'dbname' => $environment->isTest()
+                ? ($_ENV['TEST_DB_NAME'] ?? 'slim_access_test')
+                : ($_ENV['DB_NAME'] ?? 'slim_access'),
+            'user' => $_ENV['DB_USER'] ?? 'root',
+            'password' => $_ENV['DB_PASS'] ?? '',
+            'charset' => $_ENV['DB_CHARSET'] ?? 'utf8mb4',
+            'serverVersion' => $_ENV['DB_VERSION'] ?? '10.5',
+        ],
+        'auto_generate_schema' => $boolean($_ENV['DB_AUTO_SYNC'] ?? !$environment->isProduction()),
+    ],
+    'uploads' => [
+        'ads' => [
+            'path' => __DIR__ . '/../public/uploads/ads',
+            'public_prefix' => '/uploads/ads/',
+        ],
+    ],
+    'localization' => [
+        'default_locale' => 'en',
+        'supported_locales' => [
+            'en' => 'English',
+            'bg' => 'Български',
+        ],
+        'paths' => [
+            'en' => __DIR__ . '/../translations/en.json',
+            'bg' => __DIR__ . '/../translations/bg.json',
+        ],
+        'route_paths' => [],
+    ],
+    'rbac' => [
+        'roles' => [
+            'ROLE_USER' => [
+                'permissions' => [
+                    'profile.view',
+                ],
+            ],
+            'ROLE_API' => [
+                'permissions' => [
+                    'api.access',
+                    'auth.refresh',
+                ],
+            ],
+            'ROLE_ADMIN' => [
+                'children' => ['ROLE_USER'],
+                'permissions' => [
+                    'admin.access',
+                    'admin.users.manage',
+                    'admin.roles.manage',
+                    'admin.permissions.manage',
+                    'admin.permissions.publish',
+                    'admin.audit.view',
+                ],
+            ],
+        ],
+    ],
+    'react' => [
+        'entry' => 'src/main.jsx',
+        'build_path' => $reactBuildPath,
+        'manifest_path' => rtrim($reactBuildPath, '/\\') . '/manifest.json',
+        'public_prefix' => $reactPublicPrefix,
+        'dev_server' => rtrim((string) ($_ENV['REACT_DEV_SERVER'] ?? ''), '/'),
+    ],
+    'commands' => [],
+];

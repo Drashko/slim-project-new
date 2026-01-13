@@ -1,0 +1,7 @@
+run unit tests: composer test
+
+Doctrine commands:
+php cli-config.php orm:schema:create
+
+Load demo fixtures:
+php scripts/load-fixtures.php

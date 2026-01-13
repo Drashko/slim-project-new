@@ -1,0 +1,9 @@
+/vendor/
+/.envp
+logs/
+tmp/
+frontend/node_modules/
+frontend/dist/
+public/assets/react/
+.idea/
+.DS_Store
