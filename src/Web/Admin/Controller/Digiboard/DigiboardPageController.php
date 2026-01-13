@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Web\Admin\Controller\Digiboard;
 
 use App\Integration\Auth\AdminAuthenticator;
-use App\Integration\View\TemplateRenderer;
+use App\Web\Shared\LocalizedRouteTrait;
+use League\Plates\Engine;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 final readonly class DigiboardPageController
 {
+    use LocalizedRouteTrait;
+
     private const DEFAULT_PAGE = 'crm-dashboard';
 
     public function __construct(
-        private TemplateRenderer $templates,
+        private Engine $engine,
         private AdminAuthenticator $authenticator,
     ) {
     }
@@ -37,17 +40,40 @@ final readonly class DigiboardPageController
         // Only allow existing templates
         $template = 'admin::digiboard/' . $page;
         $templatePath = __DIR__ . '/../../../../../templates/admin/digiboard/' . $page . '.php';
+        $baseHref = $this->localizedPath($request, 'admin') . '/';
+
         if (!is_file($templatePath)) {
-            // 404
-            $response = $response->withStatus(404);
-            return $this->templates->render($response, 'admin::digiboard/error-404', [
+            $output = $this->engine->render('admin::digiboard/error-404', [
                 'user' => $user,
                 'requested_page' => $page,
             ]);
+
+            return $this->writeResponse($response->withStatus(404), $this->injectBaseHref($output, $baseHref));
         }
 
-        return $this->templates->render($response, $template, [
+        $output = $this->engine->render($template, [
             'user' => $user,
         ]);
+
+        return $this->writeResponse($response, $this->injectBaseHref($output, $baseHref));
+    }
+
+    private function writeResponse(ResponseInterface $response, string $output): ResponseInterface
+    {
+        $response->getBody()->write($output);
+
+        return $response->withHeader('Content-Type', 'text/html; charset=utf-8');
+    }
+
+    private function injectBaseHref(string $html, string $baseHref): string
+    {
+        if (stripos($html, '<base') !== false) {
+            return $html;
+        }
+
+        $baseTag = '<base href="' . htmlspecialchars($baseHref, ENT_QUOTES, 'UTF-8') . '">';
+        $updated = preg_replace('/<head(\s[^>]*)?>/i', '$0' . "\n    " . $baseTag, $html, 1);
+
+        return $updated ?? $html;
     }
 }
