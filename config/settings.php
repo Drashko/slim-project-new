@@ -94,6 +94,8 @@ $resolveBuildPath = static function (string $path) use ($projectRoot): string {
 
 $reactBuildPath = $resolveBuildPath($_ENV['REACT_ASSET_BUILD_PATH'] ?? 'public/assets/react');
 $reactPublicPrefix = $normalizePublicPrefix($_ENV['REACT_ASSET_PUBLIC_PREFIX'] ?? '/assets/react/');
+$adminBuildPath = $resolveBuildPath($_ENV['ADMIN_ASSET_BUILD_PATH'] ?? 'public/assets/admin');
+$adminPublicPrefix = $normalizePublicPrefix($_ENV['ADMIN_ASSET_PUBLIC_PREFIX'] ?? '/assets/admin/');
 $defaultCacheDir = $resolveBuildPath($_ENV['APP_CACHE_DIR'] ?? 'tmp/var');
 $cacheEnabled = !$environment->isDevelopment();
 
@@ -220,6 +222,13 @@ return [
         'manifest_path' => rtrim($reactBuildPath, '/\\') . '/manifest.json',
         'public_prefix' => $reactPublicPrefix,
         'dev_server' => rtrim((string) ($_ENV['REACT_DEV_SERVER'] ?? ''), '/'),
+    ],
+    'admin_assets' => [
+        'entry' => 'main.js',
+        'build_path' => $adminBuildPath,
+        'manifest_path' => rtrim($adminBuildPath, '/\\') . '/manifest.json',
+        'public_prefix' => $adminPublicPrefix,
+        'dev_server' => rtrim((string) ($_ENV['ADMIN_DEV_SERVER'] ?? ''), '/'),
     ],
     'commands' => [],
 ];
