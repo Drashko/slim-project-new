@@ -7,6 +7,7 @@
     "predev": "node scripts/ensure-frontend-install.js",
     "dev": "npm --prefix frontend run dev",
     "lint": "npm --prefix frontend run lint",
-    "frontend:install": "npm --prefix frontend install"
+    "frontend:install": "npm --prefix frontend install",
+    "build:admin-assets": "node scripts/build-admin-assets.js"
   }
 }

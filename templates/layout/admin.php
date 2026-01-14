@@ -98,15 +98,9 @@ $primaryLinks = $isAdminAuthenticated
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $this->e($title) ?></title>
 
-    <!-- Keep Digiboard vendor stack aligned with the demo to avoid spacing/color drift -->
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/all.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/jquery-ui.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/OverlayScrollbars.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/daterangepicker.css">
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/select2.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/css/style.css">
-    <link rel="stylesheet" id="primaryColor" href="/digiboard/assets/css/blue-color.css">
+    <!-- Bundled/minified admin assets -->
+    <link rel="stylesheet" href="/digiboard/assets/vendor/css/admin-vendor.min.css">
+    <link rel="stylesheet" href="/digiboard/assets/css/admin-core.min.css">
     <?= $this->section('styles') ?>
 </head>
 <body class="<?= $this->e($bodyClass) ?>">
@@ -259,14 +253,8 @@ $primaryLinks = $isAdminAuthenticated
     </div>
 <?php endif; ?>
 
-<script src="/digiboard/assets/vendor/js/jquery-3.6.0.min.js"></script>
-<script src="/digiboard/assets/vendor/js/jquery-ui.min.js"></script>
-<script src="/digiboard/assets/vendor/js/OverlayScrollbars.min.js"></script>
-<script src="/digiboard/assets/vendor/js/moment.min.js"></script>
-<script src="/digiboard/assets/vendor/js/daterangepicker.js"></script>
-<script src="/digiboard/assets/vendor/js/select2.min.js"></script>
-<script src="/digiboard/assets/vendor/js/bootstrap.bundle.min.js"></script>
-<script src="/digiboard/assets/js/main.js"></script>
+<script src="/digiboard/assets/vendor/js/admin-vendor.min.js" defer></script>
+<script src="/digiboard/assets/js/admin-core.min.js" defer></script>
 
 <?= $this->section('scripts') ?>
 </body>
