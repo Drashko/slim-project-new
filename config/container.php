@@ -465,10 +465,6 @@ return [
             return $newPath;
         });
 
-        $engine->registerFunction('vite_assets', static function (): string {
-            return '';
-        });
-
         $settings = (array) $container->get('settings');
         $reactSettings = (array) ($settings['react'] ?? []);
         $reactEntry = (string) ($reactSettings['entry'] ?? 'src/main.jsx');

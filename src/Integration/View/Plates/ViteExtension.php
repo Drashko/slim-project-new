@@ -20,12 +20,6 @@ final class ViteExtension implements ExtensionInterface
 
     public function register(Engine $engine): void
     {
-        try {
-            $engine->registerFunction('vite_assets', static fn(): string => '');
-        } catch (\LogicException) {
-            // Function already registered; ignore so we can override it below.
-        }
-
         $engine->registerFunction('vite_assets', function (string $bundle): string {
             $assets = $this->resolveAssets($bundle);
 
