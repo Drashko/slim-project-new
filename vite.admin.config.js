@@ -6,7 +6,7 @@ export default defineConfig({
   base: '/assets/admin/',
   publicDir: false,
   server: {
-    port: 5174,
+    port: 5175,
     strictPort: true,
   },
   build: {

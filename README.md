@@ -55,7 +55,9 @@ npm run dev:admin
 ```
 
 Make sure your `.env` file points `ADMIN_DEV_SERVER` at the same host/port
-(the default configuration uses <http://localhost:5174>).
+(the default configuration uses <http://localhost:5175>). Keep this distinct
+from the React dev server (for `npm run dev`) so the admin entry point resolves
+correctly.
 
 ## Building the React bundle
 
