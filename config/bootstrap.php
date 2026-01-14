@@ -10,6 +10,26 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $containerBuilder = new ContainerBuilder();
 $containerBuilder->addDefinitions(__DIR__ . '/container.php');
 
+$settings = require __DIR__ . '/settings.php';
+$containerCache = (array) ($settings['container']['cache'] ?? []);
+$containerProxies = (array) ($settings['container']['proxies'] ?? []);
+
+if (!empty($containerCache['enabled']) && !empty($containerCache['path'])) {
+    $cachePath = (string) $containerCache['path'];
+    if (!is_dir($cachePath)) {
+        mkdir($cachePath, 0775, true);
+    }
+    $containerBuilder->enableCompilation($cachePath);
+}
+
+if (!empty($containerProxies['enabled']) && !empty($containerProxies['path'])) {
+    $proxyPath = (string) $containerProxies['path'];
+    if (!is_dir($proxyPath)) {
+        mkdir($proxyPath, 0775, true);
+    }
+    $containerBuilder->writeProxiesToFile(true, $proxyPath);
+}
+
 $container = $containerBuilder->build();
 
 /** @var App $app */

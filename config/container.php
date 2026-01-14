@@ -77,6 +77,16 @@ return [
             (bool) ($settings['dev_mode'] ?? false)
         );
 
+        $cacheSettings = (array) ($settings['cache'] ?? []);
+        if (!empty($cacheSettings['enabled'])) {
+            $namespace = (string) ($cacheSettings['namespace'] ?? 'doctrine');
+            $cacheDir = (string) ($cacheSettings['dir'] ?? '');
+            $cache = new FilesystemAdapter($namespace, 0, $cacheDir !== '' ? $cacheDir : null);
+            $config->setMetadataCache($cache);
+            $config->setQueryCache($cache);
+            $config->setResultCache($cache);
+        }
+
         if (!empty($settings['cache_dir'])) {
             $config->setProxyDir(rtrim((string) $settings['cache_dir'], '/'));
             $config->setAutoGenerateProxyClasses(true);
