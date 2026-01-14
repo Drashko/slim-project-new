@@ -20,6 +20,31 @@ This document explains how the application bootstraps configuration, feeds it in
 
 The returned associative array supplies sub-configurations for `session`, `error`, `logger`, `templates`, `route_cache`, `container`, `doctrine`, `localization`, `rbac`, and `react`. Each section mirrors the needs of its dependent services—for example, the `templates` block sets the Plates base path and file extension, and `rbac` describes role inheritance and permissions.
 
+### Example environment overrides
+
+Use the same pattern as the route and template cache toggles to enable DI and Doctrine caches:
+
+```dotenv
+# Routes + templates
+ROUTE_CACHE_ENABLED=1
+ROUTE_CACHE_PATH=tmp/var/routes.cache.php
+TEMPLATE_CACHE_ENABLED=1
+TEMPLATE_CACHE_DIR=tmp/var/templates
+TEMPLATE_CACHE_TTL=900
+
+# DI container
+DI_CACHE_ENABLED=1
+DI_CACHE_DIR=tmp/var/container
+DI_PROXY_ENABLED=1
+DI_PROXY_DIR=tmp/var/container/proxies
+
+# Doctrine
+DOCTRINE_CACHE_ENABLED=1
+DOCTRINE_CACHE_DIR=tmp/var/doctrine/cache
+DOCTRINE_CACHE_NAMESPACE=slim_access_control
+DOCTRINE_PROXY_DIR=tmp/var/doctrine/proxies
+```
+
 ## Container assembly
 
 `config/container.php` wires services using the `settings` array and registers factories for key integrations:
