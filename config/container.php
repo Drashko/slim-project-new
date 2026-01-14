@@ -41,6 +41,7 @@ use Mezzio\Authorization\Rbac\LaminasRbac as MezzioLaminasRbac;
 use Odan\Session\PhpSession;
 use Odan\Session\SessionInterface;
 use Odan\Session\SessionManagerInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Slim\App;
@@ -48,6 +49,7 @@ use Slim\Factory\AppFactory;
 use Slim\Flash\Messages;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Psr7\Factory\ResponseFactory;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -473,9 +475,26 @@ return [
         return $engine;
     },
 
-    TemplateRenderer::class => static fn(ContainerInterface $container): TemplateRenderer => new TemplateRenderer(
-        $container->get(Engine::class)
-    ),
+    TemplateRenderer::class => static function (ContainerInterface $container): TemplateRenderer {
+        $settings = (array) $container->get('settings');
+        $templateSettings = (array) ($settings['templates'] ?? []);
+        $cacheSettings = (array) ($templateSettings['cache'] ?? []);
+        $cachePool = null;
+
+        if (!empty($cacheSettings['enabled']) && !empty($cacheSettings['path'])) {
+            $cachePath = (string) $cacheSettings['path'];
+            if (!is_dir($cachePath)) {
+                mkdir($cachePath, 0775, true);
+            }
+            $cachePool = new FilesystemAdapter('templates', 0, $cachePath);
+        }
+
+        return new TemplateRenderer(
+            $container->get(Engine::class),
+            $cachePool instanceof CacheItemPoolInterface ? $cachePool : null,
+            $cacheSettings
+        );
+    },
 
     App::class => static function (ContainerInterface $container): App {
         AppFactory::setContainer($container);
