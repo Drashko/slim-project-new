@@ -94,6 +94,8 @@ $resolveBuildPath = static function (string $path) use ($projectRoot): string {
 
 $reactBuildPath = $resolveBuildPath($_ENV['REACT_ASSET_BUILD_PATH'] ?? 'public/assets/react');
 $reactPublicPrefix = $normalizePublicPrefix($_ENV['REACT_ASSET_PUBLIC_PREFIX'] ?? '/assets/react/');
+$defaultCacheDir = $resolveBuildPath($_ENV['APP_CACHE_DIR'] ?? 'tmp/var');
+$cacheEnabled = !$environment->isDevelopment();
 
 error_reporting(E_ALL);
 ini_set('display_errors', $boolean($_ENV['APP_DEBUG'] ?? 0));
@@ -117,6 +119,15 @@ return [
     'templates' => [
         'path' => __DIR__ . '/../templates',
         'extension' => 'php',
+        'cache' => [
+            'enabled' => $boolean($_ENV['TEMPLATE_CACHE_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false')),
+            'path' => $resolveBuildPath($_ENV['TEMPLATE_CACHE_DIR'] ?? ($defaultCacheDir . '/templates')),
+            'ttl' => (int) ($_ENV['TEMPLATE_CACHE_TTL'] ?? 900),
+        ],
+    ],
+    'route_cache' => [
+        'enabled' => $boolean($_ENV['ROUTE_CACHE_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false')),
+        'path' => $resolveBuildPath($_ENV['ROUTE_CACHE_PATH'] ?? ($defaultCacheDir . '/routes.cache.php')),
     ],
     'doctrine' => [
         'dev_mode' => $environment->isDevelopment(),
