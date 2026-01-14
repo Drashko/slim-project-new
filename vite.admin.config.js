@@ -5,6 +5,10 @@ export default defineConfig({
   root: path.resolve(__dirname, 'resources/admin'),
   base: '/assets/admin/',
   publicDir: false,
+  server: {
+    port: 5174,
+    strictPort: true,
+  },
   build: {
     manifest: true,
     outDir: path.resolve(__dirname, 'public/assets/admin'),
