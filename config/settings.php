@@ -78,7 +78,7 @@ $normalizePublicPrefix = static function (?string $prefix): string {
 $appEnv = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'prod';
 $environment = new AppEnvironment($appEnv);
 
-$appSnakeName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME'] ?? 'slim_access_control'));
+$appSnakeName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME'] ?? 'slim_app'));
 
 $resolveBuildPath = static function (string $path) use ($projectRoot): string {
     if ($path === '') {
@@ -162,7 +162,7 @@ return [
             'port' => $_ENV['DB_PORT'] ?? 3306,
             'dbname' => $environment->isTest()
                 ? ($_ENV['TEST_DB_NAME'] ?? 'slim_access_test')
-                : ($_ENV['DB_NAME'] ?? 'slim_access'),
+                : ($_ENV['DB_NAME'] ?? 'slim_app_test'),
             'user' => $_ENV['DB_USER'] ?? 'root',
             'password' => $_ENV['DB_PASS'] ?? '',
             'charset' => $_ENV['DB_CHARSET'] ?? 'utf8mb4',

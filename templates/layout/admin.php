@@ -119,12 +119,12 @@ $primaryLinks = $isAdminAuthenticated
                 <div class="main-logo d-lg-block d-none">
                     <div class="logo-big">
                         <a href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
-                            <img src="/digiboard/assets/images/logo-black.png" alt="Logo">
+                            <h3>Slim Market</h3>
                         </a>
                     </div>
                     <div class="logo-small">
                         <a href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
-                            <img src="/digiboard/assets/images/logo-small.png" alt="Logo">
+                            <h3>Slim Market</h3>
                         </a>
                     </div>
                 </div>
@@ -135,7 +135,7 @@ $primaryLinks = $isAdminAuthenticated
             <div class="col-4 d-lg-none">
                 <div class="mobile-logo">
                     <a href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
-                        <img src="/digiboard/assets/images/logo-black.png" alt="Logo">
+                        <h3>Slim Market</h3>
                     </a>
                 </div>
             </div>

@@ -174,7 +174,7 @@
     "admin.users.badge": "Slim Market",
     "admin.users.heading": "User management",
     "admin.users.description": "Review access, invite new team members and keep audit trails tidy.",
-    "admin.users.actions.invite": "Invite teammate",
+    "admin.users.actions.invite": "Add user",
     "admin.users.actions.export": "Export CSV",
     "admin.users.filters.title": "Search & filters",
     "admin.users.filters.search": "Search by name or email",
