@@ -8,7 +8,7 @@ export default defineConfig({
   build: {
     manifest: true,
     outDir: path.resolve(__dirname, 'public/assets/admin'),
-    emptyOutDir: true,
+    emptyOutDir: false,
     rollupOptions: {
       input: {
         admin: path.resolve(__dirname, 'resources/admin/main.js'),
