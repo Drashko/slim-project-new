@@ -224,7 +224,7 @@ return [
         'dev_server' => rtrim((string) ($_ENV['REACT_DEV_SERVER'] ?? ''), '/'),
     ],
     'admin_assets' => [
-        'entry' => 'resources/admin/main.js',
+        'entry' => 'main.js',
         'build_path' => $adminBuildPath,
         'manifest_path' => rtrim($adminBuildPath, '/\\') . '/manifest.json',
         'public_prefix' => $adminPublicPrefix,

@@ -482,7 +482,7 @@ return [
         $adminSettings = (array) ($settings['admin_assets'] ?? []);
         $engine->loadExtension(new ViteExtension([
             'admin' => [
-                'entry' => (string) ($adminSettings['entry'] ?? 'resources/admin/main.js'),
+                'entry' => (string) ($adminSettings['entry'] ?? 'main.js'),
                 'manifest_path' => (string) ($adminSettings['manifest_path'] ?? ''),
                 'public_prefix' => (string) ($adminSettings['public_prefix'] ?? '/assets/admin/'),
                 'dev_server' => trim((string) ($adminSettings['dev_server'] ?? '')),
