@@ -98,15 +98,8 @@ $primaryLinks = $isAdminAuthenticated
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $this->e($title) ?></title>
 
-    <!-- Keep Digiboard vendor stack aligned with the demo to avoid spacing/color drift -->
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/all.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/jquery-ui.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/OverlayScrollbars.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/daterangepicker.css">
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/select2.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/css/style.css">
-    <link rel="stylesheet" id="primaryColor" href="/digiboard/assets/css/blue-color.css">
+    <!-- Admin assets (Vite) -->
+    <?= $this->vite_assets('admin') ?>
     <?= $this->section('styles') ?>
 </head>
 <body class="<?= $this->e($bodyClass) ?>">
@@ -258,15 +251,6 @@ $primaryLinks = $isAdminAuthenticated
         <?= $this->section('content') ?>
     </div>
 <?php endif; ?>
-
-<script src="/digiboard/assets/vendor/js/jquery-3.6.0.min.js"></script>
-<script src="/digiboard/assets/vendor/js/jquery-ui.min.js"></script>
-<script src="/digiboard/assets/vendor/js/OverlayScrollbars.min.js"></script>
-<script src="/digiboard/assets/vendor/js/moment.min.js"></script>
-<script src="/digiboard/assets/vendor/js/daterangepicker.js"></script>
-<script src="/digiboard/assets/vendor/js/select2.min.js"></script>
-<script src="/digiboard/assets/vendor/js/bootstrap.bundle.min.js"></script>
-<script src="/digiboard/assets/js/main.js"></script>
 
 <?= $this->section('scripts') ?>
 </body>

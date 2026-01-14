@@ -27,6 +27,7 @@ use App\Integration\Repository\Doctrine\UserRepository;
 use App\Integration\Routing\PathLocalizer;
 use App\Integration\View\Plates\RbacExtension;
 use App\Integration\View\Plates\ReactExtension;
+use App\Integration\View\Plates\ViteExtension;
 use App\Integration\View\TemplateRenderer;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
@@ -464,7 +465,8 @@ return [
             return $newPath;
         });
 
-        $reactSettings = (array) ($container->get('settings')['react'] ?? []);
+        $settings = (array) $container->get('settings');
+        $reactSettings = (array) ($settings['react'] ?? []);
         $reactEntry = (string) ($reactSettings['entry'] ?? 'src/main.jsx');
         $reactManifest = (string) ($reactSettings['manifest_path'] ?? '');
         $reactPublicPrefix = (string) ($reactSettings['public_prefix'] ?? '/assets/react/');
@@ -476,6 +478,16 @@ return [
             $reactPublicPrefix,
             $reactDevServer
         ));
+
+        $adminSettings = (array) ($settings['admin_assets'] ?? []);
+        $engine->loadExtension(new ViteExtension([
+            'admin' => [
+                'entry' => (string) ($adminSettings['entry'] ?? 'resources/admin/main.js'),
+                'manifest_path' => (string) ($adminSettings['manifest_path'] ?? ''),
+                'public_prefix' => (string) ($adminSettings['public_prefix'] ?? '/assets/admin/'),
+                'dev_server' => trim((string) ($adminSettings['dev_server'] ?? '')),
+            ],
+        ]));
 
         $engine->loadExtension(new RbacExtension(
             $container->get(Policy::class),
