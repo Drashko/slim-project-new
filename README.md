@@ -45,6 +45,20 @@ php -S 0.0.0.0:8080 -t public public/index.php
 You can then open <http://localhost:8080> in your browser for the public home
 page, or <http://localhost:8080/admin> for the admin dashboard.
 
+## Running the admin Vite dev server
+
+The admin dashboard styles/scripts are bundled separately from the React
+workspace. To serve them in development, start the dedicated Vite server:
+
+```bash
+npm run dev:admin
+```
+
+Make sure your `.env` file points `ADMIN_DEV_SERVER` at the same host/port
+(the default configuration uses <http://localhost:5175>). Keep this distinct
+from the React dev server (for `npm run dev`) so the admin entry point resolves
+correctly.
+
 ## Building the React bundle
 
 The repository still ships with the Vite-powered React scaffolding used to
