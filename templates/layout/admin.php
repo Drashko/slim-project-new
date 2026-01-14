@@ -98,9 +98,8 @@ $primaryLinks = $isAdminAuthenticated
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $this->e($title) ?></title>
 
-    <!-- Bundled/minified admin assets -->
-    <link rel="stylesheet" href="/digiboard/assets/vendor/css/admin-vendor.min.css">
-    <link rel="stylesheet" href="/digiboard/assets/css/admin-core.min.css">
+    <!-- Admin assets (Vite) -->
+    <?= $this->vite_assets('admin') ?>
     <?= $this->section('styles') ?>
 </head>
 <body class="<?= $this->e($bodyClass) ?>">
@@ -252,9 +251,6 @@ $primaryLinks = $isAdminAuthenticated
         <?= $this->section('content') ?>
     </div>
 <?php endif; ?>
-
-<script src="/digiboard/assets/vendor/js/admin-vendor.min.js" defer></script>
-<script src="/digiboard/assets/js/admin-core.min.js" defer></script>
 
 <?= $this->section('scripts') ?>
 </body>
