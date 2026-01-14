@@ -35,7 +35,7 @@ window.OverlayScrollbars = OverlayScrollbars;
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'jquery-ui-dist/jquery-ui.min.css';
-import 'overlayscrollbars/styles/overlayscrollbars.min.css';
+import 'overlayscrollbars/styles/overlayscrollbars.css';
 import 'daterangepicker/daterangepicker.css';
 import 'select2/dist/css/select2.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
