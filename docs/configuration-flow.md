@@ -16,8 +16,9 @@ This document explains how the application bootstraps configuration, feeds it in
 - **Database defaults**: Doctrine settings normalize the driver name (e.g., `mariadb` → `pdo_mysql`) and sanitize server versions before constructing the connection options.
 - **React asset paths**: `REACT_ASSET_BUILD_PATH` is resolved to an absolute path, and `REACT_ASSET_PUBLIC_PREFIX` is normalized to a trailing-slash URL segment for the Plates helper functions.
 - **Localization defaults**: A default locale (`en`) and supported locales map load translation files from `translations/*.json`, while leaving room for route path localization.
+- **Cache paths**: Container, route, template, and Doctrine cache directories are resolved to absolute paths so they can be created early in the bootstrap process.
 
-The returned associative array supplies sub-configurations for `session`, `error`, `logger`, `templates`, `doctrine`, `localization`, `rbac`, and `react`. Each section mirrors the needs of its dependent services—for example, the `templates` block sets the Plates base path and file extension, and `rbac` describes role inheritance and permissions.
+The returned associative array supplies sub-configurations for `session`, `error`, `logger`, `templates`, `route_cache`, `container`, `doctrine`, `localization`, `rbac`, and `react`. Each section mirrors the needs of its dependent services—for example, the `templates` block sets the Plates base path and file extension, and `rbac` describes role inheritance and permissions.
 
 ## Container assembly
 
@@ -31,5 +32,7 @@ The returned associative array supplies sub-configurations for `session`, `error
 - **RBAC policy**: Hydrates a Laminas RBAC graph from the `rbac.roles` map, normalizing role names and permissions before exposing them through a `Policy` service.
 - **View engine**: Configures the Plates `Engine` with template folders, shared data (flash messages), localization helpers, React asset helpers, and RBAC template extensions.
 - **Slim app and middleware**: Provides the Slim `App`, `ResponseFactory`, and `ErrorMiddleware` using the settings that control error display and logging.
+- **Doctrine caches**: When enabled, the container wires Symfony cache pools into Doctrine's metadata, query, and result caches, while keeping proxy classes in the configured proxy cache directory.
+- **DI container caching**: `config/bootstrap.php` preloads the settings file to enable PHP-DI compilation and proxy caching before the container is built.
 
 Because each factory pulls from the centralized `settings` entry, updating environment variables or the settings file flows automatically into the container without additional wiring.

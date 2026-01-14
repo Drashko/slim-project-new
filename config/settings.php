@@ -129,9 +129,24 @@ return [
         'enabled' => $boolean($_ENV['ROUTE_CACHE_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false')),
         'path' => $resolveBuildPath($_ENV['ROUTE_CACHE_PATH'] ?? ($defaultCacheDir . '/routes.cache.php')),
     ],
+    'container' => [
+        'cache' => [
+            'enabled' => $boolean($_ENV['DI_CACHE_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false')),
+            'path' => $resolveBuildPath($_ENV['DI_CACHE_DIR'] ?? ($defaultCacheDir . '/container')),
+        ],
+        'proxies' => [
+            'enabled' => $boolean($_ENV['DI_PROXY_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false')),
+            'path' => $resolveBuildPath($_ENV['DI_PROXY_DIR'] ?? ($defaultCacheDir . '/container/proxies')),
+        ],
+    ],
     'doctrine' => [
         'dev_mode' => $environment->isDevelopment(),
-        'cache_dir' => __DIR__ . '/tmp/var/doctrine',
+        'cache_dir' => $resolveBuildPath($_ENV['DOCTRINE_PROXY_DIR'] ?? ($defaultCacheDir . '/doctrine/proxies')),
+        'cache' => [
+            'enabled' => $boolean($_ENV['DOCTRINE_CACHE_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false')),
+            'dir' => $resolveBuildPath($_ENV['DOCTRINE_CACHE_DIR'] ?? ($defaultCacheDir . '/doctrine/cache')),
+            'namespace' => $_ENV['DOCTRINE_CACHE_NAMESPACE'] ?? $appSnakeName,
+        ],
         'metadata_dirs' => [
             __DIR__ . '/../src/Domain/Auth',
             __DIR__ . '/../src/Domain/User',
