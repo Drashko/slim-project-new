@@ -182,9 +182,26 @@ final class ReactExtension implements ExtensionInterface
         }
 
         $manifest = json_decode((string) file_get_contents($manifestPath), true);
-        $entry = is_array($manifest) && isset($manifest[$config['entry']]) && is_array($manifest[$config['entry']])
-            ? $manifest[$config['entry']]
-            : null;
+        $entry = null;
+
+        if (is_array($manifest)) {
+            if (isset($manifest[$config['entry']]) && is_array($manifest[$config['entry']])) {
+                $entry = $manifest[$config['entry']];
+            } else {
+                $normalizedEntry = ltrim(str_replace('\\', '/', $config['entry']), '/');
+                foreach ($manifest as $key => $value) {
+                    if (!is_array($value)) {
+                        continue;
+                    }
+
+                    $normalizedKey = ltrim(str_replace('\\', '/', (string) $key), '/');
+                    if ($normalizedKey === $normalizedEntry || str_ends_with($normalizedKey, '/' . $normalizedEntry)) {
+                        $entry = $value;
+                        break;
+                    }
+                }
+            }
+        }
 
         if ($entry === null) {
             return [
