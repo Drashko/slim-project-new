@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite';
 import path from 'node:path';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root: path.resolve(__dirname, 'resources/public'),
-  base: '/assets/public/',
+  base: command === 'serve' ? '/' : '/assets/public/',
   publicDir: false,
   server: {
     port: 5176,
@@ -19,4 +19,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
