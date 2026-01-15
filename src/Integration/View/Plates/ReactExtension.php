@@ -158,7 +158,10 @@ final class ReactExtension implements ExtensionInterface
         $devServer = trim($config['dev_server']);
         if ($devServer !== '') {
             $devBase = rtrim($devServer, '/');
-            $devPrefix = $normalizePrefix($config['public_prefix']);
+            $devPath = (string) (parse_url($devBase, PHP_URL_PATH) ?? '');
+            $devPrefix = ($devPath === '' || $devPath === '/')
+                ? $normalizePrefix($config['public_prefix'])
+                : '/';
             $entry = ltrim($config['entry'], '/');
 
             return [
