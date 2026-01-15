@@ -23,6 +23,7 @@ $primaryLinks = [
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-alpha3/dist/css/adminlte.min.css" integrity="sha384-NrMdBkOMZolWA4cTnC0V4P/anRf1Yy9sMwhW3iHjZylWus6YtRHAYN3dBkNDTDpO" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="/assets/front.css">
+    <?= $this->vite_assets('public') ?>
     <?= $this->section('head') ?>
 </head>
 <body class="<?= $this->e($bodyClass) ?>">

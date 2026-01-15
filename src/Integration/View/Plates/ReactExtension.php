@@ -9,12 +9,39 @@ use League\Plates\Extension\ExtensionInterface;
 
 final class ReactExtension implements ExtensionInterface
 {
+    /** @var array<string,array{entry:string,manifest_path:string,public_prefix:string,dev_server:string}> */
+    private array $bundles;
+    private string $defaultBundle;
+
+    /**
+     * @param array<string,array{entry:string,manifest_path:string,public_prefix:string,dev_server:string}>|string $bundles
+     */
     public function __construct(
-        private readonly string $entry = 'src/main.jsx',
-        private readonly string $manifestPath = '',
-        private readonly string $publicPrefix = '/assets/react/',
-        private readonly string $devServer = ''
+        array|string $bundles,
+        ?string $manifestPath = null,
+        ?string $publicPrefix = null,
+        ?string $devServer = null,
+        string $defaultBundle = 'public'
     ) {
+        if (is_array($bundles)) {
+            if ($manifestPath !== null && $publicPrefix === null && $devServer === null) {
+                $defaultBundle = $manifestPath;
+            }
+
+            $this->bundles = $bundles;
+            $this->defaultBundle = $defaultBundle;
+            return;
+        }
+
+        $this->bundles = [
+            'public' => [
+                'entry' => $bundles,
+                'manifest_path' => $manifestPath ?? '',
+                'public_prefix' => $publicPrefix ?? '/assets/react/',
+                'dev_server' => $devServer ?? '',
+            ],
+        ];
+        $this->defaultBundle = 'public';
     }
 
     public function register(Engine $engine): void
@@ -29,6 +56,9 @@ final class ReactExtension implements ExtensionInterface
                 : 'App';
             $className = isset($options['class']) && is_string($options['class']) ? trim($options['class']) : '';
             $attributes = isset($options['attributes']) && is_array($options['attributes']) ? $options['attributes'] : [];
+            $bundle = isset($options['bundle']) && is_string($options['bundle']) && $options['bundle'] !== ''
+                ? $options['bundle']
+                : $this->defaultBundle;
 
             $propsJson = json_encode($props, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
             if ($propsJson === false) {
@@ -70,11 +100,11 @@ final class ReactExtension implements ExtensionInterface
                 $dataAttributes .= sprintf(' data-react-props="%s"', $safeProps);
             }
 
-            static $assetsInjected = false;
+            static $assetsInjected = [];
             $assetMarkup = '';
-            if (!$assetsInjected) {
-                $assetsInjected = true;
-                $assets = $this->resolveAssets();
+            if (empty($assetsInjected[$bundle])) {
+                $assetsInjected[$bundle] = true;
+                $assets = $this->resolveAssets($bundle);
 
                 if (!empty($assets['available'])) {
                     foreach ((array) ($assets['styles'] ?? []) as $stylesheet) {
@@ -96,8 +126,19 @@ final class ReactExtension implements ExtensionInterface
     /**
      * @return array{mode:string,available:bool,scripts:array<int,string>,styles:array<int,string>}
      */
-    private function resolveAssets(): array
+    private function resolveAssets(string $bundle): array
     {
+        if (!isset($this->bundles[$bundle])) {
+            return [
+                'mode' => 'missing',
+                'available' => false,
+                'scripts' => [],
+                'styles' => [],
+            ];
+        }
+
+        $config = $this->bundles[$bundle];
+
         $normalizePrefix = static function (string $prefix): string {
             $clean = str_replace('\\', '/', trim($prefix));
             if ($clean === '') {
@@ -107,28 +148,30 @@ final class ReactExtension implements ExtensionInterface
             return rtrim($clean, '/') . '/';
         };
 
-        $buildAssetUrl = function (string $path) use ($normalizePrefix): string {
-            $normalizedPrefix = $normalizePrefix($this->publicPrefix);
+        $buildAssetUrl = function (string $path) use ($normalizePrefix, $config): string {
+            $normalizedPrefix = $normalizePrefix($config['public_prefix']);
             $normalizedPath = ltrim(str_replace('\\', '/', $path), '/');
 
             return $normalizedPrefix . $normalizedPath;
         };
 
-        if ($this->devServer !== '') {
-            $devBase = rtrim($this->devServer, '/');
+        $devServer = trim($config['dev_server']);
+        if ($devServer !== '') {
+            $devBase = rtrim($devServer, '/');
 
             return [
                 'mode' => 'dev',
                 'available' => true,
                 'scripts' => [
                     $devBase . '/@vite/client',
-                    $devBase . '/' . ltrim($this->entry, '/'),
+                    $devBase . '/' . ltrim($config['entry'], '/'),
                 ],
                 'styles' => [],
             ];
         }
 
-        if ($this->manifestPath === '' || !is_file($this->manifestPath) || !is_readable($this->manifestPath)) {
+        $manifestPath = $config['manifest_path'];
+        if ($manifestPath === '' || !is_file($manifestPath) || !is_readable($manifestPath)) {
             return [
                 'mode' => 'manifest-missing',
                 'available' => false,
@@ -137,9 +180,9 @@ final class ReactExtension implements ExtensionInterface
             ];
         }
 
-        $manifest = json_decode((string) file_get_contents($this->manifestPath), true);
-        $entry = is_array($manifest) && isset($manifest[$this->entry]) && is_array($manifest[$this->entry])
-            ? $manifest[$this->entry]
+        $manifest = json_decode((string) file_get_contents($manifestPath), true);
+        $entry = is_array($manifest) && isset($manifest[$config['entry']]) && is_array($manifest[$config['entry']])
+            ? $manifest[$config['entry']]
             : null;
 
         if ($entry === null) {

@@ -9,10 +9,13 @@
     "lint": "npm --prefix frontend run lint",
     "frontend:install": "npm --prefix frontend install",
     "dev:admin": "vite --config vite.admin.config.js",
-    "build:admin": "vite build --config vite.admin.config.js"
+    "build:admin": "vite build --config vite.admin.config.js",
+    "dev:public": "vite --config vite.public.config.js",
+    "build:public": "vite build --config vite.public.config.js"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^6.5.2",
+    "@vitejs/plugin-react": "^4.3.1",
     "bootstrap": "^5.3.3",
     "daterangepicker": "^3.1.0",
     "jquery": "^3.7.1",
@@ -21,5 +24,9 @@
     "overlayscrollbars": "^2.6.0",
     "select2": "^4.1.0-rc.0",
     "vite": "^5.4.8"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
