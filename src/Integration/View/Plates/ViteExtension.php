@@ -75,18 +75,14 @@ final class ViteExtension implements ExtensionInterface
         $devServer = trim($config['dev_server']);
         if ($devServer !== '') {
             $devBase = rtrim($devServer, '/');
-            $devPath = (string) (parse_url($devBase, PHP_URL_PATH) ?? '');
-            $devPrefix = ($devPath === '' || $devPath === '/')
-                ? $normalizePrefix($config['public_prefix'])
-                : '/';
             $entry = ltrim($config['entry'], '/');
 
             return [
                 'mode' => 'dev',
                 'available' => true,
                 'scripts' => [
-                    $devBase . $devPrefix . '@vite/client',
-                    $devBase . $devPrefix . $entry,
+                    $devBase . '/@vite/client',
+                    $devBase . '/' . $entry,
                 ],
                 'styles' => [],
             ];

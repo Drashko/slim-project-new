@@ -2,9 +2,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root: path.resolve(__dirname, 'resources/admin'),
-  base: '/assets/admin/',
+  base: command === 'serve' ? '/' : '/assets/admin/',
   publicDir: false,
   plugins: [react()],
   server: {
@@ -22,4 +22,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
