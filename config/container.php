@@ -467,25 +467,37 @@ return [
 
         $settings = (array) $container->get('settings');
         $reactSettings = (array) ($settings['react'] ?? []);
-        $reactEntry = (string) ($reactSettings['entry'] ?? 'src/main.jsx');
-        $reactManifest = (string) ($reactSettings['manifest_path'] ?? '');
-        $reactPublicPrefix = (string) ($reactSettings['public_prefix'] ?? '/assets/react/');
-        $reactDevServer = trim((string) ($reactSettings['dev_server'] ?? ''));
+        $adminReactSettings = (array) ($settings['admin_react'] ?? []);
 
-        $engine->loadExtension(new ReactExtension(
-            $reactEntry,
-            $reactManifest,
-            $reactPublicPrefix,
-            $reactDevServer
-        ));
+        $engine->loadExtension(new ReactExtension([
+            'public' => [
+                'entry' => (string) ($reactSettings['entry'] ?? 'src/main.jsx'),
+                'manifest_path' => (string) ($reactSettings['manifest_path'] ?? ''),
+                'public_prefix' => (string) ($reactSettings['public_prefix'] ?? '/assets/react/'),
+                'dev_server' => trim((string) ($reactSettings['dev_server'] ?? '')),
+            ],
+            'admin' => [
+                'entry' => (string) ($adminReactSettings['entry'] ?? 'react.jsx'),
+                'manifest_path' => (string) ($adminReactSettings['manifest_path'] ?? ''),
+                'public_prefix' => (string) ($adminReactSettings['public_prefix'] ?? '/assets/admin-react/'),
+                'dev_server' => trim((string) ($adminReactSettings['dev_server'] ?? '')),
+            ],
+        ]));
 
         $adminSettings = (array) ($settings['admin_assets'] ?? []);
+        $publicSettings = (array) ($settings['public_assets'] ?? []);
         $engine->loadExtension(new ViteExtension([
             'admin' => [
                 'entry' => (string) ($adminSettings['entry'] ?? 'main.js'),
                 'manifest_path' => (string) ($adminSettings['manifest_path'] ?? ''),
                 'public_prefix' => (string) ($adminSettings['public_prefix'] ?? '/assets/admin/'),
                 'dev_server' => trim((string) ($adminSettings['dev_server'] ?? '')),
+            ],
+            'public' => [
+                'entry' => (string) ($publicSettings['entry'] ?? 'main.js'),
+                'manifest_path' => (string) ($publicSettings['manifest_path'] ?? ''),
+                'public_prefix' => (string) ($publicSettings['public_prefix'] ?? '/assets/public/'),
+                'dev_server' => trim((string) ($publicSettings['dev_server'] ?? '')),
             ],
         ]));
 
