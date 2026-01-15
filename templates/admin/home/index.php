@@ -118,3 +118,10 @@ $this->layout('layout::admin', [
         </div>
     </div>
 </div>
+<?= $this->react_mount('admin-dashboard-react-root', [
+    'user' => $user,
+], [
+    'component' => 'AdminDashboard',
+    'class' => 'react-admin-dashboard mt-4',
+    'bundle' => 'admin',
+]) ?>

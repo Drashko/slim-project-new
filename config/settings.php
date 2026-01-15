@@ -92,14 +92,9 @@ $resolveBuildPath = static function (string $path) use ($projectRoot): string {
     return rtrim($projectRoot, '/\\') . '/' . ltrim(str_replace('\\', '/', $path), '/');
 };
 
-$reactBuildPath = $resolveBuildPath($_ENV['REACT_ASSET_BUILD_PATH'] ?? 'public/assets/react');
-$reactPublicPrefix = $normalizePublicPrefix($_ENV['REACT_ASSET_PUBLIC_PREFIX'] ?? '/assets/react/', '/assets/react/');
-$adminBuildPath = $resolveBuildPath($_ENV['ADMIN_ASSET_BUILD_PATH'] ?? 'public/assets/admin');
-$adminPublicPrefix = $normalizePublicPrefix($_ENV['ADMIN_ASSET_PUBLIC_PREFIX'] ?? '/assets/admin/', '/assets/admin/');
-$publicBuildPath = $resolveBuildPath($_ENV['PUBLIC_ASSET_BUILD_PATH'] ?? 'public/assets/public');
-$publicPublicPrefix = $normalizePublicPrefix($_ENV['PUBLIC_ASSET_PUBLIC_PREFIX'] ?? '/assets/public/', '/assets/public/');
-$adminReactBuildPath = $resolveBuildPath($_ENV['ADMIN_REACT_ASSET_BUILD_PATH'] ?? $adminBuildPath);
-$adminReactPublicPrefix = $normalizePublicPrefix($_ENV['ADMIN_REACT_ASSET_PUBLIC_PREFIX'] ?? $adminPublicPrefix, $adminPublicPrefix);
+$assetBuildPath = $resolveBuildPath($_ENV['ASSET_BUILD_PATH'] ?? 'public/assets');
+$assetPublicPrefix = $normalizePublicPrefix($_ENV['ASSET_PUBLIC_PREFIX'] ?? '/assets/', '/assets/');
+$assetDevServer = rtrim((string) ($_ENV['ASSET_DEV_SERVER'] ?? ''), '/');
 $defaultCacheDir = $resolveBuildPath($_ENV['APP_CACHE_DIR'] ?? 'tmp/var');
 $cacheEnabled = !$environment->isDevelopment();
 
@@ -222,31 +217,31 @@ return [
     ],
     'react' => [
         'entry' => 'src/main.jsx',
-        'build_path' => $reactBuildPath,
-        'manifest_path' => rtrim($reactBuildPath, '/\\') . '/manifest.json',
-        'public_prefix' => $reactPublicPrefix,
-        'dev_server' => rtrim((string) ($_ENV['REACT_DEV_SERVER'] ?? ''), '/'),
+        'build_path' => $assetBuildPath,
+        'manifest_path' => rtrim($assetBuildPath, '/\\') . '/manifest.json',
+        'public_prefix' => $assetPublicPrefix,
+        'dev_server' => $assetDevServer,
     ],
     'admin_react' => [
-        'entry' => 'react.jsx',
-        'build_path' => $adminReactBuildPath,
-        'manifest_path' => rtrim($adminReactBuildPath, '/\\') . '/manifest.json',
-        'public_prefix' => $adminReactPublicPrefix,
-        'dev_server' => rtrim((string) ($_ENV['ADMIN_REACT_DEV_SERVER'] ?? ''), '/'),
+        'entry' => 'src/admin/react.jsx',
+        'build_path' => $assetBuildPath,
+        'manifest_path' => rtrim($assetBuildPath, '/\\') . '/manifest.json',
+        'public_prefix' => $assetPublicPrefix,
+        'dev_server' => $assetDevServer,
     ],
     'admin_assets' => [
-        'entry' => 'main.js',
-        'build_path' => $adminBuildPath,
-        'manifest_path' => rtrim($adminBuildPath, '/\\') . '/manifest.json',
-        'public_prefix' => $adminPublicPrefix,
-        'dev_server' => rtrim((string) ($_ENV['ADMIN_DEV_SERVER'] ?? ''), '/'),
+        'entry' => 'src/admin/main.js',
+        'build_path' => $assetBuildPath,
+        'manifest_path' => rtrim($assetBuildPath, '/\\') . '/manifest.json',
+        'public_prefix' => $assetPublicPrefix,
+        'dev_server' => $assetDevServer,
     ],
     'public_assets' => [
-        'entry' => 'main.js',
-        'build_path' => $publicBuildPath,
-        'manifest_path' => rtrim($publicBuildPath, '/\\') . '/manifest.json',
-        'public_prefix' => $publicPublicPrefix,
-        'dev_server' => rtrim((string) ($_ENV['PUBLIC_DEV_SERVER'] ?? ''), '/'),
+        'entry' => 'src/public/main.js',
+        'build_path' => $assetBuildPath,
+        'manifest_path' => rtrim($assetBuildPath, '/\\') . '/manifest.json',
+        'public_prefix' => $assetPublicPrefix,
+        'dev_server' => $assetDevServer,
     ],
     'commands' => [],
 ];

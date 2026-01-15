@@ -45,26 +45,24 @@ php -S 0.0.0.0:8080 -t public public/index.php
 You can then open <http://localhost:8080> in your browser for the public home
 page, or <http://localhost:8080/admin> for the admin dashboard.
 
-## Running the admin Vite dev server
+## Running the Vite dev server
 
-The admin dashboard styles/scripts are bundled separately from the React
-workspace. To serve them in development, start the dedicated Vite server:
+The public and admin vanilla assets, along with the React mounts used by the
+Plates templates, are bundled through the shared Vite MPA configuration inside
+`frontend/`. To serve everything in development, start the Vite dev server:
 
 ```bash
-npm run dev:admin
+npm run dev
 ```
 
-Make sure your `.env` file points `ADMIN_DEV_SERVER` at the same host/port
-(the default configuration uses <http://localhost:5175>). Keep this distinct
-from the React dev server (for `npm run dev`) so the admin entry point resolves
-correctly.
+Make sure your `.env` file points `ASSET_DEV_SERVER` at the same host/port
+(the default configuration uses <http://localhost:5173>) so the PHP templates
+resolve the dev assets correctly.
 
-## Building the React bundle
+## Building the asset bundle
 
-The repository still ships with the Vite-powered React scaffolding used to
-preview the role and permission data rendered in the RBAC templates. If you
-extend the demo with your own React mounts, generate the production assets by
-running:
+The repository ships with a Vite-powered multi-page setup that produces both
+vanilla JS entries and React mounts. Generate the production assets by running:
 
 ```bash
 npm run build
@@ -76,16 +74,16 @@ the installation yourself you can run `npm run frontend:install` once and
 subsequent `npm --prefix frontend run build` commands will skip the automatic
 step.
 
-The build output is written to `public/assets/react/` by default and is
-automatically picked up by the PHP templates when present.
+The build output is written to `public/assets/` by default and is automatically
+picked up by the PHP templates when present.
 
 You can customise the output directory and the public URL that Slim uses to
 serve the bundles by setting the following environment variables in your root
 `.env` file before building:
 
 ```dotenv
-REACT_ASSET_BUILD_PATH="/absolute/or/project-relative/path/to/output"
-REACT_ASSET_PUBLIC_PREFIX="/custom/public/prefix/"
+ASSET_BUILD_PATH="/absolute/or/project-relative/path/to/output"
+ASSET_PUBLIC_PREFIX="/custom/public/prefix/"
 ```
 
 Relative paths are resolved from the project root, matching the PHP
