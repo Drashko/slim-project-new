@@ -94,77 +94,117 @@ $primaryLinks = $isAdminAuthenticated
     <!-- Admin assets (Vite) -->
     <?= $this->vite_assets('admin') ?>
     <?= $this->section('styles') ?>
+    <style>
+        .admin-layout .admin-shell {
+            min-height: 100vh;
+        }
+
+        .admin-layout .admin-sidebar {
+            width: 260px;
+        }
+
+        @media (min-width: 992px) {
+            .admin-layout .admin-sidebar {
+                position: sticky;
+                top: 0;
+                height: 100vh;
+                align-self: flex-start;
+            }
+
+            .admin-layout .admin-sidebar .navbar-collapse {
+                display: flex !important;
+                flex-direction: column;
+                height: calc(100vh - 72px);
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .admin-layout .admin-shell {
+                flex-direction: column;
+            }
+
+            .admin-layout .admin-sidebar {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body class="<?= $this->e($bodyClass) ?>">
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom mb-4">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-semibold text-primary" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
-            <i class="fa-solid fa-shield-halved me-2" aria-hidden="true"></i><?= $this->e($this->trans('app.name')) ?> Admin
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <?php foreach ($primaryLinks as $link): ?>
-                    <?php $hasChildren = !empty($link['children']); ?>
-                    <?php if ($hasChildren): ?>
-                        <?php $dropdownId = 'adminDropdown_' . md5((string) ($link['label'] ?? 'link')); ?>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="<?= $this->e($dropdownId) ?>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <?php if (!empty($link['icon'])): ?><i class="<?= $this->e($link['icon']) ?> me-1" aria-hidden="true"></i><?php endif; ?>
-                                <?= $this->e($link['label'] ?? '') ?>
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="<?= $this->e($dropdownId) ?>">
-                                <?php foreach ($link['children'] as $child): ?>
-                                    <li>
-                                        <a class="dropdown-item" href="<?= $this->e($child['href'] ?? '#') ?>">
-                                            <?php if (!empty($child['icon'])): ?><i class="<?= $this->e($child['icon']) ?> me-1" aria-hidden="true"></i><?php endif; ?>
-                                            <?= $this->e($child['label'] ?? '') ?>
-                                        </a>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </li>
-                    <?php else: ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="<?= $this->e($link['href'] ?? '#') ?>">
-                                <?php if (!empty($link['icon'])): ?><i class="<?= $this->e($link['icon']) ?> me-1" aria-hidden="true"></i><?php endif; ?>
-                                <?= $this->e($link['label'] ?? '') ?>
-                            </a>
-                        </li>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            </ul>
-            <div class="d-flex align-items-center gap-3">
-                <select
-                    class="form-select form-select-sm"
-                    aria-label="<?= $this->e($this->trans('layout.language.switch')) ?>"
-                    onchange="if (this.value) { window.location.href = this.value; }"
-                >
-                    <?php foreach ($availableLocales as $locale => $label): ?>
-                        <option
-                            value="<?= $this->e($this->locale_switch_url($locale)) ?>"
-                            <?= $currentLocale === $locale ? 'selected' : '' ?>
-                        >
-                            <?= $this->e($label) ?>
-                        </option>
+<div class="admin-shell d-flex">
+    <nav class="admin-sidebar navbar navbar-expand-lg navbar-light bg-white border-end">
+        <div class="container-fluid flex-lg-column align-items-stretch p-0">
+            <div class="d-flex align-items-center justify-content-between w-100 px-3 py-3 border-bottom">
+                <a class="navbar-brand fw-semibold text-primary m-0" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
+                    <i class="fa-solid fa-shield-halved me-2" aria-hidden="true"></i><?= $this->e($this->trans('app.name')) ?> Admin
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse px-3 pb-3" id="adminNav">
+                <ul class="navbar-nav flex-column w-100 gap-1">
+                    <?php foreach ($primaryLinks as $link): ?>
+                        <?php $hasChildren = !empty($link['children']); ?>
+                        <?php if ($hasChildren): ?>
+                            <?php $dropdownId = 'adminDropdown_' . md5((string) ($link['label'] ?? 'link')); ?>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="<?= $this->e($dropdownId) ?>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <?php if (!empty($link['icon'])): ?><i class="<?= $this->e($link['icon']) ?> me-1" aria-hidden="true"></i><?php endif; ?>
+                                    <?= $this->e($link['label'] ?? '') ?>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="<?= $this->e($dropdownId) ?>">
+                                    <?php foreach ($link['children'] as $child): ?>
+                                        <li>
+                                            <a class="dropdown-item" href="<?= $this->e($child['href'] ?? '#') ?>">
+                                                <?php if (!empty($child['icon'])): ?><i class="<?= $this->e($child['icon']) ?> me-1" aria-hidden="true"></i><?php endif; ?>
+                                                <?= $this->e($child['label'] ?? '') ?>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </li>
+                        <?php else: ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="<?= $this->e($link['href'] ?? '#') ?>">
+                                    <?php if (!empty($link['icon'])): ?><i class="<?= $this->e($link['icon']) ?> me-1" aria-hidden="true"></i><?php endif; ?>
+                                    <?= $this->e($link['label'] ?? '') ?>
+                                </a>
+                            </li>
+                        <?php endif; ?>
                     <?php endforeach; ?>
-                </select>
-                <?php if ($isAdminAuthenticated): ?>
-                    <span class="text-muted small"><?= $this->e($user['email'] ?? '') ?></span>
-                    <a class="btn btn-outline-danger btn-sm" href="<?= $this->e($this->locale_url('admin/logout', null, 'admin')) ?>">
-                        <?= $this->e($this->trans('layout.account.sign_out')) ?>
-                    </a>
-                <?php endif; ?>
+                </ul>
+                <div class="mt-lg-auto pt-lg-3 border-top w-100 d-flex flex-column gap-3">
+                    <select
+                        class="form-select form-select-sm"
+                        aria-label="<?= $this->e($this->trans('layout.language.switch')) ?>"
+                        onchange="if (this.value) { window.location.href = this.value; }"
+                    >
+                        <?php foreach ($availableLocales as $locale => $label): ?>
+                            <option
+                                value="<?= $this->e($this->locale_switch_url($locale)) ?>"
+                                <?= $currentLocale === $locale ? 'selected' : '' ?>
+                            >
+                                <?= $this->e($label) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <?php if ($isAdminAuthenticated): ?>
+                        <span class="text-muted small"><?= $this->e($user['email'] ?? '') ?></span>
+                        <a class="btn btn-outline-danger btn-sm" href="<?= $this->e($this->locale_url('admin/logout', null, 'admin')) ?>">
+                            <?= $this->e($this->trans('layout.account.sign_out')) ?>
+                        </a>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<main class="container pb-5">
-    <?= $this->section('content') ?>
-</main>
+    <main class="flex-grow-1">
+        <div class="container-fluid py-4">
+            <?= $this->section('content') ?>
+        </div>
+    </main>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>
 <?= $this->section('scripts') ?>
