@@ -1,3 +1,4 @@
+import "../preamble.js";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { reactRegistry } from "./reactRegistry.js";
