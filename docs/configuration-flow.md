@@ -14,7 +14,7 @@ This document explains how the application bootstraps configuration, feeds it in
 
 - **Boolean parsing**: `APP_DEBUG`, `DB_AUTO_SYNC`, and similar flags accept truthy strings like `"yes"` or `"1"` and are coerced to booleans.
 - **Database defaults**: Doctrine settings normalize the driver name (e.g., `mariadb` → `pdo_mysql`) and sanitize server versions before constructing the connection options.
-- **React asset paths**: `REACT_ASSET_BUILD_PATH` is resolved to an absolute path, and `REACT_ASSET_PUBLIC_PREFIX` is normalized to a trailing-slash URL segment for the Plates helper functions.
+- **Asset paths**: `ASSET_BUILD_PATH` is resolved to an absolute path, and `ASSET_PUBLIC_PREFIX` is normalized to a trailing-slash URL segment for the Plates helper functions.
 - **Localization defaults**: A default locale (`en`) and supported locales map load translation files from `translations/*.json`, while leaving room for route path localization.
 - **Cache paths**: Container, route, template, and Doctrine cache directories are resolved to absolute paths so they can be created early in the bootstrap process.
 

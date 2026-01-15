@@ -3,9 +3,9 @@ import react from "@vitejs/plugin-react";
 import { resolve } from "node:path";
 
 export default ({ command, mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
-  const outDir = env.REACT_ASSET_BUILD_PATH || "../public/assets/react";
-  const base = env.REACT_ASSET_PUBLIC_PREFIX || "/assets/react/";
+  const env = loadEnv(mode, resolve(__dirname, ".."), "");
+  const outDir = env.ASSET_BUILD_PATH || "../public/assets";
+  const base = env.ASSET_PUBLIC_PREFIX || "/assets/";
 
   return defineConfig({
     plugins: [react()],
@@ -16,7 +16,12 @@ export default ({ command, mode }) => {
       emptyOutDir: true,
       manifest: true,
       rollupOptions: {
-        input: resolve(__dirname, "src/main.jsx"),
+        input: {
+          "public/main": resolve(__dirname, "src/public/main.js"),
+          "public/react": resolve(__dirname, "src/main.jsx"),
+          "admin/main": resolve(__dirname, "src/admin/main.js"),
+          "admin/react": resolve(__dirname, "src/admin/react.jsx"),
+        },
       },
     },
     server: {

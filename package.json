@@ -7,11 +7,7 @@
     "predev": "node scripts/ensure-frontend-install.js",
     "dev": "npm --prefix frontend run dev",
     "lint": "npm --prefix frontend run lint",
-    "frontend:install": "npm --prefix frontend install",
-    "dev:admin": "vite --config vite.admin.config.js",
-    "build:admin": "vite build --config vite.admin.config.js",
-    "dev:public": "vite --config vite.public.config.js",
-    "build:public": "vite build --config vite.public.config.js"
+    "frontend:install": "npm --prefix frontend install"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^6.5.2",

@@ -1,6 +1,6 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { reactRegistry } from './reactRegistry.js';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { reactRegistry } from "./reactRegistry.js";
 
 const resolveComponent = (name) => {
   if (!name) {
@@ -18,20 +18,20 @@ const parseProps = (value) => {
   try {
     return JSON.parse(value);
   } catch (error) {
-    console.warn('Failed to parse React props payload.', error);
+    console.warn("Failed to parse React props payload.", error);
     return {};
   }
 };
 
 const mountReactRoots = () => {
-  const nodes = document.querySelectorAll('[data-react-component]');
+  const nodes = document.querySelectorAll("[data-react-component]");
 
   if (nodes.length === 0) {
     return;
   }
 
   nodes.forEach((node) => {
-    const componentName = node.dataset.reactComponent || 'App';
+    const componentName = node.dataset.reactComponent || "App";
     const Component = resolveComponent(componentName);
     const props = parseProps(node.dataset.reactProps);
 
@@ -43,8 +43,8 @@ const mountReactRoots = () => {
   });
 };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountReactRoots);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", mountReactRoots);
 } else {
   mountReactRoots();
 }
