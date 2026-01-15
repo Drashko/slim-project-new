@@ -56,9 +56,3 @@ $roles = array_map(static fn($role) => (string) $role, (array) ($user['roles'] ?
         </div>
     </div>
 </div>
-<?= $this->react_mount('profile-react-root', [
-    'user' => $user,
-], [
-    'component' => 'App',
-    'class' => 'react-profile-root mt-4',
-]) ?>
