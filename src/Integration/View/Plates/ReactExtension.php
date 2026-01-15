@@ -158,13 +158,15 @@ final class ReactExtension implements ExtensionInterface
         $devServer = trim($config['dev_server']);
         if ($devServer !== '') {
             $devBase = rtrim($devServer, '/');
+            $devPrefix = $normalizePrefix($config['public_prefix']);
+            $entry = ltrim($config['entry'], '/');
 
             return [
                 'mode' => 'dev',
                 'available' => true,
                 'scripts' => [
-                    $devBase . '/@vite/client',
-                    $devBase . '/' . ltrim($config['entry'], '/'),
+                    $devBase . $devPrefix . '@vite/client',
+                    $devBase . $devPrefix . $entry,
                 ],
                 'styles' => [],
             ];
