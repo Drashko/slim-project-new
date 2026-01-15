@@ -4,7 +4,7 @@
 
 $user = is_array($user ?? null) ? $user : null;
 $title = $title ?? $this->trans('app.default_title');
-$bodyClass = 'public-layout hold-transition layout-top-nav bg-light';
+$bodyClass = 'public-layout bg-light';
 $primaryLinks = [
     ['href' => $this->locale_url(null, null, 'public'), 'label' => $this->trans('layout.nav.public_home')],
     ['href' => $this->locale_url('auth/login', null, 'public'), 'label' => $this->trans('layout.nav.profile_login')],
@@ -20,15 +20,13 @@ $primaryLinks = [
     <title><?= $this->e($title) ?></title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-alpha3/dist/css/adminlte.min.css" integrity="sha384-NrMdBkOMZolWA4cTnC0V4P/anRf1Yy9sMwhW3iHjZylWus6YtRHAYN3dBkNDTDpO" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="/assets/front.css">
     <?= $this->vite_assets('public') ?>
     <?= $this->section('head') ?>
 </head>
 <body class="<?= $this->e($bodyClass) ?>">
-<div class="wrapper">
-    <nav class="main-header navbar navbar-expand-md navbar-light navbar-white border-bottom shadow-sm">
+    <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-semibold text-primary" href="<?= $this->e($this->locale_url()) ?>">
                 <i class="fa-solid fa-bag-shopping me-2" aria-hidden="true"></i><?= $this->e($this->trans('app.name')) ?>
@@ -73,23 +71,17 @@ $primaryLinks = [
         </div>
     </nav>
 
-    <div class="content-wrapper">
-        <div class="content pt-4 pb-5">
-            <div class="container">
-                <?= $this->section('content') ?>
-            </div>
-        </div>
-    </div>
+    <main class="container pt-4 pb-5">
+        <?= $this->section('content') ?>
+    </main>
 
-    <footer class="main-footer border-0 text-sm text-muted text-center">
+    <footer class="border-0 text-sm text-muted text-center pb-4">
         <div class="container">
             <?= $this->e($this->trans('layout.footer.demo_note')) ?>
         </div>
     </footer>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-alpha3/dist/js/adminlte.min.js" integrity="sha384-wXsemv8Vpb8OdOOs3OH9fQLYCw16SHX87x2YxyuGGYJifjb7/SFZ+jOEWuubcdJ4" crossorigin="anonymous" defer></script>
 <?= $this->section('scripts') ?>
 </body>
 </html>

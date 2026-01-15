@@ -7,10 +7,7 @@ $this->layout('layout::public', [
 ]);
 
 ?>
-<?= $this->react_mount('home-react-root', [
-    'user' => $user,
-], [
+<?= $this->react_mount('home-react-root', [], [
     'component' => 'App',
     'class' => 'react-home-root',
 ]) ?>
-
