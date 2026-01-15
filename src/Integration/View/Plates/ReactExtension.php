@@ -13,11 +13,35 @@ final class ReactExtension implements ExtensionInterface
     private array $bundles;
     private string $defaultBundle;
 
-    /** @param array<string,array{entry:string,manifest_path:string,public_prefix:string,dev_server:string}> $bundles */
-    public function __construct(array $bundles, string $defaultBundle = 'public')
-    {
-        $this->bundles = $bundles;
-        $this->defaultBundle = $defaultBundle;
+    /**
+     * @param array<string,array{entry:string,manifest_path:string,public_prefix:string,dev_server:string}>|string $bundles
+     */
+    public function __construct(
+        array|string $bundles,
+        ?string $manifestPath = null,
+        ?string $publicPrefix = null,
+        ?string $devServer = null,
+        string $defaultBundle = 'public'
+    ) {
+        if (is_array($bundles)) {
+            if ($manifestPath !== null && $publicPrefix === null && $devServer === null) {
+                $defaultBundle = $manifestPath;
+            }
+
+            $this->bundles = $bundles;
+            $this->defaultBundle = $defaultBundle;
+            return;
+        }
+
+        $this->bundles = [
+            'public' => [
+                'entry' => $bundles,
+                'manifest_path' => $manifestPath ?? '',
+                'public_prefix' => $publicPrefix ?? '/assets/react/',
+                'dev_server' => $devServer ?? '',
+            ],
+        ];
+        $this->defaultBundle = 'public';
     }
 
     public function register(Engine $engine): void
