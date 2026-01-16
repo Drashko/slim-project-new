@@ -95,12 +95,97 @@ $primaryLinks = $isAdminAuthenticated
     <?= $this->vite_assets('admin') ?>
     <?= $this->section('styles') ?>
     <style>
+        .admin-layout {
+            background: #f4f6fb;
+        }
+
         .admin-layout .admin-shell {
             min-height: 100vh;
+            background: #f4f6fb;
         }
 
         .admin-layout .admin-sidebar {
             width: 260px;
+            background: linear-gradient(180deg, #ffffff 0%, #f7f9fe 100%);
+            box-shadow: 0 10px 30px rgba(31, 45, 61, 0.08);
+        }
+
+        .admin-layout .admin-sidebar .navbar-brand {
+            letter-spacing: 0.02em;
+        }
+
+        .admin-layout .admin-sidebar .nav-link {
+            color: #2f3a4a;
+            border-radius: 12px;
+            padding: 0.55rem 0.75rem;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+
+        .admin-layout .admin-sidebar .nav-link:hover,
+        .admin-layout .admin-sidebar .nav-link:focus {
+            color: #0b5ed7;
+            background: rgba(13, 110, 253, 0.1);
+            transform: translateX(2px);
+        }
+
+        .admin-layout .admin-sidebar .dropdown-menu {
+            border-radius: 12px;
+            border: 1px solid #e3e7f0;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+        }
+
+        .admin-layout .admin-sidebar .dropdown-item {
+            border-radius: 10px;
+        }
+
+        .admin-layout .admin-sidebar .dropdown-item:focus,
+        .admin-layout .admin-sidebar .dropdown-item:hover {
+            background: rgba(13, 110, 253, 0.08);
+            color: #0b5ed7;
+        }
+
+        .admin-layout main .container-fluid {
+            max-width: 1200px;
+        }
+
+        .admin-layout .admin-content-surface {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+        }
+
+        .admin-layout .admin-pagination {
+            gap: 0.4rem;
+        }
+
+        .admin-layout .admin-pagination .page-link {
+            border-radius: 999px;
+            border: 1px solid #dfe3eb;
+            color: #2f3a4a;
+            background: #ffffff;
+            padding: 0.45rem 0.9rem;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .admin-layout .admin-pagination .page-link:hover,
+        .admin-layout .admin-pagination .page-link:focus {
+            color: #0b5ed7;
+            border-color: #b6c4ff;
+            box-shadow: 0 10px 24px rgba(11, 94, 215, 0.18);
+        }
+
+        .admin-layout .admin-pagination .page-item.active .page-link {
+            color: #ffffff;
+            border-color: transparent;
+            background: linear-gradient(135deg, #0d6efd, #4f8cff);
+            box-shadow: 0 12px 24px rgba(13, 110, 253, 0.35);
+        }
+
+        .admin-layout .admin-pagination .page-item.disabled .page-link {
+            color: #9aa4b2;
+            background: #f3f5f9;
+            box-shadow: none;
         }
 
         @media (min-width: 992px) {
@@ -200,7 +285,7 @@ $primaryLinks = $isAdminAuthenticated
     </nav>
 
     <main class="flex-grow-1">
-        <div class="container-fluid py-4">
+        <div class="container-fluid py-4 admin-content-surface">
             <?= $this->section('content') ?>
         </div>
     </main>

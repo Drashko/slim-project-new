@@ -39,7 +39,7 @@ $buildUrl = static function (string $url, array $params): string {
         ])) ?>
     </div>
     <nav aria-label="<?= $this->e($this->trans('admin.users.pagination.label')) ?>">
-        <ul class="pagination mb-0">
+        <ul class="pagination admin-pagination mb-0">
             <li class="page-item<?= ($pagination['hasPrev'] ?? false) ? '' : ' disabled' ?>">
                 <a
                     class="page-link"
