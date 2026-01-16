@@ -1,10 +1,12 @@
 <?php
 /** @var array|null $user */
 /** @var array<int, array<string, mixed>> $directory */
-/** @var array{query: string, role: string, status: string} $filters */
+/** @var array{query: string, role: string, status: string, perPage: int} $filters */
 /** @var array<int, string> $roles */
 /** @var array<int, string> $statuses */
 /** @var int $totalUsers */
+/** @var array{page: int, perPage: int, total: int, totalPages: int, hasPrev: bool, hasNext: bool, from: int, to: int} $pagination */
+/** @var array<string, mixed> $queryParams */
 /** @var \Slim\Flash\Messages|null $flash */
 
 use Slim\Flash\Messages;
@@ -15,9 +17,20 @@ $this->layout('layout::admin', [
 ]);
 
 $directory = $directory ?? [];
-$filters = $filters ?? ['query' => '', 'role' => 'all', 'status' => 'all'];
+$filters = $filters ?? ['query' => '', 'role' => 'all', 'status' => 'all', 'perPage' => 10];
 $roles = $roles ?? [];
 $statuses = $statuses ?? [];
+$pagination = $pagination ?? [
+    'page' => 1,
+    'perPage' => 10,
+    'total' => 0,
+    'totalPages' => 1,
+    'hasPrev' => false,
+    'hasNext' => false,
+    'from' => 0,
+    'to' => 0,
+];
+$queryParams = $queryParams ?? [];
 $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
 ?>
 
@@ -126,6 +139,18 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
                     <?php endforeach; ?>
                 </select>
             </div>
+            <div class="col-md-3 col-lg-2">
+                <label class="form-label text-muted small" for="per_page">
+                    <?= $this->e($this->trans('admin.users.filters.per_page')) ?>
+                </label>
+                <select class="form-select" id="per_page" name="per_page">
+                    <?php foreach ([10, 25, 50, 100] as $perPageOption): ?>
+                        <option value="<?= $this->e((string) $perPageOption) ?>"<?= $filters['perPage'] === $perPageOption ? ' selected' : '' ?>>
+                            <?= $this->e((string) $perPageOption) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <div class="col-12 text-end">
                 <button class="btn btn-outline-secondary" type="submit">
                     <?= $this->e($this->trans('admin.users.filters.submit')) ?>
@@ -212,6 +237,11 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
                     </tbody>
                 </table>
             </div>
+            <?php $this->insert('admin::partials/pagination', [
+                'pagination' => $pagination,
+                'baseUrl' => $this->locale_url('admin/users', null, 'admin'),
+                'queryParams' => $queryParams,
+            ]); ?>
         <?php endif; ?>
     </div>
 </div>

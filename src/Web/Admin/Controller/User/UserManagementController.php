@@ -8,6 +8,7 @@ use App\Domain\Shared\DomainException;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Admin\Service\UserService;
+use App\Web\Shared\Paginator;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,6 +22,7 @@ final readonly class UserManagementController
         private TemplateRenderer   $templates,
         private AdminAuthenticator $authenticator,
         private UserService        $userDirectory,
+        private Paginator          $paginator,
         private Messages           $flash
     ) {
     }
@@ -38,23 +40,31 @@ final readonly class UserManagementController
         $directory = $this->userDirectory->all();
         $filters = $this->resolveFilters($request);
         $filteredDirectory = $this->applyFilters($directory, $filters);
+        $pagination = $this->paginator->paginate(
+            $filteredDirectory,
+            $this->resolvePage($request),
+            $this->resolvePerPage($request)
+        );
 
         $roles = $this->userDirectory->roles($directory);
         $statuses = $this->userDirectory->statuses($directory);
+        $queryParams = $request->getQueryParams();
 
         return $this->templates->render($response, 'admin::users/index', [
             'user' => $user,
-            'directory' => $filteredDirectory,
+            'directory' => $pagination['items'],
             'filters' => $filters,
             'roles' => $roles,
             'statuses' => $statuses,
             'totalUsers' => count($directory),
+            'pagination' => $pagination,
+            'queryParams' => $queryParams,
             'flash' => $this->flash,
         ]);
     }
 
     /**
-     * @return array{query: string, role: string, status: string}
+     * @return array{query: string, role: string, status: string, perPage: int}
      */
     private function resolveFilters(ServerRequestInterface $request): array
     {
@@ -64,7 +74,24 @@ final readonly class UserManagementController
             'query' => trim((string) ($params['query'] ?? '')),
             'role' => (string) ($params['role'] ?? 'all'),
             'status' => (string) ($params['status'] ?? 'all'),
+            'perPage' => $this->resolvePerPage($request),
         ];
+    }
+
+    private function resolvePage(ServerRequestInterface $request): int
+    {
+        $params = $request->getQueryParams();
+
+        return max(1, (int) ($params['page'] ?? 1));
+    }
+
+    private function resolvePerPage(ServerRequestInterface $request): int
+    {
+        $params = $request->getQueryParams();
+        $perPage = (int) ($params['per_page'] ?? 10);
+        $allowed = [10, 25, 50, 100];
+
+        return in_array($perPage, $allowed, true) ? $perPage : 10;
     }
 
     /**
