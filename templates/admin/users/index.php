@@ -5,6 +5,8 @@
 /** @var array<int, string> $roles */
 /** @var array<int, string> $statuses */
 /** @var int $totalUsers */
+/** @var array{page: int, perPage: int, total: int, totalPages: int, hasPrev: bool, hasNext: bool, from: int, to: int} $pagination */
+/** @var array<string, mixed> $queryParams */
 /** @var \Slim\Flash\Messages|null $flash */
 
 use Slim\Flash\Messages;
@@ -18,6 +20,17 @@ $directory = $directory ?? [];
 $filters = $filters ?? ['query' => '', 'role' => 'all', 'status' => 'all'];
 $roles = $roles ?? [];
 $statuses = $statuses ?? [];
+$pagination = $pagination ?? [
+    'page' => 1,
+    'perPage' => 10,
+    'total' => 0,
+    'totalPages' => 1,
+    'hasPrev' => false,
+    'hasNext' => false,
+    'from' => 0,
+    'to' => 0,
+];
+$queryParams = $queryParams ?? [];
 $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
 ?>
 
@@ -212,6 +225,11 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
                     </tbody>
                 </table>
             </div>
+            <?php $this->insert('admin::partials/pagination', [
+                'pagination' => $pagination,
+                'baseUrl' => $this->locale_url('admin/users', null, 'admin'),
+                'queryParams' => $queryParams,
+            ]); ?>
         <?php endif; ?>
     </div>
 </div>
