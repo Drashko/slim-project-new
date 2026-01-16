@@ -1,7 +1,7 @@
 <?php
 /** @var array|null $user */
 /** @var array<int, array<string, mixed>> $directory */
-/** @var array{query: string, role: string, status: string} $filters */
+/** @var array{query: string, role: string, status: string, perPage: int} $filters */
 /** @var array<int, string> $roles */
 /** @var array<int, string> $statuses */
 /** @var int $totalUsers */
@@ -17,7 +17,7 @@ $this->layout('layout::admin', [
 ]);
 
 $directory = $directory ?? [];
-$filters = $filters ?? ['query' => '', 'role' => 'all', 'status' => 'all'];
+$filters = $filters ?? ['query' => '', 'role' => 'all', 'status' => 'all', 'perPage' => 10];
 $roles = $roles ?? [];
 $statuses = $statuses ?? [];
 $pagination = $pagination ?? [
@@ -135,6 +135,18 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
                     <?php foreach ($statuses as $status): ?>
                         <option value="<?= $this->e($status) ?>"<?= strcasecmp($filters['status'], $status) === 0 ? ' selected' : '' ?>>
                             <?= $this->e($status) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2">
+                <label class="form-label text-muted small" for="per_page">
+                    <?= $this->e($this->trans('admin.users.filters.per_page')) ?>
+                </label>
+                <select class="form-select" id="per_page" name="per_page">
+                    <?php foreach ([10, 25, 50, 100] as $perPageOption): ?>
+                        <option value="<?= $this->e((string) $perPageOption) ?>"<?= $filters['perPage'] === $perPageOption ? ' selected' : '' ?>>
+                            <?= $this->e((string) $perPageOption) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

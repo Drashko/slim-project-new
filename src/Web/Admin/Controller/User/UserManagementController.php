@@ -43,7 +43,7 @@ final readonly class UserManagementController
         $pagination = $this->paginator->paginate(
             $filteredDirectory,
             $this->resolvePage($request),
-            10
+            $this->resolvePerPage($request)
         );
 
         $roles = $this->userDirectory->roles($directory);
@@ -64,7 +64,7 @@ final readonly class UserManagementController
     }
 
     /**
-     * @return array{query: string, role: string, status: string}
+     * @return array{query: string, role: string, status: string, perPage: int}
      */
     private function resolveFilters(ServerRequestInterface $request): array
     {
@@ -74,6 +74,7 @@ final readonly class UserManagementController
             'query' => trim((string) ($params['query'] ?? '')),
             'role' => (string) ($params['role'] ?? 'all'),
             'status' => (string) ($params['status'] ?? 'all'),
+            'perPage' => $this->resolvePerPage($request),
         ];
     }
 
@@ -82,6 +83,15 @@ final readonly class UserManagementController
         $params = $request->getQueryParams();
 
         return max(1, (int) ($params['page'] ?? 1));
+    }
+
+    private function resolvePerPage(ServerRequestInterface $request): int
+    {
+        $params = $request->getQueryParams();
+        $perPage = (int) ($params['per_page'] ?? 10);
+        $allowed = [10, 25, 50, 100];
+
+        return in_array($perPage, $allowed, true) ? $perPage : 10;
     }
 
     /**
