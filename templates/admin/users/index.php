@@ -143,7 +143,7 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
                 <label class="form-label text-muted small" for="per_page">
                     <?= $this->e($this->trans('admin.users.filters.per_page')) ?>
                 </label>
-                <select class="form-select" id="per_page" name="per_page">
+                <select class="form-select" id="per_page" name="per_page" onchange="this.form.submit()">
                     <?php foreach ([10, 25, 50, 100] as $perPageOption): ?>
                         <option value="<?= $this->e((string) $perPageOption) ?>"<?= $filters['perPage'] === $perPageOption ? ' selected' : '' ?>>
                             <?= $this->e((string) $perPageOption) ?>
