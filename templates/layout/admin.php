@@ -99,6 +99,10 @@ $primaryLinks = $isAdminAuthenticated
             background: #f4f6fb;
         }
 
+        .admin-layout * {
+            border-radius: 3px !important;
+        }
+
         .admin-layout .admin-shell {
             min-height: 100vh;
             background: #f4f6fb;
@@ -154,7 +158,8 @@ $primaryLinks = $isAdminAuthenticated
         }
 
         .admin-layout main .container-fluid {
-            max-width: 1220px;
+            max-width: none;
+            width: 100%;
         }
 
         .admin-layout .admin-topbar {
