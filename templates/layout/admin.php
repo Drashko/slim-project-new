@@ -99,63 +99,62 @@ $primaryLinks = $isAdminAuthenticated
     <?= $this->section('styles') ?>
     <style>
         .admin-layout {
-            background: #f5f5f5;
-            color: #212121;
+            background: #f6f8fc;
+            color: #202124;
             font-family: "Roboto", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
         }
 
         .admin-layout .admin-shell {
             min-height: 100vh;
-            background: #f5f5f5;
+            background: #f6f8fc;
         }
 
         .admin-layout .admin-sidebar {
             width: 260px;
             background: #ffffff;
-            color: #616161;
-            border-right: 1px solid #e0e0e0;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            color: #5f6368;
+            border-right: 1px solid #dadce0;
+            box-shadow: none;
         }
 
         .admin-layout .admin-sidebar .navbar-brand {
             letter-spacing: 0.03em;
-            color: #212121;
+            color: #202124;
         }
 
         .admin-layout .admin-sidebar .nav-link {
-            color: #616161;
-            border-radius: 0.75rem;
-            padding: 0.6rem 0.9rem;
+            color: #5f6368;
+            border-radius: 999px;
+            padding: 0.55rem 0.95rem;
             font-weight: 500;
-            transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .admin-layout .admin-sidebar .nav-link:hover,
         .admin-layout .admin-sidebar .nav-link:focus,
         .admin-layout .admin-sidebar .nav-link.active {
-            color: #1e88e5;
-            background: rgba(30, 136, 229, 0.12);
-            box-shadow: 0 2px 4px rgba(30, 136, 229, 0.2);
+            color: #1a73e8;
+            background: #e8f0fe;
         }
 
         .admin-layout .admin-sidebar .dropdown-menu {
-            border-radius: 0.75rem;
-            border: 1px solid #e0e0e0;
+            border-radius: 0.5rem;
+            border: 1px solid #dadce0;
             background: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 1px 2px rgba(60, 64, 67, 0.15), 0 1px 3px rgba(60, 64, 67, 0.1);
         }
 
         .admin-layout .admin-sidebar .dropdown-item {
-            border-radius: 0.5rem;
-            color: #616161;
+            border-radius: 0.375rem;
+            color: #5f6368;
             font-weight: 500;
         }
 
         .admin-layout .admin-sidebar .dropdown-item:focus,
         .admin-layout .admin-sidebar .dropdown-item:hover,
         .admin-layout .admin-sidebar .dropdown-item.active {
-            background: rgba(30, 136, 229, 0.12);
-            color: #1e88e5;
+            background: #e8f0fe;
+            color: #1a73e8;
         }
 
         .admin-layout .admin-main {
@@ -170,15 +169,15 @@ $primaryLinks = $isAdminAuthenticated
         .admin-layout .admin-topbar {
             background: #ffffff;
             border-radius: 0.75rem;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            border: 1px solid #dadce0;
+            box-shadow: 0 1px 2px rgba(60, 64, 67, 0.12);
             padding: 1rem 1.5rem;
             margin-bottom: 1.5rem;
         }
 
         .admin-layout .admin-topbar .admin-title {
             font-weight: 500;
-            color: #212121;
+            color: #202124;
         }
 
         .admin-layout .admin-topbar .admin-actions {
@@ -187,14 +186,14 @@ $primaryLinks = $isAdminAuthenticated
 
         .admin-layout .admin-topbar .form-select {
             border-radius: 0.5rem;
-            border-color: #e0e0e0;
+            border-color: #dadce0;
         }
 
         .admin-layout .admin-content-surface {
             background: #ffffff;
             border-radius: 0.75rem;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #dadce0;
+            box-shadow: 0 1px 2px rgba(60, 64, 67, 0.12);
         }
 
         .admin-layout .content-header .text-uppercase {
@@ -203,92 +202,92 @@ $primaryLinks = $isAdminAuthenticated
             gap: 0.4rem;
             padding: 0.35rem 0.7rem;
             border-radius: 999px;
-            background: rgba(30, 136, 229, 0.12);
-            color: #1e88e5;
+            background: #e8f0fe;
+            color: #1a73e8;
             font-weight: 500;
             letter-spacing: 0.08em;
         }
 
         .admin-layout .content-header h1,
         .admin-layout .content-header .h3 {
-            color: #212121;
+            color: #202124;
             font-weight: 500;
         }
 
         .admin-layout .content-header p.text-secondary {
-            color: #757575 !important;
+            color: #5f6368 !important;
         }
 
         .admin-layout .card {
-            border: 1px solid #e0e0e0;
+            border: 1px solid #dadce0;
             border-radius: 0.75rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 1px 2px rgba(60, 64, 67, 0.12);
         }
 
         .admin-layout .card.card-outline {
-            border: 1px solid #e0e0e0;
+            border: 1px solid #dadce0;
         }
 
         .admin-layout .card-header {
             background: #fafafa;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #dadce0;
             border-top-left-radius: 0.75rem;
             border-top-right-radius: 0.75rem;
         }
 
         .admin-layout .card-title {
             font-weight: 500;
-            color: #212121;
+            color: #202124;
         }
 
         .admin-layout .form-label {
-            color: #616161;
+            color: #5f6368;
             font-weight: 500;
         }
 
         .admin-layout .form-control,
         .admin-layout .form-select {
             border-radius: 0.5rem;
-            border-color: #e0e0e0;
+            border-color: #dadce0;
             box-shadow: none;
         }
 
         .admin-layout .form-control:focus,
         .admin-layout .form-select:focus {
-            border-color: #1e88e5;
-            box-shadow: 0 0 0 0.2rem rgba(30, 136, 229, 0.2);
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.2);
         }
 
         .admin-layout .btn-primary {
-            background: #1e88e5;
-            border-color: #1e88e5;
-            box-shadow: 0 2px 6px rgba(30, 136, 229, 0.3);
+            background: #1a73e8;
+            border-color: #1a73e8;
+            box-shadow: 0 1px 2px rgba(26, 115, 232, 0.3);
         }
 
         .admin-layout .btn-primary:hover,
         .admin-layout .btn-primary:focus {
-            background: #1565c0;
-            border-color: #1565c0;
+            background: #1967d2;
+            border-color: #1967d2;
         }
 
         .admin-layout .btn-outline-secondary {
-            color: #616161;
-            border-color: #e0e0e0;
+            color: #5f6368;
+            border-color: #dadce0;
         }
 
         .admin-layout .btn-outline-secondary:hover,
         .admin-layout .btn-outline-secondary:focus {
-            color: #1e88e5;
-            border-color: #1e88e5;
-            background: rgba(30, 136, 229, 0.12);
+            color: #1a73e8;
+            border-color: #1a73e8;
+            background: #e8f0fe;
         }
 
         .admin-layout .table > :not(caption) > * > * {
-            border-color: #e0e0e0;
+            border-color: #dadce0;
         }
 
         .admin-layout .table thead th {
-            color: #616161;
+            color: #5f6368;
             font-weight: 500;
             background: #fafafa;
         }
@@ -299,8 +298,8 @@ $primaryLinks = $isAdminAuthenticated
 
         .admin-layout .admin-pagination .page-link {
             border-radius: 0.5rem;
-            border: 1px solid #e0e0e0;
-            color: #616161;
+            border: 1px solid #dadce0;
+            color: #5f6368;
             background: #ffffff;
             padding: 0.45rem 0.9rem;
             box-shadow: none;
@@ -309,21 +308,21 @@ $primaryLinks = $isAdminAuthenticated
 
         .admin-layout .admin-pagination .page-link:hover,
         .admin-layout .admin-pagination .page-link:focus {
-            color: #1e88e5;
-            border-color: #1e88e5;
-            background: rgba(30, 136, 229, 0.12);
+            color: #1a73e8;
+            border-color: #1a73e8;
+            background: #e8f0fe;
         }
 
         .admin-layout .admin-pagination .page-item.active .page-link {
             color: #ffffff;
             border-color: transparent;
-            background: #1e88e5;
-            box-shadow: 0 2px 6px rgba(30, 136, 229, 0.3);
+            background: #1a73e8;
+            box-shadow: 0 1px 2px rgba(26, 115, 232, 0.3);
         }
 
         .admin-layout .admin-pagination .page-item.disabled .page-link {
-            color: #bdbdbd;
-            background: #eeeeee;
+            color: #9aa0a6;
+            background: #f1f3f4;
             box-shadow: none;
         }
 
