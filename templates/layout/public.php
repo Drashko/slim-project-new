@@ -5,7 +5,6 @@
 $user = is_array($user ?? null) ? $user : null;
 $title = $title ?? $this->trans('app.default_title');
 $bodyClass = 'public-layout bg-light';
-$currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
 $primaryLinks = [
     ['href' => $this->locale_url(null, null, 'public'), 'label' => $this->trans('layout.nav.public_home')],
     ['href' => $this->locale_url('auth/login', null, 'public'), 'label' => $this->trans('layout.nav.profile_login')],
@@ -25,23 +24,6 @@ $primaryLinks = [
     <link rel="stylesheet" href="/assets/front.css">
     <?= $this->vite_assets('public') ?>
     <?= $this->section('head') ?>
-    <style>
-        .public-layout .navbar .nav-link {
-            border-radius: 999px;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .public-layout .navbar .nav-link:hover,
-        .public-layout .navbar .nav-link:focus,
-        .public-layout .navbar .nav-link.active {
-            color: #1d4ed8;
-            background: rgba(59, 130, 246, 0.12);
-        }
-
-        .public-layout .navbar .dropdown-menu {
-            border-radius: 14px;
-        }
-    </style>
 </head>
 <body class="<?= $this->e($bodyClass) ?>">
     <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom shadow-sm">
@@ -55,13 +37,7 @@ $primaryLinks = [
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2">
                     <?php foreach ($primaryLinks as $link): ?>
-                        <?php $linkPath = parse_url($link['href'], PHP_URL_PATH) ?? ''; ?>
-                        <?php $isActive = $linkPath !== '' && $currentPath === $linkPath; ?>
-                        <li class="nav-item">
-                            <a class="nav-link<?= $isActive ? ' active' : '' ?>" href="<?= $this->e($link['href']) ?>">
-                                <?= $this->e($link['label']) ?>
-                            </a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="<?= $this->e($link['href']) ?>"><?= $this->e($link['label']) ?></a></li>
                     <?php endforeach; ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="languageSwitch" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -78,26 +54,16 @@ $primaryLinks = [
                         </ul>
                     </li>
                     <?php if ($user !== null && isset($user['email'])): ?>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-user me-1" aria-hidden="true"></i><?= $this->e($user['email'] ?? $this->trans('layout.nav.profile')) ?>
+                        <li class="nav-item d-flex flex-column flex-lg-row align-items-lg-center gap-lg-2">
+                            <span class="navbar-text small text-secondary"><?= $this->trans('layout.account.signed_in_as', ['%email%' => $user['email'] ?? '']) ?></span>
+                            <a class="nav-link" href="<?= $this->e($this->locale_url('profile')) ?>">
+                                <i class="fa-solid fa-user me-1" aria-hidden="true"></i><?= $this->e($this->trans('layout.nav.profile')) ?>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                                <li class="px-3 py-2 text-muted small">
-                                    <?= $this->trans('layout.account.signed_in_as', ['%email%' => $user['email'] ?? '']) ?>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="<?= $this->e($this->locale_url('profile')) ?>">
-                                        <i class="fa-solid fa-user me-2" aria-hidden="true"></i><?= $this->e($this->trans('layout.nav.profile')) ?>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-danger" href="<?= $this->e($this->locale_url('auth/logout')) ?>">
-                                        <i class="fa-solid fa-right-from-bracket me-2" aria-hidden="true"></i><?= $this->e($this->trans('layout.account.sign_out')) ?>
-                                    </a>
-                                </li>
-                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" href="<?= $this->e($this->locale_url('auth/logout')) ?>">
+                                <i class="fa-solid fa-right-from-bracket me-1" aria-hidden="true"></i><?= $this->e($this->trans('layout.account.sign_out')) ?>
+                            </a>
                         </li>
                     <?php endif; ?>
                 </ul>

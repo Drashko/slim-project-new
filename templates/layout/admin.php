@@ -9,6 +9,8 @@ $canManageUsers = $this->can('admin.users.manage', $user ?? null);
 $isAdminAuthenticated = $canAccessAdminArea && $user !== null && isset($user['email']);
 $availableLocales = $this->available_locales();
 $currentLocale = $this->current_locale();
+$currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+$adminRootPath = parse_url($this->locale_url('admin', null, 'admin'), PHP_URL_PATH) ?? '';
 if (!is_string($currentLocale) || $currentLocale === '') {
     $currentLocale = (string) array_key_first($availableLocales);
 }
@@ -148,7 +150,8 @@ $primaryLinks = $isAdminAuthenticated
         }
 
         .admin-layout .admin-sidebar .dropdown-item:focus,
-        .admin-layout .admin-sidebar .dropdown-item:hover {
+        .admin-layout .admin-sidebar .dropdown-item:hover,
+        .admin-layout .admin-sidebar .dropdown-item.active {
             background: rgba(59, 130, 246, 0.12);
             color: #1d4ed8;
         }
@@ -329,16 +332,26 @@ $primaryLinks = $isAdminAuthenticated
                     <?php foreach ($primaryLinks as $link): ?>
                         <?php $hasChildren = !empty($link['children']); ?>
                         <?php if ($hasChildren): ?>
+                            <?php
+                                $childStates = [];
+                                $isDropdownActive = false;
+                                foreach ($link['children'] as $index => $child) {
+                                    $childPath = parse_url($child['href'] ?? '', PHP_URL_PATH) ?? '';
+                                    $childActive = $childPath !== '' && ($currentPath === $childPath || str_starts_with($currentPath, rtrim($childPath, '/') . '/'));
+                                    $childStates[$index] = $childActive;
+                                    $isDropdownActive = $isDropdownActive || $childActive;
+                                }
+                            ?>
                             <?php $dropdownId = 'adminDropdown_' . md5((string) ($link['label'] ?? 'link')); ?>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="<?= $this->e($dropdownId) ?>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle<?= $isDropdownActive ? ' active' : '' ?>" href="#" id="<?= $this->e($dropdownId) ?>" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <?php if (!empty($link['icon'])): ?><i class="<?= $this->e($link['icon']) ?> me-1" aria-hidden="true"></i><?php endif; ?>
                                     <?= $this->e($link['label'] ?? '') ?>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="<?= $this->e($dropdownId) ?>">
-                                    <?php foreach ($link['children'] as $child): ?>
+                                    <?php foreach ($link['children'] as $index => $child): ?>
                                         <li>
-                                            <a class="dropdown-item" href="<?= $this->e($child['href'] ?? '#') ?>">
+                                            <a class="dropdown-item<?= !empty($childStates[$index]) ? ' active' : '' ?>" href="<?= $this->e($child['href'] ?? '#') ?>">
                                                 <?php if (!empty($child['icon'])): ?><i class="<?= $this->e($child['icon']) ?> me-1" aria-hidden="true"></i><?php endif; ?>
                                                 <?= $this->e($child['label'] ?? '') ?>
                                             </a>
@@ -347,8 +360,15 @@ $primaryLinks = $isAdminAuthenticated
                                 </ul>
                             </li>
                         <?php else: ?>
+                            <?php $linkPath = parse_url($link['href'] ?? '', PHP_URL_PATH) ?? ''; ?>
+                            <?php
+                                $isActive = $linkPath !== '' && (
+                                    ($linkPath === $adminRootPath && $currentPath === $adminRootPath)
+                                    || ($linkPath !== $adminRootPath && ($currentPath === $linkPath || str_starts_with($currentPath, rtrim($linkPath, '/') . '/')))
+                                );
+                            ?>
                             <li class="nav-item">
-                                <a class="nav-link" href="<?= $this->e($link['href'] ?? '#') ?>">
+                                <a class="nav-link<?= $isActive ? ' active' : '' ?>" href="<?= $this->e($link['href'] ?? '#') ?>">
                                     <?php if (!empty($link['icon'])): ?><i class="<?= $this->e($link['icon']) ?> me-1" aria-hidden="true"></i><?php endif; ?>
                                     <?= $this->e($link['label'] ?? '') ?>
                                 </a>
@@ -380,10 +400,29 @@ $primaryLinks = $isAdminAuthenticated
                         <?php endforeach; ?>
                     </select>
                     <?php if ($isAdminAuthenticated): ?>
-                        <span class="text-muted small"><?= $this->e($user['email'] ?? '') ?></span>
-                        <a class="btn btn-outline-danger btn-sm" href="<?= $this->e($this->locale_url('admin/logout', null, 'admin')) ?>">
-                            <?= $this->e($this->trans('layout.account.sign_out')) ?>
-                        </a>
+                        <div class="dropdown">
+                            <button
+                                class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                type="button"
+                                id="adminUserMenu"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                <i class="fa-solid fa-user me-1" aria-hidden="true"></i><?= $this->e($user['email'] ?? '') ?>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminUserMenu">
+                                <li>
+                                    <a class="dropdown-item" href="<?= $this->e($this->locale_url('admin/profile', null, 'admin')) ?>">
+                                        <i class="fa-solid fa-id-card me-2" aria-hidden="true"></i><?= $this->e($this->trans('layout.nav.profile')) ?>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="<?= $this->e($this->locale_url('admin/logout', null, 'admin')) ?>">
+                                        <i class="fa-solid fa-right-from-bracket me-2" aria-hidden="true"></i><?= $this->e($this->trans('layout.account.sign_out')) ?>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     <?php endif; ?>
                 </div>
             </header>
