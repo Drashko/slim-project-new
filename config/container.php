@@ -29,6 +29,7 @@ use App\Integration\View\Plates\RbacExtension;
 use App\Integration\View\Plates\ReactExtension;
 use App\Integration\View\Plates\ViteExtension;
 use App\Integration\View\TemplateRenderer;
+use App\Web\Shared\Paginator;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -116,6 +117,10 @@ return [
         }
 
         return $session;
+    },
+
+    Paginator::class => static function (): Paginator {
+        return new Paginator();
     },
 
     SessionManagerInterface::class => static function (ContainerInterface $container): SessionInterface {
