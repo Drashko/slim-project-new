@@ -185,6 +185,68 @@ $primaryLinks = $isAdminAuthenticated
             box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
         }
 
+        .admin-layout .content-header .text-uppercase {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.12);
+            color: #1d4ed8;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+        }
+
+        .admin-layout .content-header h1,
+        .admin-layout .content-header .h3 {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .admin-layout .content-header p.text-secondary {
+            color: #64748b !important;
+        }
+
+        .admin-layout .card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 16px 30px rgba(148, 163, 184, 0.22);
+        }
+
+        .admin-layout .card.card-outline {
+            border: 1px solid #e2e8f0;
+        }
+
+        .admin-layout .card-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+        }
+
+        .admin-layout .card-title {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .admin-layout .form-label {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .admin-layout .form-control,
+        .admin-layout .form-select {
+            border-radius: 12px;
+            border-color: #e2e8f0;
+            box-shadow: 0 10px 20px rgba(148, 163, 184, 0.12);
+        }
+
+        .admin-layout .form-control:focus,
+        .admin-layout .form-select:focus {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.15);
+        }
+
         .admin-layout .admin-pagination {
             gap: 0.45rem;
         }
