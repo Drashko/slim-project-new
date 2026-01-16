@@ -106,46 +106,77 @@ $primaryLinks = $isAdminAuthenticated
 
         .admin-layout .admin-sidebar {
             width: 260px;
-            background: linear-gradient(180deg, #ffffff 0%, #f7f9fe 100%);
-            box-shadow: 0 10px 30px rgba(31, 45, 61, 0.08);
+            background: #ffffff;
+            color: #475569;
+            box-shadow: 0 20px 40px rgba(148, 163, 184, 0.2);
         }
 
         .admin-layout .admin-sidebar .navbar-brand {
-            letter-spacing: 0.02em;
+            letter-spacing: 0.03em;
+            color: #0f172a;
         }
 
         .admin-layout .admin-sidebar .nav-link {
-            color: #2f3a4a;
+            color: #475569;
             border-radius: 12px;
-            padding: 0.55rem 0.75rem;
+            padding: 0.6rem 0.85rem;
             transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
         }
 
         .admin-layout .admin-sidebar .nav-link:hover,
-        .admin-layout .admin-sidebar .nav-link:focus {
-            color: #0b5ed7;
-            background: rgba(13, 110, 253, 0.1);
+        .admin-layout .admin-sidebar .nav-link:focus,
+        .admin-layout .admin-sidebar .nav-link.active {
+            color: #1d4ed8;
+            background: rgba(59, 130, 246, 0.12);
             transform: translateX(2px);
         }
 
         .admin-layout .admin-sidebar .dropdown-menu {
-            border-radius: 12px;
-            border: 1px solid #e3e7f0;
-            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+            border-radius: 14px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            background: #ffffff;
+            box-shadow: 0 20px 30px rgba(148, 163, 184, 0.25);
         }
 
         .admin-layout .admin-sidebar .dropdown-item {
             border-radius: 10px;
+            color: #475569;
         }
 
         .admin-layout .admin-sidebar .dropdown-item:focus,
         .admin-layout .admin-sidebar .dropdown-item:hover {
-            background: rgba(13, 110, 253, 0.08);
-            color: #0b5ed7;
+            background: rgba(59, 130, 246, 0.12);
+            color: #1d4ed8;
+        }
+
+        .admin-layout .admin-main {
+            padding: 1.5rem 1.75rem 2.5rem;
         }
 
         .admin-layout main .container-fluid {
-            max-width: 1200px;
+            max-width: 1220px;
+        }
+
+        .admin-layout .admin-topbar {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-layout .admin-topbar .admin-title {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .admin-layout .admin-topbar .admin-actions {
+            gap: 0.75rem;
+        }
+
+        .admin-layout .admin-topbar .form-select {
+            border-radius: 12px;
+            border-color: #e2e8f0;
         }
 
         .admin-layout .admin-content-surface {
@@ -155,36 +186,36 @@ $primaryLinks = $isAdminAuthenticated
         }
 
         .admin-layout .admin-pagination {
-            gap: 0.4rem;
+            gap: 0.45rem;
         }
 
         .admin-layout .admin-pagination .page-link {
-            border-radius: 999px;
-            border: 1px solid #dfe3eb;
-            color: #2f3a4a;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            color: #334155;
             background: #ffffff;
             padding: 0.45rem 0.9rem;
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
             transition: all 0.2s ease;
         }
 
         .admin-layout .admin-pagination .page-link:hover,
         .admin-layout .admin-pagination .page-link:focus {
-            color: #0b5ed7;
-            border-color: #b6c4ff;
-            box-shadow: 0 10px 24px rgba(11, 94, 215, 0.18);
+            color: #1d4ed8;
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 16px 26px rgba(59, 130, 246, 0.18);
         }
 
         .admin-layout .admin-pagination .page-item.active .page-link {
             color: #ffffff;
             border-color: transparent;
-            background: linear-gradient(135deg, #0d6efd, #4f8cff);
-            box-shadow: 0 12px 24px rgba(13, 110, 253, 0.35);
+            background: linear-gradient(135deg, #2563eb, #60a5fa);
+            box-shadow: 0 16px 28px rgba(37, 99, 235, 0.35);
         }
 
         .admin-layout .admin-pagination .page-item.disabled .page-link {
-            color: #9aa4b2;
-            background: #f3f5f9;
+            color: #94a3b8;
+            background: #f1f5f9;
             box-shadow: none;
         }
 
@@ -216,10 +247,10 @@ $primaryLinks = $isAdminAuthenticated
 </head>
 <body class="<?= $this->e($bodyClass) ?>">
 <div class="admin-shell d-flex">
-    <nav class="admin-sidebar navbar navbar-expand-lg navbar-light bg-white border-end">
+    <nav class="admin-sidebar navbar navbar-expand-lg navbar-light border-end-0">
         <div class="container-fluid flex-lg-column align-items-stretch p-0">
             <div class="d-flex align-items-center justify-content-between w-100 px-3 py-3 border-bottom">
-                <a class="navbar-brand fw-semibold text-primary m-0" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
+                <a class="navbar-brand fw-semibold m-0" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
                     <i class="fa-solid fa-shield-halved me-2" aria-hidden="true"></i><?= $this->e($this->trans('app.name')) ?> Admin
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -258,7 +289,15 @@ $primaryLinks = $isAdminAuthenticated
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </ul>
-                <div class="mt-lg-auto pt-lg-3 border-top w-100 d-flex flex-column gap-3">
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow-1">
+        <div class="admin-main">
+            <header class="admin-topbar d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="admin-title h5 mb-0"><?= $this->e($title) ?></div>
+                <div class="admin-actions d-flex flex-wrap align-items-center">
                     <select
                         class="form-select form-select-sm"
                         aria-label="<?= $this->e($this->trans('layout.language.switch')) ?>"
@@ -280,13 +319,10 @@ $primaryLinks = $isAdminAuthenticated
                         </a>
                     <?php endif; ?>
                 </div>
+            </header>
+            <div class="container-fluid py-4 admin-content-surface">
+                <?= $this->section('content') ?>
             </div>
-        </div>
-    </nav>
-
-    <main class="flex-grow-1">
-        <div class="container-fluid py-4 admin-content-surface">
-            <?= $this->section('content') ?>
         </div>
     </main>
 </div>
