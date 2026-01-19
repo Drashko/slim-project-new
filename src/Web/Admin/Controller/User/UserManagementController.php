@@ -23,7 +23,8 @@ final readonly class UserManagementController
         private AdminAuthenticator $authenticator,
         private UserService        $userDirectory,
         private Paginator          $paginator,
-        private Messages           $flash
+        private Messages           $flash,
+        private array              $settings
     ) {
     }
 
@@ -43,7 +44,7 @@ final readonly class UserManagementController
         $pagination = $this->paginator->paginate(
             $filteredDirectory,
             $this->resolvePage($request),
-            $this->resolvePerPage($request)
+            $this->resolvePerPage()
         );
 
         $roles = $this->userDirectory->roles($directory);
@@ -64,7 +65,7 @@ final readonly class UserManagementController
     }
 
     /**
-     * @return array{query: string, role: string, status: string, perPage: int}
+     * @return array{query: string, role: string, status: string}
      */
     private function resolveFilters(ServerRequestInterface $request): array
     {
@@ -74,7 +75,6 @@ final readonly class UserManagementController
             'query' => trim((string) ($params['query'] ?? '')),
             'role' => (string) ($params['role'] ?? 'all'),
             'status' => (string) ($params['status'] ?? 'all'),
-            'perPage' => $this->resolvePerPage($request),
         ];
     }
 
@@ -85,13 +85,15 @@ final readonly class UserManagementController
         return max(1, (int) ($params['page'] ?? 1));
     }
 
-    private function resolvePerPage(ServerRequestInterface $request): int
+    private function resolvePerPage(): int
     {
-        $params = $request->getQueryParams();
-        $perPage = (int) ($params['per_page'] ?? 10);
-        $allowed = [10, 25, 50, 100];
+        $paginationSettings = (array) ($this->settings['pagination'] ?? []);
+        $defaultPerPage = (int) ($paginationSettings['default_per_page'] ?? 10);
+        $adminUsersPerPage = (int) ($paginationSettings['admin_users_per_page'] ?? 0);
 
-        return in_array($perPage, $allowed, true) ? $perPage : 10;
+        $perPage = $adminUsersPerPage > 0 ? $adminUsersPerPage : $defaultPerPage;
+
+        return max(1, $perPage);
     }
 
     /**
