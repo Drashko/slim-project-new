@@ -19,9 +19,9 @@ $roles = array_map(static fn($role) => (string) $role, (array) ($user['roles'] ?
                 </header>
 
                 <?php if ($user !== null): ?>
-                    <p class="text-success fw-semibold"><?= $this->trans('profile.signed_in', [
-                            '%email%' => $this->e($user['email'] ?? ''),
-                        ]) ?></p>
+                    <p class="text-success fw-semibold"><?= $this->e($this->trans('profile.signed_in', [
+                            '%email%' => $user['email'] ?? '',
+                        ])) ?></p>
                     <dl class="row mb-0">
                         <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('admin.profile.session.email')) ?></dt>
                         <dd class="col-sm-8 mb-1"><?= $this->e($user['email'] ?? '') ?></dd>

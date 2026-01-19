@@ -55,7 +55,7 @@ $primaryLinks = [
                     </li>
                     <?php if ($user !== null && isset($user['email'])): ?>
                         <li class="nav-item d-flex flex-column flex-lg-row align-items-lg-center gap-lg-2">
-                            <span class="navbar-text small text-secondary"><?= $this->trans('layout.account.signed_in_as', ['%email%' => $user['email'] ?? '']) ?></span>
+                            <span class="navbar-text small text-secondary"><?= $this->e($this->trans('layout.account.signed_in_as', ['%email%' => $user['email'] ?? ''])) ?></span>
                             <a class="nav-link" href="<?= $this->e($this->locale_url('profile')) ?>">
                                 <i class="fa-solid fa-user me-1" aria-hidden="true"></i><?= $this->e($this->trans('layout.nav.profile')) ?>
                             </a>
