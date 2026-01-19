@@ -150,6 +150,7 @@ $primaryLinks = $isAdminAuthenticated
         .admin-layout .admin-sidebar .nav-link.active {
             color: var(--admin-primary);
             background: var(--admin-primary-soft);
+            border-radius: 3px;
         }
 
         .admin-layout .admin-sidebar .dropdown-menu {
