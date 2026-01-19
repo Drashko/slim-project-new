@@ -339,6 +339,7 @@ $primaryLinks = $isAdminAuthenticated
 
         .admin-layout .admin-pagination {
             gap: 0.45rem;
+            flex-wrap: wrap;
         }
 
         .admin-layout .admin-pagination .page-link {

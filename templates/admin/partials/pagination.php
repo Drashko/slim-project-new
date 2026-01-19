@@ -28,6 +28,31 @@ $buildUrl = static function (string $url, array $params): string {
 
     return $query === '' ? $url : $url . '?' . $query;
 };
+
+$maxVisiblePages = 7;
+$pages = [];
+
+if ($totalPages <= $maxVisiblePages) {
+    $pages = range(1, $totalPages);
+} else {
+    $pages[] = 1;
+    $start = max(2, $page - 2);
+    $end = min($totalPages - 1, $page + 2);
+
+    if ($start > 2) {
+        $pages[] = null;
+    }
+
+    for ($index = $start; $index <= $end; $index++) {
+        $pages[] = $index;
+    }
+
+    if ($end < $totalPages - 1) {
+        $pages[] = null;
+    }
+
+    $pages[] = $totalPages;
+}
 ?>
 
 <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mt-3">
@@ -49,16 +74,22 @@ $buildUrl = static function (string $url, array $params): string {
                     <?= $this->e($this->trans('admin.users.pagination.prev')) ?>
                 </a>
             </li>
-            <?php for ($index = 1; $index <= $totalPages; $index++): ?>
-                <li class="page-item<?= $index === $page ? ' active' : '' ?>">
-                    <a
-                        class="page-link"
-                        href="<?= $this->e($buildUrl($baseUrl, array_merge($baseQueryParams, ['page' => $index]))) ?>"
-                    >
-                        <?= $this->e((string) $index) ?>
-                    </a>
-                </li>
-            <?php endfor; ?>
+            <?php foreach ($pages as $index): ?>
+                <?php if ($index === null): ?>
+                    <li class="page-item disabled" aria-hidden="true">
+                        <span class="page-link">&hellip;</span>
+                    </li>
+                <?php else: ?>
+                    <li class="page-item<?= $index === $page ? ' active' : '' ?>">
+                        <a
+                            class="page-link"
+                            href="<?= $this->e($buildUrl($baseUrl, array_merge($baseQueryParams, ['page' => $index]))) ?>"
+                        >
+                            <?= $this->e((string) $index) ?>
+                        </a>
+                    </li>
+                <?php endif; ?>
+            <?php endforeach; ?>
             <li class="page-item<?= ($pagination['hasNext'] ?? false) ? '' : ' disabled' ?>">
                 <a
                     class="page-link"
