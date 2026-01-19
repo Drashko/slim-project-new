@@ -14,6 +14,7 @@ use App\Domain\Shared\Event\InMemoryDomainEventDispatcher;
 use App\Domain\Shared\Event\LoggingDomainEventDispatcher;
 use App\Domain\Shared\Clock;
 use App\Domain\User\UserRepositoryInterface;
+use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Logger\LoggerFactory;
 use App\Integration\Helper\ImageStorage;
 use App\Integration\Middleware\LocalizationMiddleware;
@@ -29,6 +30,8 @@ use App\Integration\View\Plates\RbacExtension;
 use App\Integration\View\Plates\ReactExtension;
 use App\Integration\View\Plates\ViteExtension;
 use App\Integration\View\TemplateRenderer;
+use App\Web\Admin\Controller\User\UserManagementController;
+use App\Web\Admin\Service\UserService;
 use App\Web\Shared\Paginator;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
@@ -132,6 +135,17 @@ return [
         $container->get(SessionInterface::class);
 
         return new Messages();
+    },
+
+    UserManagementController::class => static function (ContainerInterface $container): UserManagementController {
+        return new UserManagementController(
+            $container->get(TemplateRenderer::class),
+            $container->get(AdminAuthenticator::class),
+            $container->get(UserService::class),
+            $container->get(Paginator::class),
+            $container->get(Messages::class),
+            (array) $container->get('settings')
+        );
     },
 
     LoggerFactory::class => static fn(ContainerInterface $container): LoggerFactory => new LoggerFactory(
