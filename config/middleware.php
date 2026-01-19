@@ -9,8 +9,8 @@ use Slim\App;
 use Slim\Middleware\ErrorMiddleware;
 
 return static function (App $app): void {
-    $app->add(SessionStartMiddleware::class);
     $app->add(LocalizationMiddleware::class);
+    $app->add(SessionStartMiddleware::class);
     $app->addBodyParsingMiddleware();
     $app->addRoutingMiddleware();
     $app->add(StaticAssetCacheMiddleware::class);

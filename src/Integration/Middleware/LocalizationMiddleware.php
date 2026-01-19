@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Routing\RouteContext;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class LocalizationMiddleware implements MiddlewareInterface
@@ -48,6 +49,11 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
 
     private function resolveLocale(ServerRequestInterface $request, string $sessionKey, string $cookieName): string
     {
+        $routeLocale = $this->localeFromRoute($request);
+        if ($routeLocale !== null) {
+            return $routeLocale;
+        }
+
         $pathLocale = $this->extractLocaleFromPath($request);
         if ($pathLocale !== null) {
             return $pathLocale;
@@ -74,6 +80,16 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
         }
 
         return $this->defaultLocale;
+    }
+
+    private function localeFromRoute(ServerRequestInterface $request): ?string
+    {
+        $route = RouteContext::fromRequest($request)->getRoute();
+        if ($route === null) {
+            return null;
+        }
+
+        return $this->sanitizeLocale($route->getArgument('locale'));
     }
 
     private function sanitizeLocale(mixed $value): ?string
