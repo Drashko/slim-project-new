@@ -112,6 +112,7 @@ $primaryLinks = $isAdminAuthenticated
             --admin-focus: rgba(26, 115, 232, 0.32);
             --admin-shadow-sm: 0 1px 2px rgba(60, 64, 67, 0.12);
             --admin-shadow-md: 0 2px 6px rgba(60, 64, 67, 0.16);
+            --admin-radius: 3px;
             background: var(--admin-bg);
             color: var(--admin-text);
             font-family: "Roboto", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
@@ -137,9 +138,13 @@ $primaryLinks = $isAdminAuthenticated
             color: var(--admin-text);
         }
 
+        .admin-layout .admin-sidebar .navbar-collapse {
+            padding-top: 0.5rem;
+        }
+
         .admin-layout .admin-sidebar .nav-link {
             color: var(--admin-muted);
-            border-radius: 999px;
+            border-radius: var(--admin-radius);
             padding: 0.55rem 0.95rem;
             font-weight: 500;
             transition: background-color 0.2s ease, color 0.2s ease;
@@ -150,17 +155,18 @@ $primaryLinks = $isAdminAuthenticated
         .admin-layout .admin-sidebar .nav-link.active {
             color: var(--admin-primary);
             background: var(--admin-primary-soft);
+            border-radius: var(--admin-radius);
         }
 
         .admin-layout .admin-sidebar .dropdown-menu {
-            border-radius: 0.5rem;
+            border-radius: var(--admin-radius);
             border: 1px solid var(--admin-border);
             background: var(--admin-surface);
             box-shadow: var(--admin-shadow-md);
         }
 
         .admin-layout .admin-sidebar .dropdown-item {
-            border-radius: 0.375rem;
+            border-radius: var(--admin-radius);
             color: var(--admin-muted);
             font-weight: 500;
         }
@@ -183,7 +189,7 @@ $primaryLinks = $isAdminAuthenticated
 
         .admin-layout .admin-topbar {
             background: var(--admin-surface);
-            border-radius: 0.75rem;
+            border-radius: var(--admin-radius);
             border: 1px solid var(--admin-border);
             box-shadow: var(--admin-shadow-sm);
             padding: 1rem 1.5rem;
@@ -200,13 +206,13 @@ $primaryLinks = $isAdminAuthenticated
         }
 
         .admin-layout .admin-topbar .form-select {
-            border-radius: 0.5rem;
+            border-radius: var(--admin-radius);
             border-color: var(--admin-border);
         }
 
         .admin-layout .admin-content-surface {
             background: var(--admin-surface);
-            border-radius: 0.75rem;
+            border-radius: var(--admin-radius);
             border: 1px solid var(--admin-border);
             box-shadow: var(--admin-shadow-sm);
         }
@@ -216,7 +222,7 @@ $primaryLinks = $isAdminAuthenticated
             align-items: center;
             gap: 0.4rem;
             padding: 0.35rem 0.7rem;
-            border-radius: 999px;
+            border-radius: var(--admin-radius);
             background: var(--admin-primary-soft);
             color: var(--admin-primary);
             font-weight: 500;
@@ -235,7 +241,7 @@ $primaryLinks = $isAdminAuthenticated
 
         .admin-layout .card {
             border: 1px solid var(--admin-border);
-            border-radius: 0.75rem;
+            border-radius: var(--admin-radius);
             box-shadow: var(--admin-shadow-sm);
         }
 
@@ -246,8 +252,8 @@ $primaryLinks = $isAdminAuthenticated
         .admin-layout .card-header {
             background: #fafafa;
             border-bottom: 1px solid var(--admin-border);
-            border-top-left-radius: 0.75rem;
-            border-top-right-radius: 0.75rem;
+            border-top-left-radius: var(--admin-radius);
+            border-top-right-radius: var(--admin-radius);
         }
 
         .admin-layout .card-title {
@@ -262,7 +268,7 @@ $primaryLinks = $isAdminAuthenticated
 
         .admin-layout .form-control,
         .admin-layout .form-select {
-            border-radius: 0.5rem;
+            border-radius: var(--admin-radius);
             border-color: var(--admin-border);
             box-shadow: none;
             color: var(--admin-text);
@@ -343,7 +349,7 @@ $primaryLinks = $isAdminAuthenticated
         }
 
         .admin-layout .admin-pagination .page-link {
-            border-radius: 0.5rem;
+            border-radius: var(--admin-radius);
             border: 1px solid var(--admin-border);
             color: var(--admin-muted);
             background: var(--admin-surface);
