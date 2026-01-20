@@ -222,6 +222,14 @@ $primaryLinks = $isAdminAuthenticated
             border-radius: var(--admin-radius);
             border: 1px solid var(--admin-border);
             box-shadow: var(--admin-shadow-sm);
+            flex: 1;
+        }
+
+        .admin-layout .admin-footer {
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--admin-border);
+            color: var(--admin-muted);
         }
 
         .admin-layout .admin-footer {
