@@ -84,7 +84,7 @@ $primaryLinks = $isAdminAuthenticated
     ];
 ?>
 <!DOCTYPE html>
-<html lang="<?= $this->e($this->current_locale() ?? 'en') ?>">
+<html class="admin-layout" lang="<?= $this->e($this->current_locale() ?? 'en') ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
