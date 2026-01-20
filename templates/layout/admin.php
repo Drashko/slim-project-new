@@ -127,10 +127,10 @@ $primaryLinks = $isAdminAuthenticated
                             ?>
                             <?php $dropdownId = 'adminDropdown_' . md5((string) ($link['label'] ?? 'link')); ?>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle<?= $isDropdownActive ? ' active' : '' ?>" href="#" id="<?= $this->e($dropdownId) ?>" role="button" data-bs-toggle="dropdown" aria-expanded="<?= $isDropdownActive ? 'true' : 'false' ?>">
+                                <button class="nav-link dropdown-toggle<?= $isDropdownActive ? ' active' : '' ?>" type="button" id="<?= $this->e($dropdownId) ?>" data-bs-toggle="dropdown" aria-expanded="<?= $isDropdownActive ? 'true' : 'false' ?>">
                                     <?php if (!empty($link['icon'])): ?><i class="<?= $this->e($link['icon']) ?> me-1" aria-hidden="true"></i><?php endif; ?>
                                     <?= $this->e($link['label'] ?? '') ?>
-                                </a>
+                                </button>
                                 <ul class="dropdown-menu<?= $isDropdownActive ? ' show' : '' ?>" aria-labelledby="<?= $this->e($dropdownId) ?>">
                                     <?php foreach ($link['children'] as $index => $child): ?>
                                         <li>
