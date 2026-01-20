@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Web\Admin\Controller\User;
 
 use App\Domain\Shared\DomainException;
+use App\Feature\Admin\Role\Command\ListRolesCommand;
+use App\Feature\Admin\Role\Handler\ListRolesHandler;
 use App\Feature\Admin\User\Command\CreateUserCommand;
 use App\Feature\Admin\User\Handler\CreateUserHandler;
 use App\Integration\Auth\AdminAuthenticator;
@@ -25,6 +27,7 @@ final readonly class UserCreateController
         private CreateUserHandler  $createUser,
         private Messages           $flash,
         private UserService        $userDirectory,
+        private ListRolesHandler   $listRoles,
     ) {
     }
 
@@ -47,11 +50,12 @@ final readonly class UserCreateController
         }
 
         $directory = $this->userDirectory->all();
+        $availableRoles = $this->availableRoles();
 
         return $this->templates->render($response, 'admin::users/create', [
             'user' => $user,
             'flash' => $this->flash,
-            'roles' => $this->userDirectory->roles($directory),
+            'roles' => $availableRoles,
             'statuses' => $this->userDirectory->statuses($directory),
         ]);
     }
@@ -96,5 +100,24 @@ final readonly class UserCreateController
             static fn(mixed $value): string => strtoupper(trim((string) $value)),
             $roles
         ), static fn(string $role): bool => $role !== ''));
+    }
+
+    /**
+     * @return array<int, array{key: string, name: string, description: string, critical: bool}>
+     */
+    private function availableRoles(): array
+    {
+        $roles = [];
+
+        foreach ($this->listRoles->handle(new ListRolesCommand()) as $role) {
+            $roles[] = [
+                'key' => strtoupper($role->getId()),
+                'name' => $role->getName(),
+                'description' => $role->getDescription(),
+                'critical' => $role->isCritical(),
+            ];
+        }
+
+        return $roles;
     }
 }

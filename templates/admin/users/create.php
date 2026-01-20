@@ -1,7 +1,7 @@
 <?php
 /** @var array|null $user */
 /** @var \Slim\Flash\Messages|null $flash */
-/** @var array<int, string> $roles */
+/** @var array<int, array{key: string, name: string, description: string, critical: bool}> $roles */
 /** @var array<int, string> $statuses */
 
 use Slim\Flash\Messages;
@@ -99,11 +99,15 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
             <div class="col-md-6 col-lg-3">
                 <label class="form-label text-muted small" for="create-roles">Roles</label>
                 <select class="form-select" id="create-roles" name="roles[]" multiple>
-                    <?php foreach ($roles as $role): ?>
-                        <option value="<?= $this->e($role) ?>">
-                            <?= $this->e($role) ?>
-                        </option>
-                    <?php endforeach; ?>
+                    <?php if ($roles === []): ?>
+                        <option value="" disabled><?= $this->e($this->trans('admin.roles.table.empty')) ?></option>
+                    <?php else: ?>
+                        <?php foreach ($roles as $role): ?>
+                            <option value="<?= $this->e($role['key']) ?>">
+                                <?= $this->e($role['name']) ?> (<?= $this->e($role['key']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </select>
                 <p class="text-muted small mb-0">Hold Ctrl (Windows) or Command (Mac) to select multiple roles.</p>
             </div>
