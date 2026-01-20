@@ -88,22 +88,26 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
     </div>
     <div class="card-body">
         <form class="row g-3" method="post">
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-3">
                 <label class="form-label text-muted small" for="create-email">Email</label>
                 <input type="email" class="form-control" id="create-email" name="email" placeholder="user@example.com" required>
             </div>
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-3">
                 <label class="form-label text-muted small" for="create-password">Password</label>
                 <input type="password" class="form-control" id="create-password" name="password" placeholder="••••••••" required>
             </div>
-            <div class="col-md-6 col-lg-2">
-                <label class="form-label text-muted small" for="create-roles">Roles (comma separated)</label>
-                <input type="text" class="form-control" id="create-roles" name="roles" placeholder="ROLE_ADMIN,ROLE_USER">
-                <?php if ($roles !== []): ?>
-                    <p class="text-muted small mb-0">Available: <?= $this->e(implode(', ', $roles)) ?></p>
-                <?php endif; ?>
+            <div class="col-md-6 col-lg-3">
+                <label class="form-label text-muted small" for="create-roles">Roles</label>
+                <select class="form-select" id="create-roles" name="roles[]" multiple>
+                    <?php foreach ($roles as $role): ?>
+                        <option value="<?= $this->e($role) ?>">
+                            <?= $this->e($role) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="text-muted small mb-0">Hold Ctrl (Windows) or Command (Mac) to select multiple roles.</p>
             </div>
-            <div class="col-md-6 col-lg-2">
+            <div class="col-md-6 col-lg-3">
                 <label class="form-label text-muted small" for="create-status">Status</label>
                 <select class="form-select" id="create-status" name="status">
                     <?php foreach ($statuses as $status): ?>
