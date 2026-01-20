@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router,Routes,Route} from "react-router-dom"
+
 const App = () => (
   <div className="text-center py-5">
     <h1 className="h3 mb-3">Public demo message</h1>
