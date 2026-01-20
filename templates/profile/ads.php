@@ -119,7 +119,7 @@ $categories = $categories ?? [];
                                         <?php if (!empty($ad['images'])): ?>
                                             <div class="d-flex gap-2 flex-wrap justify-content-end mt-2">
                                                 <?php foreach ($ad['images'] as $image): ?>
-                                                    <img src="<?= $this->e($image) ?>" alt="<?= $this->e($ad['title'] ?? '') ?>" class="rounded border" style="width: 56px; height: 56px; object-fit: cover;">
+                                                    <img src="<?= $this->e($image) ?>" alt="<?= $this->e($ad['title'] ?? '') ?>" class="rounded border profile-ad-thumbnail">
                                                 <?php endforeach; ?>
                                             </div>
                                         <?php endif; ?>
