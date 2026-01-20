@@ -159,10 +159,10 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
                 <?= $this->e($this->trans('admin.users.table.subtitle', ['%count%' => (string) $totalUsers])) ?>
             </p>
         </div>
-        <a class="btn btn-outline-secondary" href="#" role="button">
+        <button class="btn btn-outline-secondary" type="button">
             <i class="fa-solid fa-file-export me-2" aria-hidden="true"></i>
             <?= $this->e($this->trans('admin.users.actions.export')) ?>
-        </a>
+        </button>
     </div>
     <div class="card-body p-0">
         <?php if ($directory === []): ?>
