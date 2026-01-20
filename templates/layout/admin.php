@@ -184,6 +184,9 @@ $primaryLinks = $isAdminAuthenticated
 
         .admin-layout .admin-main {
             padding: 1.5rem 1.75rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         .admin-layout main .container-fluid {
@@ -219,6 +222,13 @@ $primaryLinks = $isAdminAuthenticated
             border-radius: var(--admin-radius);
             border: 1px solid var(--admin-border);
             box-shadow: var(--admin-shadow-sm);
+        }
+
+        .admin-layout .admin-footer {
+            margin-top: auto;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--admin-border);
+            color: var(--admin-muted);
         }
 
         .admin-layout .content-header .text-uppercase {
@@ -522,6 +532,9 @@ $primaryLinks = $isAdminAuthenticated
             <div class="container-fluid py-4 admin-content-surface">
                 <?= $this->section('content') ?>
             </div>
+            <footer class="admin-footer text-center small">
+                &copy; <?= $this->e((new DateTimeImmutable())->format('Y')) ?> <?= $this->e($this->trans('app.name')) ?>.
+            </footer>
         </div>
     </main>
 </div>

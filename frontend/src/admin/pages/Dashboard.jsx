@@ -1,5 +1,4 @@
 import React from "react";
-import Footer from '../components/Footer.jsx';
 import DashboardCards from "../components/DashboardCards.jsx";
 
 const Dashboard = () => {
@@ -10,7 +9,6 @@ const Dashboard = () => {
                 <p className="text-muted mb-0">This is a lightweight React placeholder for the admin home page.</p>
             </section>
             <DashboardCards/>
-            <div><Footer/></div>
         </div>
 
     )
