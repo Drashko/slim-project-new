@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Web\Admin\Controller\User;
 
 use App\Domain\Shared\DomainException;
-use App\Integration\Auth\AdminAuthenticator;
-use App\Integration\View\TemplateRenderer;
+use App\Feature\Admin\Role\Command\ListRolesCommand;
+use App\Feature\Admin\Role\Handler\ListRolesHandler;
 use App\Feature\Admin\User\Command\DeleteUserCommand;
 use App\Feature\Admin\User\Command\UpdateUserCommand;
 use App\Feature\Admin\User\Handler\DeleteUserHandler;
 use App\Feature\Admin\User\Handler\UpdateUserHandler;
+use App\Integration\Auth\AdminAuthenticator;
+use App\Integration\View\TemplateRenderer;
 use App\Web\Admin\Service\UserService;
 use App\Web\Shared\LocalizedRouteTrait;
 use DateInterval;
@@ -30,6 +32,7 @@ final readonly class UserDetailController
         private UpdateUserHandler  $updateUser,
         private DeleteUserHandler  $deleteUser,
         private Messages           $flash,
+        private ListRolesHandler   $listRoles,
     ) {
     }
 
@@ -57,6 +60,7 @@ final readonly class UserDetailController
         $payload = [
             'user' => $user,
             'member' => $member,
+            'roles' => $this->availableRoles(),
             'contact' => $member !== null ? $this->buildContact($member) : [],
             'timeline' => $member !== null ? $this->buildTimeline($member) : [],
             'activity' => $member !== null ? $this->buildActivity($member) : [],
@@ -120,6 +124,25 @@ final readonly class UserDetailController
             static fn(mixed $value): string => strtoupper(trim((string) $value)),
             $roles
         ), static fn(string $role): bool => $role !== ''));
+    }
+
+    /**
+     * @return array<int, array{key: string, name: string, description: string, critical: bool}>
+     */
+    private function availableRoles(): array
+    {
+        $roles = [];
+
+        foreach ($this->listRoles->handle(new ListRolesCommand()) as $role) {
+            $roles[] = [
+                'key' => strtoupper($role->getId()),
+                'name' => $role->getName(),
+                'description' => $role->getDescription(),
+                'critical' => $role->isCritical(),
+            ];
+        }
+
+        return $roles;
     }
 
     /**
