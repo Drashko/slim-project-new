@@ -5,7 +5,7 @@
 
 $pagination = $pagination ?? [
     'page' => 1,
-    'perPage' => 10,
+    'perPage' => 50,
     'total' => 0,
     'totalPages' => 1,
     'hasPrev' => false,

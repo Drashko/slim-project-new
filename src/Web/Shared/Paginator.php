@@ -7,8 +7,10 @@ namespace App\Web\Shared;
 final class Paginator
 {
     /**
-     * @param array<int, array<string, mixed>> $items
-     * @return array{items: array<int, array<string, mixed>>, page: int, perPage: int, total: int, totalPages: int, hasPrev: bool, hasNext: bool, from: int, to: int}
+     * @param array $items
+     * @param int $page
+     * @param int $perPage
+     * @return array
      */
     public function paginate(array $items, int $page, int $perPage): array
     {
