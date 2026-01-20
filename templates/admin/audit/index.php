@@ -146,16 +146,16 @@ $this->layout('layout::admin', [
                 <table class="table table-hover mb-0">
                     <thead>
                     <tr>
-                        <th style="width: 18%">
+                        <th class="admin-audit-col-event">
                             <?= $this->e($this->trans('admin.audit.table.event_type')) ?>
                         </th>
-                        <th style="width: 20%">
+                        <th class="admin-audit-col-aggregate">
                             <?= $this->e($this->trans('admin.audit.table.aggregate')) ?>
                         </th>
-                        <th style="width: 18%">
+                        <th class="admin-audit-col-id">
                             <?= $this->e($this->trans('admin.audit.table.occurred_at')) ?>
                         </th>
-                        <th style="width: 12%">
+                        <th class="admin-audit-col-status">
                             <?= $this->e($this->trans('admin.audit.table.processed')) ?>
                         </th>
                         <th>
@@ -194,7 +194,7 @@ $this->layout('layout::admin', [
                                     </span>
                                 <?php endif; ?>
                             </td>
-                            <td style="min-width: 320px;">
+                            <td class="admin-audit-col-payload">
                                 <pre class="mb-0 small bg-light p-2 rounded text-break"><?= $this->e($log['payload'] ?? '{}') ?></pre>
                             </td>
                         </tr>
