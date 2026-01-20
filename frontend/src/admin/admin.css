@@ -63,10 +63,17 @@
 }
 
 .admin-layout .admin-sidebar .dropdown-menu {
+  position: static;
+  float: none;
+  margin-top: 0.35rem;
   border-radius: var(--admin-radius);
   border: 1px solid #2c3338;
   background: #2c3338;
   box-shadow: none;
+}
+
+.admin-layout .admin-sidebar .dropdown-menu[data-bs-popper] {
+  transform: none;
 }
 
 .admin-layout .admin-sidebar .dropdown-item {
