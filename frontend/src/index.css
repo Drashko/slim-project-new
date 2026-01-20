@@ -186,6 +186,12 @@ body {
   background: #ffffff;
 }
 
+.profile-ad-thumbnail {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
