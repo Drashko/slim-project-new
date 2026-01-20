@@ -38,11 +38,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
-use Laminas\Permissions\Rbac\Rbac as LaminasRbac;
-use Laminas\Permissions\Rbac\Role as LaminasRole;
 use League\Plates\Engine;
-use Mezzio\Authorization\AuthorizationInterface;
-use Mezzio\Authorization\Rbac\LaminasRbac as MezzioLaminasRbac;
 use Odan\Session\PhpSession;
 use Odan\Session\SessionInterface;
 use Odan\Session\SessionManagerInterface;
@@ -240,70 +236,8 @@ return [
         $container->get(Clock::class)
     ),
 
-    LaminasRbac::class => static function (ContainerInterface $container): LaminasRbac {
-        $settings = (array) $container->get('settings');
-        $rbacSettings = (array) ($settings['rbac'] ?? []);
-        $roleDefinitions = (array) ($rbacSettings['roles'] ?? []);
-
-        $normalizeRole = static function (mixed $role): ?string {
-            if (!is_string($role)) {
-                return null;
-            }
-            $role = strtoupper(trim($role));
-            return $role === '' ? null : $role;
-        };
-
-        $normalizeAbility = static function (mixed $ability): ?string {
-            if (!is_string($ability)) {
-                return null;
-            }
-            $ability = strtolower(trim($ability));
-            return $ability === '' ? null : $ability;
-        };
-
-        $rbac = new LaminasRbac();
-        $rbac->setCreateMissingRoles(true);
-
-        foreach ($roleDefinitions as $name => $definition) {
-            $roleName = $normalizeRole($name);
-            if ($roleName === null) {
-                continue;
-            }
-
-            $role = $rbac->hasRole($roleName) ? $rbac->getRole($roleName) : new LaminasRole($roleName);
-
-            $permissions = [];
-            foreach ((array) ($definition['permissions'] ?? []) as $permission) {
-                $normalizedPermission = $normalizeAbility($permission);
-                if ($normalizedPermission !== null) {
-                    $permissions[$normalizedPermission] = true;
-                }
-            }
-
-            foreach (array_keys($permissions) as $permission) {
-                $role->addPermission($permission);
-            }
-
-            $parents = [];
-            foreach ((array) ($definition['children'] ?? []) as $parentRole) {
-                $normalizedParent = $normalizeRole($parentRole);
-                if ($normalizedParent !== null) {
-                    $parents[] = $normalizedParent;
-                }
-            }
-
-            $rbac->addRole($role, $parents === [] ? null : $parents);
-        }
-
-        return $rbac;
-    },
-
-    AuthorizationInterface::class => static function (ContainerInterface $container): AuthorizationInterface {
-        return new MezzioLaminasRbac($container->get(LaminasRbac::class));
-    },
-
     Policy::class => static fn(ContainerInterface $container): Policy => new Policy(
-        $container->get(LaminasRbac::class)
+        $container->get(RoleRepositoryInterface::class)
     ),
 
     RefreshTokenRepositoryInterface::class => static fn(ContainerInterface $container): RefreshTokenRepositoryInterface => new RefreshTokenRepository(

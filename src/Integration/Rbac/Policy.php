@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Integration\Rbac;
 
-use Laminas\Permissions\Rbac\Rbac;
+use App\Domain\Role\RoleRepositoryInterface;
 
 final readonly class Policy
 {
-    public function __construct(private Rbac $rbac)
+    public function __construct(private RoleRepositoryInterface $roles)
     {
     }
 
@@ -24,12 +24,19 @@ final readonly class Policy
 
         foreach ($roles as $role) {
             $normalizedRole = $this->normalizeRole($role);
-            if ($normalizedRole === null || !$this->rbac->hasRole($normalizedRole)) {
+            if ($normalizedRole === null) {
                 continue;
             }
 
-            if ($this->rbac->isGranted($normalizedRole, $ability)) {
-                return true;
+            $roleEntity = $this->roles->findByKey($normalizedRole);
+            if ($roleEntity === null) {
+                continue;
+            }
+
+            foreach ($roleEntity->getPermissions() as $permission) {
+                if (method_exists($permission, 'getKey') && $permission->getKey() === $ability) {
+                    return true;
+                }
             }
         }
 
@@ -53,7 +60,7 @@ final readonly class Policy
             return null;
         }
 
-        $normalized = strtoupper(trim($role));
+        $normalized = strtolower(trim($role));
 
         return $normalized === '' ? null : $normalized;
     }

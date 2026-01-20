@@ -193,32 +193,6 @@ return [
         'default_per_page' => max(1, (int) ($_ENV['DEFAULT_PER_PAGE'] ?? 10)),
         'admin_users_per_page' => max(1, (int) ($_ENV['ADMIN_USERS_PER_PAGE'] ?? 0)),
     ],
-    'rbac' => [
-        'roles' => [
-            'ROLE_USER' => [
-                'permissions' => [
-                    'profile.view',
-                ],
-            ],
-            'ROLE_API' => [
-                'permissions' => [
-                    'api.access',
-                    'auth.refresh',
-                ],
-            ],
-            'ROLE_ADMIN' => [
-                'children' => ['ROLE_USER'],
-                'permissions' => [
-                    'admin.access',
-                    'admin.users.manage',
-                    'admin.roles.manage',
-                    'admin.permissions.manage',
-                    'admin.permissions.publish',
-                    'admin.audit.view',
-                ],
-            ],
-        ],
-    ],
     'react' => [
         'entry' => 'src/main.jsx',
         'build_path' => $assetBuildPath,
