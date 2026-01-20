@@ -9,6 +9,9 @@
   --admin-primary: #2271b1;
   --admin-primary-hover: #135e96;
   --admin-primary-soft: #f0f6fc;
+  --admin-notice-success: #00a32a;
+  --admin-notice-danger: #d63638;
+  --admin-notice-warning: #dba617;
   --admin-focus: rgba(34, 113, 177, 0.25);
   --admin-shadow-sm: 0 1px 1px rgba(0, 0, 0, 0.04);
   --admin-shadow-md: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -29,14 +32,22 @@
 .admin-layout .admin-shell {
   min-height: 100vh;
   background: var(--admin-bg);
+  display: flex;
+  align-items: stretch;
 }
 
 .admin-layout .admin-sidebar {
   width: 260px;
+  flex: 0 0 260px;
   background: #1d2327;
   color: #f0f0f1;
   border-right: 1px solid #2c3338;
   box-shadow: none;
+}
+
+.admin-layout main {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .admin-layout .admin-sidebar .navbar-brand {
@@ -239,6 +250,30 @@
   border-color: var(--admin-primary-hover);
 }
 
+.admin-layout .alert {
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-border);
+  border-left-width: 4px;
+  box-shadow: var(--admin-shadow-sm);
+  background: var(--admin-surface);
+}
+
+.admin-layout .alert-success {
+  border-left-color: var(--admin-notice-success);
+}
+
+.admin-layout .alert-danger {
+  border-left-color: var(--admin-notice-danger);
+}
+
+.admin-layout .alert-warning {
+  border-left-color: var(--admin-notice-warning);
+}
+
+.admin-layout .alert-info {
+  border-left-color: var(--admin-primary);
+}
+
 .admin-layout .btn-outline-secondary {
   color: var(--admin-text);
   border-color: var(--admin-border);
@@ -268,6 +303,10 @@
 .admin-layout .table thead th {
   color: var(--admin-muted);
   font-weight: 500;
+  background: #f6f7f7;
+}
+
+.admin-layout .table-hover tbody tr:hover {
   background: #f6f7f7;
 }
 
@@ -329,12 +368,6 @@
 .admin-layout .admin-ad-thumbnail {
   width: 64px;
   height: 64px;
-  object-fit: cover;
-}
-
-.profile-ad-thumbnail {
-  width: 56px;
-  height: 56px;
   object-fit: cover;
 }
 
