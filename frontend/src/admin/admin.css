@@ -18,6 +18,8 @@
   font-family: "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
 }
 
 .admin-layout .admin-shell {
