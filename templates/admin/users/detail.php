@@ -1,5 +1,6 @@
 <?php
 /** @var array|null $user */
+/** @var array<int, array{key: string, name: string, description: string, critical: bool}> $roles */
 /** @var array<string, mixed>|null $member */
 /** @var array<string, string> $contact */
 /** @var array<int, array<string, string>> $timeline */
@@ -103,8 +104,20 @@ $activity = $activity ?? [];
                             <input type="password" class="form-control" id="update-password" name="password" placeholder="Leave blank to keep current">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-muted small" for="update-roles">Roles (comma separated)</label>
-                            <input type="text" class="form-control" id="update-roles" name="roles" value="<?= $this->e(implode(',', (array) ($member['permissions'] ?? []))) ?>">
+                            <label class="form-label text-muted small" for="update-roles">Roles</label>
+                            <?php $memberRoles = array_map('strtoupper', (array) ($member['permissions'] ?? [])); ?>
+                            <select class="form-select" id="update-roles" name="roles[]" multiple>
+                                <?php if ($roles === []): ?>
+                                    <option value="" disabled><?= $this->e($this->trans('admin.roles.table.empty')) ?></option>
+                                <?php else: ?>
+                                    <?php foreach ($roles as $role): ?>
+                                        <option value="<?= $this->e($role['key']) ?>"<?= in_array($role['key'], $memberRoles, true) ? ' selected' : '' ?>>
+                                            <?= $this->e($role['name']) ?> (<?= $this->e($role['key']) ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                            <p class="text-muted small mb-0">Hold Ctrl (Windows) or Command (Mac) to select multiple roles.</p>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small" for="update-status">Status</label>
