@@ -32,14 +32,22 @@
 .admin-layout .admin-shell {
   min-height: 100vh;
   background: var(--admin-bg);
+  display: flex;
+  align-items: stretch;
 }
 
 .admin-layout .admin-sidebar {
   width: 260px;
+  flex: 0 0 260px;
   background: #1d2327;
   color: #f0f0f1;
   border-right: 1px solid #2c3338;
   box-shadow: none;
+}
+
+.admin-layout main {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .admin-layout .admin-sidebar .navbar-brand {
