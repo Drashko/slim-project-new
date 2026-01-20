@@ -22,10 +22,6 @@
   scrollbar-gutter: stable;
 }
 
-.admin-layout:not([data-admin-assets="ready"]) .admin-shell {
-  visibility: hidden;
-}
-
 .admin-layout .admin-shell {
   min-height: 100vh;
   background: var(--admin-bg);
