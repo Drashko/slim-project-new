@@ -113,7 +113,7 @@ $statuses = $statuses ?? ['Pending', 'Published', 'Archived'];
                 <?php if (!empty($ad['images'])): ?>
                     <div class="d-flex gap-2 flex-wrap mt-2">
                         <?php foreach ($ad['images'] as $image): ?>
-                            <img src="<?= $this->e($image) ?>" alt="<?= $this->e($ad['title'] ?? '') ?>" class="rounded border" style="width: 64px; height: 64px; object-fit: cover;">
+                            <img src="<?= $this->e($image) ?>" alt="<?= $this->e($ad['title'] ?? '') ?>" class="rounded border admin-ad-thumbnail">
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
