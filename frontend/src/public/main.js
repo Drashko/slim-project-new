@@ -1,5 +1,3 @@
-import "../admin/admin.css";
-
 const ready = () => {
   document.documentElement.dataset.publicAssets = "ready";
 };
