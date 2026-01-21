@@ -153,3 +153,48 @@ body.admin-layout {
 .admin-filter-form .btn {
   min-height: 2.5rem;
 }
+
+@media (max-width: 991.98px) {
+  .admin-shell {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+  }
+
+  .admin-sidebar .navbar-collapse {
+    background-color: #1d2327;
+    border-top: 1px solid #2c3338;
+  }
+
+  .admin-sidebar .dropdown-menu {
+    position: static;
+    float: none;
+    box-shadow: none;
+  }
+
+  .admin-main {
+    width: 100%;
+  }
+
+  .admin-content-surface {
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .admin-sidebar .navbar-brand {
+    font-size: 0.9rem;
+  }
+
+  .admin-content-surface {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
