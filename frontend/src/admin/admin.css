@@ -11,6 +11,7 @@ body.admin-layout {
 
 .admin-shell {
   background-color: #f0f0f1;
+  align-items: stretch;
   min-height: 100vh;
 }
 
@@ -21,6 +22,7 @@ body.admin-layout {
   max-width: 280px;
   border-right: 1px solid #2c3338;
   align-self: stretch;
+  min-height: 100vh;
 }
 
 .admin-sidebar .navbar-brand {
