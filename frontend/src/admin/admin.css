@@ -22,7 +22,13 @@ body.admin-layout {
   max-width: 280px;
   border-right: 1px solid #2c3338;
   align-self: flex-start;
+  align-items: flex-start;
+  justify-content: flex-start;
   min-height: 100vh;
+}
+
+.admin-sidebar .container-fluid {
+  height: 100%;
 }
 
 .admin-sidebar .navbar-brand {
