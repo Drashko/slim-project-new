@@ -9,10 +9,10 @@ use League\Plates\Extension\ExtensionInterface;
 
 final class ViteExtension implements ExtensionInterface
 {
-    /** @var array<string,array{entry:string,manifest_path:string,public_prefix:string,dev_server:string}> */
+    /** @var array<string,array{entry:string,manifest_path:string,public_prefix:string,dev_server:string,styles?:array<int,string>}> */
     private array $bundles;
 
-    /** @param array<string,array{entry:string,manifest_path:string,public_prefix:string,dev_server:string}> $bundles */
+    /** @param array<string,array{entry:string,manifest_path:string,public_prefix:string,dev_server:string,styles?:array<int,string>}> $bundles */
     public function __construct(array $bundles)
     {
         $this->bundles = $bundles;
@@ -76,6 +76,13 @@ final class ViteExtension implements ExtensionInterface
         if ($devServer !== '') {
             $devBase = rtrim($devServer, '/');
             $entry = ltrim($config['entry'], '/');
+            $styles = [];
+            foreach ((array) ($config['styles'] ?? []) as $stylesheet) {
+                if (!is_string($stylesheet) || $stylesheet === '') {
+                    continue;
+                }
+                $styles[] = $devBase . '/' . ltrim($stylesheet, '/');
+            }
 
             return [
                 'mode' => 'dev',
@@ -84,7 +91,7 @@ final class ViteExtension implements ExtensionInterface
                     $devBase . '/@vite/client',
                     $devBase . '/' . $entry,
                 ],
-                'styles' => [],
+                'styles' => $styles,
             ];
         }
 
