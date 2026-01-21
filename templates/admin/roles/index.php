@@ -5,7 +5,6 @@
 /** @var string $selectedId */
 /** @var array<int, array<string, mixed>> $permissionGroups */
 /** @var array<int, string> $selectedPermissions */
-/** @var array<int, array<string, string>> $allPermissions */
 /** @var Messages|null $flash */
 
 use Slim\Flash\Messages;
@@ -19,7 +18,6 @@ $roles = $roles ?? [];
 $selectedRole = $selectedRole ?? null;
 $permissionGroups = $permissionGroups ?? [];
 $selectedPermissions = $selectedPermissions ?? [];
-$allPermissions = $allPermissions ?? [];
 $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
 ?>
 
@@ -50,7 +48,7 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
                             ],
                         ],
                     ]); ?>
-                    <a class="btn btn-primary" href="#new-role" role="button">
+                    <a class="btn btn-primary" href="<?= $this->e($this->locale_url('admin/roles/new', null, 'admin')) ?>" role="button">
                         <i class="fa-solid fa-plus me-2" aria-hidden="true"></i>
                         <?= $this->e($this->trans('admin.roles.actions.create')) ?>
                     </a>
@@ -121,99 +119,21 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
                 </div>
             </div>
         </div>
-        <div class="card card-outline card-primary mt-4" id="new-role">
-            <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card card-outline card-primary mt-4">
+            <div class="card-body d-flex flex-column gap-2">
+                <h3 class="h5 mb-1">
+                    <?= $this->e($this->trans('admin.roles.create.title')) ?>
+                </h3>
+                <p class="text-muted mb-0">
+                    <?= $this->e($this->trans('admin.roles.create.subtitle')) ?>
+                </p>
                 <div>
-                    <h3 class="card-title mb-1">
+                    <a class="btn btn-primary" href="<?= $this->e($this->locale_url('admin/roles/new', null, 'admin')) ?>">
                         <i class="fa-solid fa-plus me-2" aria-hidden="true"></i>
-                        <?= $this->e($this->trans('admin.roles.create.title')) ?>
-                    </h3>
-                    <p class="text-muted small mb-0">
-                        <?= $this->e($this->trans('admin.roles.create.subtitle')) ?>
-                    </p>
+                        <?= $this->e($this->trans('admin.roles.actions.create')) ?>
+                    </a>
                 </div>
-                <span class="badge bg-light text-dark">
-                    <?= $this->e((string) count($allPermissions)) ?>
-                    <?= $this->e($this->trans('admin.roles.create.permissions_available')) ?>
-                </span>
             </div>
-            <form class="card-body" method="post">
-                <input type="hidden" name="action" value="create">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label text-muted small" for="role-key">
-                            <?= $this->e($this->trans('admin.roles.create.key')) ?>
-                        </label>
-                        <input
-                            id="role-key"
-                            name="role_key"
-                            type="text"
-                            class="form-control"
-                            placeholder="ROLE_MANAGER"
-                            required
-                        >
-                        <p class="text-muted small mb-0">
-                            <?= $this->e($this->trans('admin.roles.create.key_help')) ?>
-                        </p>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label text-muted small" for="role-name">
-                            <?= $this->e($this->trans('admin.roles.create.name')) ?>
-                        </label>
-                        <input
-                            id="role-name"
-                            name="name"
-                            type="text"
-                            class="form-control"
-                            placeholder="Store Manager"
-                            required
-                        >
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label text-muted small" for="role-description">
-                            <?= $this->e($this->trans('admin.roles.create.description')) ?>
-                        </label>
-                        <textarea
-                            id="role-description"
-                            name="description"
-                            rows="2"
-                            class="form-control"
-                            placeholder="<?= $this->e($this->trans('admin.roles.create.description_placeholder')) ?>"
-                        ></textarea>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label text-muted small" for="role-permissions">
-                            <?= $this->e($this->trans('admin.roles.create.permissions')) ?>
-                        </label>
-                        <select id="role-permissions" name="permissions[]" class="form-select" multiple size="6">
-                            <?php foreach ($allPermissions as $permission): ?>
-                                <option value="<?= $this->e($permission['key'] ?? '') ?>">
-                                    <?= $this->e($permission['label'] ?? '') ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <p class="text-muted small mb-0">
-                            <?= $this->e($this->trans('admin.roles.create.permissions_help')) ?>
-                        </p>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="1" id="critical" name="critical">
-                            <label class="form-check-label" for="critical">
-                                <?= $this->e($this->trans('admin.roles.create.critical')) ?>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <p class="text-muted small mb-0">
-                        <?= $this->e($this->trans('admin.roles.create.helper')) ?>
-                    </p>
-                    <button class="btn btn-primary" type="submit">
-                        <?= $this->e($this->trans('admin.roles.create.submit')) ?>
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
     <div class="col-xl-7">

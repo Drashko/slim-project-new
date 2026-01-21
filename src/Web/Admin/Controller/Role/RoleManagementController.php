@@ -8,12 +8,10 @@ use App\Domain\Shared\DomainException;
 use App\Feature\Admin\Permission\Command\ListPermissionsCommand;
 use App\Feature\Admin\Permission\DtoPermissionRequest;
 use App\Feature\Admin\Permission\Handler\ListPermissionsHandler;
-use App\Feature\Admin\Role\Command\CreateRoleCommand;
 use App\Feature\Admin\Role\Command\DeleteRoleCommand;
 use App\Feature\Admin\Role\Command\ListRolesCommand;
 use App\Feature\Admin\Role\Command\ResolveSelectedRoleCommand;
 use App\Feature\Admin\Role\Command\UpdateRolePermissionsCommand;
-use App\Feature\Admin\Role\Handler\CreateRoleHandler;
 use App\Feature\Admin\Role\Handler\DeleteRoleHandler;
 use App\Feature\Admin\Role\Handler\ListRolesHandler;
 use App\Feature\Admin\Role\Handler\ResolveSelectedRoleHandler;
@@ -36,7 +34,6 @@ final readonly class RoleManagementController
         private ListRolesHandler $listRoles,
         private ResolveSelectedRoleHandler $resolveSelectedRole,
         private ListPermissionsHandler $listPermissions,
-        private CreateRoleHandler $createRole,
         private DeleteRoleHandler $deleteRole,
         private UpdateRolePermissionsHandler $updatePermissions,
         private Messages $flash,
@@ -80,22 +77,6 @@ final readonly class RoleManagementController
             $action = (string) ($body['action'] ?? '');
 
             try {
-                if ($action === 'create') {
-                    $created = $this->createRole->handle(new CreateRoleCommand(
-                        (string) ($body['role_key'] ?? ''),
-                        (string) ($body['name'] ?? ''),
-                        (string) ($body['description'] ?? ''),
-                        $this->extractPermissions($body),
-                        isset($body['critical'])
-                    ));
-
-                    $this->flash->addMessage('success', $this->translator->trans('admin.roles.flash.created'));
-
-                    return $response
-                        ->withHeader('Location', $this->localizedPath($request, 'admin/roles') . '?role=' . urlencode($created->getKey()))
-                        ->withStatus(302);
-                }
-
                 if ($action === 'delete') {
                     $roleKey = (string) ($body['role'] ?? $selectedId);
 
@@ -134,7 +115,6 @@ final readonly class RoleManagementController
             'selectedId' => $selectedId,
             'permissionGroups' => array_map(static fn($group) => $group->toArray(), $permissionMatrix->getGroups()),
             'selectedPermissions' => $selectedRole['permissionKeys'] ?? [],
-            'allPermissions' => $this->flattenPermissions($permissionMatrix->getGroups()),
             'flash' => $this->flash,
         ]);
     }
@@ -183,31 +163,4 @@ final readonly class RoleManagementController
         return $map;
     }
 
-    /**
-     * @param array<int, object> $groups
-     * @return array<int, array<string, string>>
-     */
-    private function flattenPermissions(array $groups): array
-    {
-        $options = [];
-
-        foreach ($groups as $group) {
-            if (!method_exists($group, 'getPermissions')) {
-                continue;
-            }
-
-            foreach ($group->getPermissions() as $permission) {
-                if (!method_exists($permission, 'getKey')) {
-                    continue;
-                }
-
-                $options[] = [
-                    'key' => $permission->getKey(),
-                    'label' => method_exists($permission, 'getLabel') ? $permission->getLabel() : $permission->getKey(),
-                ];
-            }
-        }
-
-        return $options;
-    }
 }
