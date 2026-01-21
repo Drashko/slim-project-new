@@ -1,81 +1,127 @@
 import React from "react";
 import DashboardCards from "../components/DashboardCards.jsx";
 
-const highlights = [
-  {
-    title: "Active campaign reach",
-    value: "2.4M",
-    detail: "monthly impressions in network",
+const defaultCopy = {
+  hero: {
+    badge: "Ads Command Center",
+    title: "Launch smarter ads that reach buyers right when they are ready.",
+    lead:
+      "Slim Ads keeps your listings, promo campaigns, and analytics in one place—optimized for speed, clarity, and measurable conversions.",
+    actions: {
+      primary: "Create campaign",
+      secondary: "View demo workspace",
+    },
   },
-  {
-    title: "Average listing time",
-    value: "18 min",
-    detail: "from upload to approval",
+  today: {
+    title: "Today at a glance",
+    items: [
+      {
+        title: "New leads",
+        detail: "Across 6 active campaigns",
+        value: "126",
+        valueClass: "text-primary",
+      },
+      {
+        title: "Click-through rate",
+        detail: "Last 24 hours",
+        value: "4.8%",
+        valueClass: "text-success",
+      },
+      {
+        title: "Top channel",
+        detail: "Mobile feed placements",
+        value: "Social + Search",
+        valueClass: "text-dark",
+      },
+    ],
   },
-  {
-    title: "Verified sellers",
-    value: "96%",
-    detail: "trusted profiles and businesses",
-  },
-];
-
-const featureCards = [
-  {
-    title: "Smart audience targeting",
+  highlights: [
+    {
+      title: "Active campaign reach",
+      value: "2.4M",
+      detail: "monthly impressions in network",
+    },
+    {
+      title: "Average listing time",
+      value: "18 min",
+      detail: "from upload to approval",
+    },
+    {
+      title: "Verified sellers",
+      value: "96%",
+      detail: "trusted profiles and businesses",
+    },
+  ],
+  feature: {
+    title: "Built for high-performing ads",
     description:
-      "Use interest, location, and behavior signals to reach the right buyers without guesswork.",
-    icon: "🎯",
+      "Everything you need to launch, optimize, and scale listings for any marketplace category.",
+    cta: "Explore capabilities",
+    cards: [
+      {
+        title: "Smart audience targeting",
+        description:
+          "Use interest, location, and behavior signals to reach the right buyers without guesswork.",
+        icon: "🎯",
+      },
+      {
+        title: "Creative studio",
+        description:
+          "Start from ready-made ad layouts, auto-resize assets, and keep brand colors consistent.",
+        icon: "🎨",
+      },
+      {
+        title: "Real-time performance",
+        description:
+          "Track clicks, calls, and saves live with alerts that keep your team in the loop.",
+        icon: "📊",
+      },
+      {
+        title: "Budget guardrails",
+        description:
+          "Set daily caps, guard against overspend, and pause campaigns instantly from mobile.",
+        icon: "🛡️",
+      },
+    ],
   },
-  {
-    title: "Creative studio",
+  categories: {
+    title: "Popular ad categories",
     description:
-      "Start from ready-made ad layouts, auto-resize assets, and keep brand colors consistent.",
-    icon: "🎨",
+      "Jump-start new listings using category templates that already perform well on Slim Ads.",
+    items: [
+      "Real estate",
+      "Auto & transport",
+      "Jobs",
+      "Services",
+      "Electronics",
+      "Home & living",
+      "Events",
+      "Retail",
+    ],
   },
-  {
-    title: "Real-time performance",
-    description:
-      "Track clicks, calls, and saves live with alerts that keep your team in the loop.",
-    icon: "📊",
+  quickActions: {
+    items: [
+      {
+        title: "Post a new listing",
+        detail: "Launch a product or service ad in under 5 minutes.",
+        action: "Start listing",
+      },
+      {
+        title: "Create a promo bundle",
+        detail: "Combine ads across channels for a seasonal push.",
+        action: "Build bundle",
+      },
+      {
+        title: "Invite your team",
+        detail: "Share roles and approvals with agency or sales teams.",
+        action: "Add collaborators",
+      },
+    ],
   },
-  {
-    title: "Budget guardrails",
-    description:
-      "Set daily caps, guard against overspend, and pause campaigns instantly from mobile.",
-    icon: "🛡️",
-  },
-];
+  overview: undefined,
+};
 
-const quickActions = [
-  {
-    title: "Post a new listing",
-    detail: "Launch a product or service ad in under 5 minutes.",
-    action: "Start listing",
-  },
-  {
-    title: "Create a promo bundle",
-    detail: "Combine ads across channels for a seasonal push.",
-    action: "Build bundle",
-  },
-  {
-    title: "Invite your team",
-    detail: "Share roles and approvals with agency or sales teams.",
-    action: "Add collaborators",
-  },
-];
-
-const categories = [
-  "Real estate",
-  "Auto & transport",
-  "Jobs",
-  "Services",
-  "Electronics",
-  "Home & living",
-  "Events",
-  "Retail",
-];
-
-const Dashboard = () => (
+const Dashboard = ({ copy = defaultCopy }) => (
   <div className="app-shell min-vh-100 admin-dashboard">
     <main className="page-content">
       <section className="hero-banner py-5">
@@ -83,46 +129,44 @@ const Dashboard = () => (
           <div className="row align-items-center gy-4">
             <div className="col-lg-7 text-center text-lg-start">
               <span className="badge bg-light text-primary fw-semibold mb-3">
-                Ads Command Center
+                {copy.hero?.badge ?? defaultCopy.hero.badge}
               </span>
               <h1 className="display-5 fw-bold mb-3">
-                Launch smarter ads that reach buyers right when they are ready.
+                {copy.hero?.title ?? defaultCopy.hero.title}
               </h1>
               <p className="lead mb-4">
-                Slim Ads keeps your listings, promo campaigns, and analytics in one place—optimized for
-                speed, clarity, and measurable conversions.
+                {copy.hero?.lead ?? defaultCopy.hero.lead}
               </p>
               <div className="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
-                <button className="btn btn-light btn-lg fw-semibold">Create campaign</button>
-                <button className="btn btn-outline-light btn-lg fw-semibold">View demo workspace</button>
+                <button className="btn btn-light btn-lg fw-semibold">
+                  {copy.hero?.actions?.primary ?? defaultCopy.hero.actions.primary}
+                </button>
+                <button className="btn btn-outline-light btn-lg fw-semibold">
+                  {copy.hero?.actions?.secondary ?? defaultCopy.hero.actions.secondary}
+                </button>
               </div>
             </div>
             <div className="col-lg-5">
               <div className="card shadow-lg border-0">
                 <div className="card-body p-4">
-                  <h5 className="fw-semibold mb-3">Today at a glance</h5>
+                  <h5 className="fw-semibold mb-3">
+                    {copy.today?.title ?? defaultCopy.today.title}
+                  </h5>
                   <ul className="list-unstyled m-0">
-                    <li className="d-flex justify-content-between align-items-center mb-3">
-                      <div>
-                        <p className="mb-0 fw-semibold">New leads</p>
-                        <small className="text-muted">Across 6 active campaigns</small>
-                      </div>
-                      <span className="fs-4 fw-bold text-primary">126</span>
-                    </li>
-                    <li className="d-flex justify-content-between align-items-center mb-3">
-                      <div>
-                        <p className="mb-0 fw-semibold">Click-through rate</p>
-                        <small className="text-muted">Last 24 hours</small>
-                      </div>
-                      <span className="fs-4 fw-bold text-success">4.8%</span>
-                    </li>
-                    <li className="d-flex justify-content-between align-items-center">
-                      <div>
-                        <p className="mb-0 fw-semibold">Top channel</p>
-                        <small className="text-muted">Mobile feed placements</small>
-                      </div>
-                      <span className="fs-5 fw-bold text-dark">Social + Search</span>
-                    </li>
+                    {(copy.today?.items ?? defaultCopy.today.items).map((item, index) => (
+                      <li
+                        className={`d-flex justify-content-between align-items-center${index < 2 ? " mb-3" : ""}`}
+                        key={item.title}
+                      >
+                        <div>
+                          <p className="mb-0 fw-semibold">{item.title}</p>
+                          <small className="text-muted">{item.detail}</small>
+                        </div>
+                        <span className={`fs-4 fw-bold ${item.valueClass ?? "text-primary"}`}>
+                          {item.value}
+                        </span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
@@ -134,7 +178,7 @@ const Dashboard = () => (
       <section className="py-5">
         <div className="container">
           <div className="row g-4">
-            {highlights.map((item) => (
+            {(copy.highlights ?? defaultCopy.highlights).map((item) => (
               <div className="col-md-4" key={item.title}>
                 <div className="card h-100 shadow-sm">
                   <div className="card-body">
@@ -153,15 +197,19 @@ const Dashboard = () => (
         <div className="container">
           <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 gap-3">
             <div>
-              <h2 className="fw-bold mb-2">Built for high-performing ads</h2>
+              <h2 className="fw-bold mb-2">
+                {copy.feature?.title ?? defaultCopy.feature.title}
+              </h2>
               <p className="text-muted mb-0">
-                Everything you need to launch, optimize, and scale listings for any marketplace category.
+                {copy.feature?.description ?? defaultCopy.feature.description}
               </p>
             </div>
-            <button className="btn btn-primary btn-lg">Explore capabilities</button>
+            <button className="btn btn-primary btn-lg">
+              {copy.feature?.cta ?? defaultCopy.feature.cta}
+            </button>
           </div>
           <div className="row g-4">
-            {featureCards.map((card) => (
+            {(copy.feature?.cards ?? defaultCopy.feature.cards).map((card) => (
               <div className="col-md-6 col-lg-3" key={card.title}>
                 <div className="card h-100 shadow-sm border-0">
                   <div className="card-body">
@@ -183,12 +231,14 @@ const Dashboard = () => (
           <div className="card border-0 shadow-sm p-4 p-lg-5">
             <div className="row align-items-center gy-4">
               <div className="col-lg-6">
-                <h3 className="fw-bold mb-3">Popular ad categories</h3>
+                <h3 className="fw-bold mb-3">
+                  {copy.categories?.title ?? defaultCopy.categories.title}
+                </h3>
                 <p className="text-muted">
-                  Jump-start new listings using category templates that already perform well on Slim Ads.
+                  {copy.categories?.description ?? defaultCopy.categories.description}
                 </p>
                 <div className="d-flex flex-wrap gap-2">
-                  {categories.map((category) => (
+                  {(copy.categories?.items ?? defaultCopy.categories.items).map((category) => (
                     <span className="category-pill" key={category}>
                       {category}
                     </span>
@@ -197,7 +247,7 @@ const Dashboard = () => (
               </div>
               <div className="col-lg-6">
                 <div className="row g-3">
-                  {quickActions.map((action) => (
+                  {(copy.quickActions?.items ?? defaultCopy.quickActions.items).map((action) => (
                     <div className="col-md-6" key={action.title}>
                       <div className="card h-100 shadow-sm border-0">
                         <div className="card-body">
@@ -219,7 +269,7 @@ const Dashboard = () => (
 
       <section className="py-4">
         <div className="container">
-          <DashboardCards />
+          <DashboardCards copy={copy.overview} />
         </div>
       </section>
     </main>

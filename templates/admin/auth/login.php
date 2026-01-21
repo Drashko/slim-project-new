@@ -16,7 +16,7 @@ $flashMessages = $flash->getMessages();
     <div class="col-lg-6 col-xl-4">
         <div class="card card-outline card-primary">
             <div class="card-header">
-                <p class="text-uppercase text-secondary small mb-1">Admin</p>
+                <p class="text-uppercase text-secondary small mb-1"><?= $this->e($this->trans('admin.badge')) ?></p>
                 <h1 class="h4 mb-1"><?= $this->e($this->trans('admin.login.heading')) ?></h1>
                 <p class="text-muted mb-0"><?= $this->e($this->trans('admin.login.subheading')) ?></p>
             </div>
@@ -49,7 +49,7 @@ $flashMessages = $flash->getMessages();
         <?php if ($tokens !== null): ?>
             <div class="card card-outline card-secondary mt-4">
                 <div class="card-header">
-                    <h3 class="card-title text-uppercase text-sm mb-0">API</h3>
+                    <h3 class="card-title text-uppercase text-sm mb-0"><?= $this->e($this->trans('auth.login.tokens.title')) ?></h3>
                 </div>
                 <div class="card-body">
                     <p class="text-muted small"><?= $this->e($this->trans('auth.login.tokens.description')) ?></p>
