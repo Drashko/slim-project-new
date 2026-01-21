@@ -76,7 +76,7 @@ const categories = [
 ];
 
 const Dashboard = () => (
-  <div className="app-shell min-vh-100">
+  <div className="app-shell min-vh-100 admin-dashboard">
     <main className="page-content">
       <section className="hero-banner py-5">
         <div className="container">
