@@ -219,3 +219,117 @@ body.admin-layout {
     padding-right: 1rem;
   }
 }
+
+.admin-dashboard .hero-banner {
+  background: linear-gradient(135deg, #2271b1, #135e96);
+  color: #ffffff;
+}
+
+.admin-dashboard .hero-banner .badge {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.admin-dashboard .hero-banner .btn-light {
+  background-color: #ffffff;
+  color: #1d2327;
+}
+
+.admin-dashboard .hero-banner .btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #ffffff;
+}
+
+.admin-dashboard .hero-banner .btn-outline-light:hover,
+.admin-dashboard .hero-banner .btn-outline-light:focus {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.admin-dashboard .feature-icon {
+  align-items: center;
+  background-color: #f0f6fc;
+  border-radius: 12px;
+  color: #2271b1;
+  display: inline-flex;
+  font-size: 2rem;
+  height: 56px;
+  justify-content: center;
+  width: 56px;
+}
+
+.admin-dashboard .category-pill {
+  background-color: #f0f6fc;
+  border-radius: 999px;
+  color: #1d2327;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+}
+
+.admin-dashboard .dashboard-overview-row {
+  row-gap: 1.5rem;
+}
+
+.admin-dashboard .admin-overview-card {
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #c3c4c7;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(34, 113, 177, 0.08);
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5rem;
+}
+
+.admin-dashboard .admin-overview-card .left h3 {
+  color: #1d2327;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.admin-dashboard .admin-overview-card .left p {
+  color: #50575e;
+  margin-bottom: 0.75rem;
+}
+
+.admin-dashboard .admin-overview-card .dashboard-link {
+  color: #135e96;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-dashboard .admin-overview-card .dashboard-link:hover,
+.admin-dashboard .admin-overview-card .dashboard-link:focus {
+  color: #0a4b78;
+  text-decoration: underline;
+}
+
+.admin-dashboard .admin-overview-card .right {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-dashboard .admin-overview-card .part-icon {
+  align-items: center;
+  background-color: #f0f6fc;
+  border-radius: 16px;
+  color: #2271b1;
+  display: inline-flex;
+  height: 64px;
+  justify-content: center;
+  width: 64px;
+}
+
+.admin-dashboard .admin-overview-card .part-icon i {
+  font-size: 2.25rem;
+}
+
+.admin-dashboard .admin-overview-card .text-primary {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
