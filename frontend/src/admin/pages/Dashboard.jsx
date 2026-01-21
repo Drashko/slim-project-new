@@ -121,9 +121,17 @@ const defaultCopy = {
   overview: undefined,
 };
 
-const Dashboard = ({ copy = defaultCopy }) => (
+const Dashboard = ({ copy = defaultCopy, showOnlyOverview = false }) => (
   <div className="app-shell min-vh-100 admin-dashboard">
     <main className="page-content">
+      {showOnlyOverview ? (
+        <section className="py-4">
+          <div className="container">
+            <DashboardCards copy={copy.overview} />
+          </div>
+        </section>
+      ) : (
+        <>
       <section className="hero-banner py-5">
         <div className="container">
           <div className="row align-items-center gy-4">
@@ -272,6 +280,8 @@ const Dashboard = ({ copy = defaultCopy }) => (
           <DashboardCards copy={copy.overview} />
         </div>
       </section>
+        </>
+      )}
     </main>
   </div>
 );
