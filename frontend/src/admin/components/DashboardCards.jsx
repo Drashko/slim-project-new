@@ -40,11 +40,13 @@ const useAdminOverviewCounts = () => {
 };
 
 const OverviewCard = ({ title, count, description, icon, link, isLoading, error }) => (
-    <div className="dashboard-top-box rounded-bottom panel-bg">
+    <div className="dashboard-top-box admin-overview-card rounded-bottom panel-bg">
         <div className="left">
             <h3>{isLoading ? "—" : count}</h3>
             <p>{error ?? description}</p>
-            <a href={link}>View {title.toLowerCase()}</a>
+            <a className="dashboard-link" href={link}>
+                View {title.toLowerCase()}
+            </a>
         </div>
         <div className="right">
             <span className="text-primary">Live</span>
@@ -60,13 +62,13 @@ const DashboardCards = () => {
     const sharedError = useMemo(() => (error ? error : null), [error]);
 
     return (
-        <div className="row mb-30">
+        <div className="row mb-30 dashboard-overview-row">
             <div className="col-lg-4 col-12 col-xs-12">
                 <OverviewCard
                     title="Users"
                     count={counts.users}
                     description="Active accounts with access."
-                    icon="fa-light fa-user"
+                    icon="fa-solid fa-user"
                     link="users"
                     isLoading={loading}
                     error={sharedError}
@@ -77,7 +79,7 @@ const DashboardCards = () => {
                     title="Roles"
                     count={counts.roles}
                     description="Roles controlling permissions."
-                    icon="fa-light fa-id-badge"
+                    icon="fa-solid fa-id-badge"
                     link="roles"
                     isLoading={loading}
                     error={sharedError}
@@ -88,7 +90,7 @@ const DashboardCards = () => {
                     title="Ads"
                     count={counts.ads}
                     description="Live ads running today."
-                    icon="fa-light fa-bullhorn"
+                    icon="fa-solid fa-bullhorn"
                     link="ads"
                     isLoading={loading}
                     error={sharedError}
