@@ -94,7 +94,7 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
         </h3>
     </div>
     <div class="card-body">
-        <form class="row g-3" method="get">
+        <form class="admin-filter-form row g-3" method="get">
             <div class="col-md-6 col-lg-4">
                 <label class="form-label text-muted small" for="query">
                     <?= $this->e($this->trans('admin.users.filters.search')) ?>

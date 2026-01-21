@@ -143,3 +143,13 @@ body.admin-layout {
 .admin-content-surface .table tbody tr:hover {
   background-color: #f0f6fc;
 }
+
+.admin-filter-form .form-control,
+.admin-filter-form .form-select {
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.admin-filter-form .btn {
+  min-height: 2.5rem;
+}
