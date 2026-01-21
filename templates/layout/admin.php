@@ -90,7 +90,7 @@ $primaryLinks = $isAdminAuthenticated
 <body class="<?= $this->e($bodyClass) ?>">
 <div class="admin-shell d-flex min-vh-100">
     <?php if ($isAdminAuthenticated): ?>
-        <nav class="admin-sidebar navbar navbar-expand-lg navbar-light border-end-0 align-self-start sticky-top">
+        <nav class="admin-sidebar navbar navbar-expand-lg navbar-light border-end-0 align-self-stretch sticky-top">
             <div class="container-fluid flex-lg-column align-items-stretch p-0">
                 <div class="d-flex align-items-center justify-content-between w-100 px-3 py-3 border-bottom">
                     <a class="navbar-brand fw-semibold m-0" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
@@ -166,6 +166,9 @@ $primaryLinks = $isAdminAuthenticated
                             </span>
                             <a class="btn btn-sm btn-outline-secondary" href="<?= $this->e($this->locale_url('admin/profile', null, 'admin')) ?>">
                                 <i class="fa-solid fa-id-badge me-1" aria-hidden="true"></i><?= $this->e($this->trans('layout.nav.admin_profile')) ?>
+                            </a>
+                            <a class="btn btn-sm btn-outline-danger" href="<?= $this->e($this->locale_url('admin/logout', null, 'admin')) ?>">
+                                <i class="fa-solid fa-right-from-bracket me-1" aria-hidden="true"></i><?= $this->e($this->trans('layout.account.sign_out')) ?>
                             </a>
                         <?php endif; ?>
                     </div>
