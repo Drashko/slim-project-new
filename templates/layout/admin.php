@@ -106,9 +106,9 @@ $primaryLinks = $isAdminAuthenticated
             <div class="container-fluid flex-lg-column align-items-stretch p-0">
                 <div class="d-flex align-items-center justify-content-between w-100 px-3 py-3 border-bottom">
                     <a class="navbar-brand fw-semibold m-0" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
-                        <i class="fa-solid fa-shield-halved me-2" aria-hidden="true"></i><?= $this->e($this->trans('app.name')) ?> Admin
+                        <i class="fa-solid fa-shield-halved me-2" aria-hidden="true"></i><?= $this->e($this->trans('app.name')) ?> <?= $this->e($this->trans('admin.badge')) ?>
                     </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="<?= $this->e($this->trans('layout.nav.toggle')) ?>">
                         <span class="navbar-toggler-icon"></span>
                     </button>
                 </div>

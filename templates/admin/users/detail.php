@@ -96,15 +96,15 @@ $activity = $activity ?? [];
                 <div class="card-body">
                     <form class="row g-3 mb-4" method="post">
                         <div class="col-md-6">
-                            <label class="form-label text-muted small" for="update-email">Email</label>
+                            <label class="form-label text-muted small" for="update-email"><?= $this->e($this->trans('admin.user_detail.form.email')) ?></label>
                             <input type="email" class="form-control" id="update-email" name="email" value="<?= $this->e((string) ($member['email'] ?? '')) ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-muted small" for="update-password">Password</label>
-                            <input type="password" class="form-control" id="update-password" name="password" placeholder="Leave blank to keep current">
+                            <label class="form-label text-muted small" for="update-password"><?= $this->e($this->trans('admin.user_detail.form.password')) ?></label>
+                            <input type="password" class="form-control" id="update-password" name="password" placeholder="<?= $this->e($this->trans('admin.user_detail.form.password_placeholder')) ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-muted small" for="update-roles">Roles</label>
+                            <label class="form-label text-muted small" for="update-roles"><?= $this->e($this->trans('admin.user_detail.form.roles')) ?></label>
                             <?php $memberRoles = array_map('strtoupper', (array) ($member['permissions'] ?? [])); ?>
                             <select class="form-select" id="update-roles" name="roles[]" multiple>
                                 <?php if ($roles === []): ?>
@@ -114,33 +114,33 @@ $activity = $activity ?? [];
                                         <option value="<?= $this->e($role['key']) ?>"<?= in_array($role['key'], $memberRoles, true) ? ' selected' : '' ?>>
                                             <?= $this->e($role['name']) ?> (<?= $this->e($role['key']) ?>)
                                         </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                             </select>
-                            <p class="text-muted small mb-0">Hold Ctrl (Windows) or Command (Mac) to select multiple roles.</p>
+                            <p class="text-muted small mb-0"><?= $this->e($this->trans('admin.user_detail.form.roles_help')) ?></p>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-muted small" for="update-status">Status</label>
+                            <label class="form-label text-muted small" for="update-status"><?= $this->e($this->trans('admin.user_detail.form.status')) ?></label>
                             <?php $currentStatus = (string) ($member['status'] ?? 'Active'); ?>
                             <select class="form-select" id="update-status" name="status">
-                                <option value="Active"<?= strcasecmp($currentStatus, 'Active') === 0 ? ' selected' : '' ?>>Active</option>
-                                <option value="Pending"<?= strcasecmp($currentStatus, 'Pending') === 0 ? ' selected' : '' ?>>Pending</option>
-                                <option value="Suspended"<?= strcasecmp($currentStatus, 'Suspended') === 0 ? ' selected' : '' ?>>Suspended</option>
+                                <option value="Active"<?= strcasecmp($currentStatus, 'Active') === 0 ? ' selected' : '' ?>><?= $this->e($this->trans('admin.user_detail.status.active')) ?></option>
+                                <option value="Pending"<?= strcasecmp($currentStatus, 'Pending') === 0 ? ' selected' : '' ?>><?= $this->e($this->trans('admin.user_detail.status.pending')) ?></option>
+                                <option value="Suspended"<?= strcasecmp($currentStatus, 'Suspended') === 0 ? ' selected' : '' ?>><?= $this->e($this->trans('admin.user_detail.status.suspended')) ?></option>
                             </select>
                         </div>
                         <div class="col-12 text-end">
                             <button class="btn btn-primary" type="submit">
                                 <i class="fa-solid fa-floppy-disk me-2" aria-hidden="true"></i>
-                                Save changes
+                                <?= $this->e($this->trans('admin.user_detail.actions.save')) ?>
                             </button>
                         </div>
                     </form>
 
-                    <form method="post" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                    <form method="post" onsubmit="return confirm('<?= $this->e($this->trans('admin.user_detail.actions.delete_confirm')) ?>');">
                         <input type="hidden" name="_action" value="DELETE">
                         <button class="btn btn-outline-danger" type="submit">
                             <i class="fa-solid fa-user-slash me-2" aria-hidden="true"></i>
-                            Delete user
+                            <?= $this->e($this->trans('admin.user_detail.actions.delete')) ?>
                         </button>
                     </form>
 
