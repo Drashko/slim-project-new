@@ -11,7 +11,7 @@ body.admin-layout {
 
 .admin-shell {
   background-color: #f0f0f1;
-  align-items: stretch;
+  align-items: flex-start;
   min-height: 100vh;
 }
 
@@ -21,7 +21,7 @@ body.admin-layout {
   min-width: 240px;
   max-width: 280px;
   border-right: 1px solid #2c3338;
-  align-self: stretch;
+  align-self: flex-start;
   min-height: 100vh;
 }
 
