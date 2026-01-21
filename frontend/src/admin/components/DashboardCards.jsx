@@ -68,7 +68,7 @@ const DashboardCards = () => {
                     title="Users"
                     count={counts.users}
                     description="Active accounts with access."
-                    icon="fa-light fa-user"
+                    icon="fa-solid fa-user"
                     link="users"
                     isLoading={loading}
                     error={sharedError}
@@ -79,7 +79,7 @@ const DashboardCards = () => {
                     title="Roles"
                     count={counts.roles}
                     description="Roles controlling permissions."
-                    icon="fa-light fa-id-badge"
+                    icon="fa-solid fa-id-badge"
                     link="roles"
                     isLoading={loading}
                     error={sharedError}
@@ -90,7 +90,7 @@ const DashboardCards = () => {
                     title="Ads"
                     count={counts.ads}
                     description="Live ads running today."
-                    icon="fa-light fa-bullhorn"
+                    icon="fa-solid fa-bullhorn"
                     link="ads"
                     isLoading={loading}
                     error={sharedError}
