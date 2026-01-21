@@ -90,7 +90,7 @@ $primaryLinks = $isAdminAuthenticated
 <body class="<?= $this->e($bodyClass) ?>">
 <div class="admin-shell d-flex min-vh-100">
     <?php if ($isAdminAuthenticated): ?>
-        <nav class="admin-sidebar navbar navbar-expand-lg navbar-light border-end-0 align-self-start sticky-top">
+        <nav class="admin-sidebar navbar navbar-expand-lg navbar-light border-end-0 align-self-stretch sticky-top">
             <div class="container-fluid flex-lg-column align-items-stretch p-0">
                 <div class="d-flex align-items-center justify-content-between w-100 px-3 py-3 border-bottom">
                     <a class="navbar-brand fw-semibold m-0" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
@@ -156,6 +156,38 @@ $primaryLinks = $isAdminAuthenticated
 
     <main class="flex-grow-1">
         <div class="admin-main">
+            <div class="border-bottom bg-white">
+                <div class="container-fluid py-2 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <?php if ($isAdminAuthenticated): ?>
+                            <span class="text-muted small">
+                                <i class="fa-solid fa-circle-user me-1" aria-hidden="true"></i>
+                                <?= $this->e($this->trans('layout.account.signed_in_as', ['%email%' => $user['email'] ?? ''])) ?>
+                            </span>
+                            <a class="btn btn-sm btn-outline-secondary" href="<?= $this->e($this->locale_url('admin/profile', null, 'admin')) ?>">
+                                <i class="fa-solid fa-id-badge me-1" aria-hidden="true"></i><?= $this->e($this->trans('layout.nav.admin_profile')) ?>
+                            </a>
+                            <a class="btn btn-sm btn-outline-danger" href="<?= $this->e($this->locale_url('admin/logout', null, 'admin')) ?>">
+                                <i class="fa-solid fa-right-from-bracket me-1" aria-hidden="true"></i><?= $this->e($this->trans('layout.account.sign_out')) ?>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="adminLanguageSwitch" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-globe me-1" aria-hidden="true"></i><?= $this->e($this->trans('layout.language.switch')) ?>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminLanguageSwitch">
+                            <?php foreach ($this->available_locales() as $locale => $label): ?>
+                                <li>
+                                    <a class="dropdown-item<?= $this->current_locale() === $locale ? ' active' : '' ?>" href="<?= $this->e($this->locale_switch_url($locale)) ?>">
+                                        <?= $this->e($label) ?>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             <div class="container-fluid py-4 admin-content-surface">
                 <?= $this->section('content') ?>
             </div>
