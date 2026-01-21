@@ -213,6 +213,9 @@ return [
         'manifest_path' => rtrim($assetBuildPath, '/\\') . '/manifest.json',
         'public_prefix' => $assetPublicPrefix,
         'dev_server' => $assetDevServer,
+        'styles' => [
+            'src/admin/admin.css',
+        ],
     ],
     'public_assets' => [
         'entry' => 'src/public/main.js',

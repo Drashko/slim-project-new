@@ -78,14 +78,14 @@ $statuses = $statuses ?? ['Pending', 'Published', 'Archived'];
     </div>
     <div class="card-body p-0">
         <div class="border-bottom p-3">
-            <form class="row g-3 align-items-end" method="get">
+            <form class="admin-filter-form row g-3 align-items-end" method="get">
                 <div class="col-12">
                     <p class="text-muted small mb-0"><?= $this->e($this->trans('admin.ads.filters.title')) ?></p>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label text-muted small" for="filter-category"><?= $this->e($this->trans('admin.ads.filters.category')) ?></label>
                     <input
-                        class="form-control form-control-sm"
+                        class="form-control"
                         type="text"
                         id="filter-category"
                         name="category"
@@ -95,7 +95,7 @@ $statuses = $statuses ?? ['Pending', 'Published', 'Archived'];
                 </div>
                 <div class="col-md-3">
                     <label class="form-label text-muted small" for="filter-status"><?= $this->e($this->trans('admin.ads.filters.status')) ?></label>
-                    <select class="form-select form-select-sm" id="filter-status" name="status">
+                    <select class="form-select" id="filter-status" name="status">
                         <option value=""><?= $this->e($this->trans('admin.ads.filters.status_placeholder')) ?></option>
                         <?php foreach ($statuses as $status): ?>
                             <option value="<?= $this->e($status) ?>"<?= strcasecmp((string) ($filters['status'] ?? ''), $status) === 0 ? ' selected' : '' ?>>
@@ -107,7 +107,7 @@ $statuses = $statuses ?? ['Pending', 'Published', 'Archived'];
                 <div class="col-md-2">
                     <label class="form-label text-muted small" for="filter-from"><?= $this->e($this->trans('admin.ads.filters.from_date')) ?></label>
                     <input
-                        class="form-control form-control-sm"
+                        class="form-control"
                         type="date"
                         id="filter-from"
                         name="from_date"
@@ -117,7 +117,7 @@ $statuses = $statuses ?? ['Pending', 'Published', 'Archived'];
                 <div class="col-md-2">
                     <label class="form-label text-muted small" for="filter-to"><?= $this->e($this->trans('admin.ads.filters.to_date')) ?></label>
                     <input
-                        class="form-control form-control-sm"
+                        class="form-control"
                         type="date"
                         id="filter-to"
                         name="to_date"
@@ -127,7 +127,7 @@ $statuses = $statuses ?? ['Pending', 'Published', 'Archived'];
                 <div class="col-md-2">
                     <label class="form-label text-muted small" for="filter-user"><?= $this->e($this->trans('admin.ads.filters.user')) ?></label>
                     <input
-                        class="form-control form-control-sm"
+                        class="form-control"
                         type="text"
                         id="filter-user"
                         name="user"
@@ -136,10 +136,10 @@ $statuses = $statuses ?? ['Pending', 'Published', 'Archived'];
                     >
                 </div>
                 <div class="col-12 d-flex flex-wrap gap-2">
-                    <button class="btn btn-primary btn-sm" type="submit">
+                    <button class="btn btn-primary" type="submit">
                         <?= $this->e($this->trans('admin.ads.filters.apply')) ?>
                     </button>
-                    <a class="btn btn-outline-secondary btn-sm" href="<?= $this->e($this->locale_url('admin/ads', null, 'admin')) ?>">
+                    <a class="btn btn-outline-secondary" href="<?= $this->e($this->locale_url('admin/ads', null, 'admin')) ?>">
                         <?= $this->e($this->trans('admin.ads.filters.reset')) ?>
                     </a>
                 </div>
