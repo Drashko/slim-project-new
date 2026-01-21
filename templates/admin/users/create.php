@@ -80,7 +80,7 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
                 <i class="fa-solid fa-user-plus me-2" aria-hidden="true"></i>
                 <?= $this->e($this->trans('admin.users.actions.invite')) ?>
             </h3>
-            <p class="text-muted small mb-0">Create a new team member.</p>
+            <p class="text-muted small mb-0"><?= $this->e($this->trans('admin.users.create.helper')) ?></p>
         </div>
         <a class="btn btn-outline-secondary" href="<?= $this->e($this->locale_url('admin/users', null, 'admin')) ?>">
             <?= $this->e($this->trans('admin.users.table.title')) ?>
@@ -89,15 +89,15 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
     <div class="card-body">
         <form class="row g-3" method="post">
             <div class="col-md-6 col-lg-3">
-                <label class="form-label text-muted small" for="create-email">Email</label>
+                <label class="form-label text-muted small" for="create-email"><?= $this->e($this->trans('admin.users.create.fields.email')) ?></label>
                 <input type="email" class="form-control" id="create-email" name="email" placeholder="user@example.com" required>
             </div>
             <div class="col-md-6 col-lg-3">
-                <label class="form-label text-muted small" for="create-password">Password</label>
+                <label class="form-label text-muted small" for="create-password"><?= $this->e($this->trans('admin.users.create.fields.password')) ?></label>
                 <input type="password" class="form-control" id="create-password" name="password" placeholder="••••••••" required>
             </div>
             <div class="col-md-6 col-lg-3">
-                <label class="form-label text-muted small" for="create-roles">Roles</label>
+                <label class="form-label text-muted small" for="create-roles"><?= $this->e($this->trans('admin.users.create.fields.roles')) ?></label>
                 <select class="form-select" id="create-roles" name="roles[]" multiple>
                     <?php if ($roles === []): ?>
                         <option value="" disabled><?= $this->e($this->trans('admin.roles.table.empty')) ?></option>
@@ -109,14 +109,15 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
-                <p class="text-muted small mb-0">Hold Ctrl (Windows) or Command (Mac) to select multiple roles.</p>
+                <p class="text-muted small mb-0"><?= $this->e($this->trans('admin.users.create.fields.roles_help')) ?></p>
             </div>
             <div class="col-md-6 col-lg-3">
-                <label class="form-label text-muted small" for="create-status">Status</label>
+                <label class="form-label text-muted small" for="create-status"><?= $this->e($this->trans('admin.users.create.fields.status')) ?></label>
                 <select class="form-select" id="create-status" name="status">
                     <?php foreach ($statuses as $status): ?>
+                        <?php $statusKey = strtolower((string) $status); ?>
                         <option value="<?= $this->e($status) ?>">
-                            <?= $this->e($status) ?>
+                            <?= $this->e($this->trans('admin.user_detail.status.' . $statusKey)) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -124,7 +125,7 @@ $flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
             <div class="col-12 text-end">
                 <button class="btn btn-primary" type="submit">
                     <i class="fa-solid fa-user-plus me-2" aria-hidden="true"></i>
-                    Invite user
+                    <?= $this->e($this->trans('admin.users.actions.invite')) ?>
                 </button>
             </div>
         </form>
