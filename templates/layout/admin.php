@@ -112,7 +112,7 @@ $primaryLinks = $isAdminAuthenticated
                         <span class="navbar-toggler-icon"></span>
                     </button>
                 </div>
-                <div class="collapse navbar-collapse px-3 pb-3" id="adminNav">
+                <div class="collapse navbar-collapse px-3 pb-3 mt-2" id="adminNav">
                     <ul class="navbar-nav flex-column w-100 gap-1">
                         <?php foreach ($primaryLinks as $link): ?>
                             <?php $hasChildren = !empty($link['children']); ?>

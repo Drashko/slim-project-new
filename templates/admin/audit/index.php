@@ -21,7 +21,7 @@ $this->layout('layout::admin', [
 
 <section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2 align-items-center">
+        <div class="row mb-2 align-items-center g-3">
             <div class="col-sm-8">
                 <p class="text-uppercase text-muted small mb-1">
                     <?= $this->e($this->trans('admin.audit.badge')) ?>
