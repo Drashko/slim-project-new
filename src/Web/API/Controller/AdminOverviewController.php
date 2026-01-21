@@ -7,6 +7,7 @@ namespace App\Web\API\Controller;
 use App\Domain\Ad\AdRepositoryInterface;
 use App\Domain\Role\RoleRepositoryInterface;
 use App\Domain\User\UserRepositoryInterface;
+use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -19,6 +20,9 @@ final readonly class AdminOverviewController
     ) {
     }
 
+    /**
+     * @throws JsonException
+     */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $payload = [
@@ -27,7 +31,7 @@ final readonly class AdminOverviewController
             'ads' => count($this->ads->all()),
         ];
 
-        $response->getBody()->write((string) json_encode($payload));
+        $response->getBody()->write((string)json_encode($payload, JSON_THROW_ON_ERROR));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
