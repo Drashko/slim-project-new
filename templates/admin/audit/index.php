@@ -67,7 +67,7 @@ $this->layout('layout::admin', [
         </span>
     </div>
     <div class="card-body border-bottom">
-        <form method="get">
+        <form class="admin-filter-form" method="get">
             <div class="row g-3 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label" for="event_type_filter">
