@@ -13,7 +13,7 @@ $roles = array_map(static fn($role) => (string) $role, (array) ($user['roles'] ?
     <div class="col-12">
         <div class="card card-outline card-primary">
             <div class="card-header">
-                <p class="text-uppercase text-secondary small mb-1">Admin</p>
+                <p class="text-uppercase text-secondary small mb-1"><?= $this->e($this->trans('admin.badge')) ?></p>
                 <h1 class="h4 mb-1"><?= $this->e($this->trans('admin.profile.heading')) ?></h1>
                 <p class="text-muted mb-0"><?= $this->e($this->trans('admin.profile.intro')) ?></p>
             </div>
