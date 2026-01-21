@@ -445,6 +445,7 @@ return [
                 'manifest_path' => (string) ($adminSettings['manifest_path'] ?? ''),
                 'public_prefix' => (string) ($adminSettings['public_prefix'] ?? '/assets/'),
                 'dev_server' => trim((string) ($adminSettings['dev_server'] ?? '')),
+                'styles' => array_values((array) ($adminSettings['styles'] ?? [])),
             ],
             'public' => [
                 'entry' => (string) ($publicSettings['entry'] ?? 'src/public/main.js'),
