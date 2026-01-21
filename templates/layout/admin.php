@@ -7,16 +7,8 @@ $title = $title ?? $this->trans('app.default_title');
 $canAccessAdminArea = $this->can('admin.access', $user ?? null);
 $canManageUsers = $this->can('admin.users.manage', $user ?? null);
 $isAdminAuthenticated = $canAccessAdminArea && $user !== null && isset($user['email']);
-$availableLocales = $this->available_locales();
-$currentLocale = $this->current_locale();
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
 $adminRootPath = parse_url($this->locale_url('admin', null, 'admin'), PHP_URL_PATH) ?? '';
-if (!is_string($currentLocale) || $currentLocale === '') {
-    $currentLocale = (string) array_key_first($availableLocales);
-}
-if ($currentLocale === '') {
-    $currentLocale = 'en';
-}
 
 $bodyClass = 'admin-layout bg-light';
 
@@ -91,13 +83,14 @@ $primaryLinks = $isAdminAuthenticated
     <title><?= $this->e($title) ?></title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <!-- Admin assets (Vite) -->
     <?= $this->vite_assets('admin') ?>
 </head>
 <body class="<?= $this->e($bodyClass) ?>">
-<div class="admin-shell d-flex">
+<div class="admin-shell d-flex min-vh-100">
     <?php if ($isAdminAuthenticated): ?>
-        <nav class="admin-sidebar navbar navbar-expand-lg navbar-light border-end-0">
+        <nav class="admin-sidebar navbar navbar-expand-lg navbar-light border-end-0 align-self-start sticky-top">
             <div class="container-fluid flex-lg-column align-items-stretch p-0">
                 <div class="d-flex align-items-center justify-content-between w-100 px-3 py-3 border-bottom">
                     <a class="navbar-brand fw-semibold m-0" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
