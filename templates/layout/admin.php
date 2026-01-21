@@ -40,6 +40,18 @@ $primaryLinks = $isAdminAuthenticated
             'href' => $this->locale_url('admin/roles', null, 'admin'),
             'label' => $this->trans('layout.nav.admin_roles'),
             'icon' => 'fa-solid fa-layer-group',
+            'children' => [
+                [
+                    'href' => $this->locale_url('admin/roles', null, 'admin'),
+                    'label' => $this->trans('layout.nav.admin_roles'),
+                    'icon' => 'fa-solid fa-list',
+                ],
+                [
+                    'href' => $this->locale_url('admin/roles/new', null, 'admin'),
+                    'label' => $this->trans('layout.nav.admin_roles_add'),
+                    'icon' => 'fa-solid fa-plus',
+                ],
+            ],
         ] : null,
         $canManageUsers ? [
             'href' => $this->locale_url('admin/permissions', null, 'admin'),

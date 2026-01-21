@@ -8,6 +8,7 @@ use App\Web\Admin\Controller\Category\CategoryManagementController;
 use App\Web\Admin\Controller\Home\HomeController;
 use App\Web\Admin\Controller\Permission\PermissionMatrixController;
 use App\Web\Admin\Controller\Profile\ProfileController as AdminProfileController;
+use App\Web\Admin\Controller\Role\RoleCreateController;
 use App\Web\Admin\Controller\Role\RoleManagementController;
 use App\Web\Admin\Controller\User\UserCreateController;
 use App\Web\Admin\Controller\User\UserDetailController;
@@ -114,6 +115,7 @@ return static function (App $app): void {
                 $protectedGroup->map(['GET', 'POST'], '/users/new', UserCreateController::class)->setName('admin.users.new');
                 $protectedGroup->map(['GET', 'POST'], '/users/{id}', UserDetailController::class)->setName('admin.user_detail');
                 $protectedGroup->map(['GET', 'POST'], '/roles', RoleManagementController::class)->setName('admin.roles');
+                $protectedGroup->map(['GET', 'POST'], '/roles/new', RoleCreateController::class)->setName('admin.roles.new');
                 $protectedGroup->map(['GET', 'POST'], '/permissions', PermissionMatrixController::class)
                     ->setName('admin.permissions');
                 $protectedGroup->map(['GET', 'POST'], '/categories', CategoryManagementController::class)

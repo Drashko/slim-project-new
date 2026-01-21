@@ -12,6 +12,7 @@
     "layout.nav.admin_users_all": "All users",
     "layout.nav.admin_users_add": "Add user",
     "layout.nav.admin_roles": "Roles",
+    "layout.nav.admin_roles_add": "Add role",
     "layout.nav.admin_permissions": "Permissions",
     "layout.nav.admin_ads": "Ads",
     "layout.nav.admin_categories": "Categories",
