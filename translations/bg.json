@@ -476,5 +476,12 @@
     "admin.ads.filters.user": "Потребител",
     "admin.ads.filters.user_placeholder": "ID или имейл",
     "admin.ads.filters.apply": "Приложи филтрите",
-    "admin.ads.filters.reset": "Нулирай"
+    "admin.ads.filters.reset": "Нулирай",
+    "front.react.badge": "Център за обяви",
+    "front.react.title": "Създавайте по-умни обяви, които достигат до купувачи точно навреме.",
+    "front.react.subtitle": "Slim Ads събира обяви, кампании и анализи на едно място, оптимизирано за скорост, яснота и реални резултати.",
+    "front.react.cta_primary": "Създай кампания",
+    "front.react.cta_secondary": "Виж демо",
+    "front.react.card_title": "Анализи за обяви",
+    "front.react.card_body": "Следете резултатите на кампаниите и реагирайте бързо на нови възможности."
 }

@@ -17,6 +17,7 @@ use App\Web\Admin\Controller\Ad\AdDetailController;
 use App\Web\Admin\Controller\Ad\AdManagementController;
 use App\Web\Admin\Middleware\AdminAuthenticationMiddleware;
 use App\Web\API\Controller\AdminOverviewController;
+use App\Web\API\Controller\LocalizationController;
 use App\Web\Api\Controller\ApiIndexController;
 use App\Web\Auth\LoginController;
 use App\Web\Auth\LogoutController;
@@ -133,5 +134,6 @@ return static function (App $app): void {
     $app->group('/api', function (RouteCollectorProxy $group): void {
         $group->get('', ApiIndexController::class);
         $group->get('/admin/overview', AdminOverviewController::class);
+        $group->get('/localization/{locale}', LocalizationController::class);
     });
 };
