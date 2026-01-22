@@ -16,6 +16,7 @@ use App\Web\Admin\Controller\User\UserManagementController;
 use App\Web\Admin\Controller\Ad\AdDetailController;
 use App\Web\Admin\Controller\Ad\AdManagementController;
 use App\Web\Admin\Middleware\AdminAuthenticationMiddleware;
+use App\Web\Shared\Middleware\PublicAreaRoleRedirectMiddleware;
 use App\Web\API\Controller\AdminOverviewController;
 use App\Web\API\Controller\LocalizationController;
 use App\Web\Api\Controller\ApiIndexController;
@@ -128,7 +129,7 @@ return static function (App $app): void {
                 $protectedGroup->get('', HomeController::class);
             })->add(AdminAuthenticationMiddleware::class);
         });
-    });
+    })->add(PublicAreaRoleRedirectMiddleware::class);
 
     //api routes
     $app->group('/api', function (RouteCollectorProxy $group): void {

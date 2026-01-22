@@ -34,6 +34,7 @@ use App\Integration\View\TemplateRenderer;
 use App\Web\API\Controller\LocalizationController;
 use App\Web\Admin\Controller\User\UserManagementController;
 use App\Web\Admin\Service\UserService;
+use App\Web\Shared\Middleware\PublicAreaRoleRedirectMiddleware;
 use App\Web\Shared\Paginator;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
@@ -223,6 +224,13 @@ return [
             $container->get(SessionInterface::class),
             (array) ($settings['supported_locales'] ?? ['en' => 'English']),
             (string) ($settings['default_locale'] ?? 'en')
+        );
+    },
+
+    PublicAreaRoleRedirectMiddleware::class => static function (ContainerInterface $container): PublicAreaRoleRedirectMiddleware {
+        return new PublicAreaRoleRedirectMiddleware(
+            $container->get(SessionInterface::class),
+            $container->get(ResponseFactoryInterface::class)
         );
     },
 
