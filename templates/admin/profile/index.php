@@ -27,7 +27,6 @@ $roles = array_map(static fn($role) => (string) $role, (array) ($user['roles'] ?
                 <div class="btn-group flex-wrap w-100" role="group">
                     <a class="btn btn-primary" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>"><?= $this->e($this->trans('admin.profile.cta_dashboard')) ?></a>
                     <a class="btn btn-outline-primary" href="<?= $this->e($this->locale_url('admin/logout', null, 'admin')) ?>"><?= $this->e($this->trans('admin.profile.cta_logout')) ?></a>
-                    <a class="btn btn-outline-secondary" href="<?= $this->e($this->locale_url('profile')) ?>"><?= $this->e($this->trans('admin.profile.cta_public')) ?></a>
                 </div>
             </div>
         </div>
