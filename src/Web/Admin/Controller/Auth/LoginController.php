@@ -8,6 +8,7 @@ use App\Domain\Shared\DomainException;
 use App\Feature\Login\Command\LoginCommand;
 use App\Feature\Login\Handler\LoginHandler;
 use App\Integration\View\TemplateRenderer;
+use App\Web\Auth\Dto\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;
 use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -52,12 +53,19 @@ final class LoginController
                         $request->getServerParams()['REMOTE_ADDR'] ?? null
                     ));
 
-                    $this->session->set('tokens', $tokens);
-                    $this->session->set('user', $tokens['user']);
-                    $loginSucceeded = true;
-                    $this->flash->addMessage('success', $this->translator->trans('auth.login.flash.welcome', [
-                        '%email%' => $tokens['user']['email'] ?? $email,
-                    ]));
+                    if ($this->isAllowedRole($tokens['user'] ?? [])) {
+                        $this->session->set('tokens', $tokens);
+                        $this->session->set('user', $tokens['user']);
+                        $loginSucceeded = true;
+                        $this->flash->addMessage('success', $this->translator->trans('auth.login.flash.welcome', [
+                            '%email%' => $tokens['user']['email'] ?? $email,
+                        ]));
+                    } else {
+                        $tokens = null;
+                        $this->clearSessionKey('tokens');
+                        $this->clearSessionKey('user');
+                        $this->flash->addMessage('error', $this->translator->trans('auth.login.flash.user_not_found'));
+                    }
                 } catch (DomainException $exception) {
                     $tokens = null;
                     $this->clearSessionKey('tokens');
@@ -99,5 +107,35 @@ final class LoginController
         }
 
         $this->session->set($key, null);
+    }
+
+    private function isAllowedRole(array $user): bool
+    {
+        $roles = $this->normalizeRoles($user['roles'] ?? []);
+
+        return in_array(RegisterFormData::ROLE_ADMIN, $roles, true);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function normalizeRoles(mixed $roles): array
+    {
+        if ($roles === null) {
+            return [];
+        }
+
+        if (!is_array($roles)) {
+            $roles = [$roles];
+        }
+
+        $normalized = [];
+        foreach ($roles as $role) {
+            if (is_scalar($role)) {
+                $normalized[] = trim((string) $role);
+            }
+        }
+
+        return array_values(array_filter($normalized, static fn(string $role): bool => $role !== ''));
     }
 }
