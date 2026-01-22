@@ -415,7 +415,7 @@
     "auth.login.tokens.refresh_expires_at": "Refresh expires at",
     "auth.login.tokens.footer": "Send the access token in the %header% header.",
     "auth.login.demo.title": "Demo credentials",
-    "auth.login.demo.description": "Admin: %admin_email% / %admin_pass%. API: %api_email% / %api_pass%.",
+    "auth.login.demo.description": "User: %user_email% / %user_pass%. API: %api_email% / %api_pass%.",
     "auth.register.meta_title": "Create account · Slim Market",
     "auth.register.heading": "Create an account",
     "auth.register.subheading": "Provision a profile-level account that you can later promote to admin.",

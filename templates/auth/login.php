@@ -104,9 +104,6 @@ $tokenField = $formView['_token'] ?? null;
                 <p class="text-muted small mt-2 mb-0"><?= $this->trans('auth.login.profile_prompt', [
                         '%profile_page%' => '<a href="' . $this->locale_url('profile') . '">' . $this->trans('layout.nav.profile') . '</a>',
                     ]) ?></p>
-                <p class="text-muted small mt-1 mb-0"><?= $this->trans('auth.login.admin_prompt', [
-                        '%admin_login%' => '<a href="' . $this->locale_url('admin/login', null, 'admin') . '">' . $this->trans('layout.nav.admin_login') . '</a>',
-                    ]) ?></p>
             </div>
         </div>
 
@@ -135,8 +132,8 @@ $tokenField = $formView['_token'] ?? null;
                 <div class="card-body p-4">
                     <h2 class="h6 text-uppercase text-secondary"><?= $this->e($this->trans('auth.login.demo.title')) ?></h2>
                     <p class="text-muted small mb-0"><?= $this->trans('auth.login.demo.description', [
-                            '%admin_email%' => '<code>admin@example.com</code>',
-                            '%admin_pass%' => '<code>admin123</code>',
+                            '%user_email%' => '<code>jane.doe@example.com</code>',
+                            '%user_pass%' => '<code>user123</code>',
                             '%api_email%' => '<code>api@example.com</code>',
                             '%api_pass%' => '<code>api123</code>',
                         ]) ?></p>
