@@ -64,12 +64,21 @@ final class LoginController
 
                     $this->session->set('tokens', $tokens);
                     $this->session->set('user', $tokens['user']);
-                    $this->flash->addMessage('success', $this->translator->trans('auth.login.flash.welcome', [
-                        '%email%' => $tokens['user']['email'] ?? $data->getEmail(),
-                    ]));
+                    if ($this->isAllowedRole($tokens['user'] ?? [])) {
+                        $this->flash->addMessage('success', $this->translator->trans('auth.login.flash.welcome', [
+                            '%email%' => $tokens['user']['email'] ?? $data->getEmail(),
+                        ]));
 
-                    $identity = $tokens['user'] ?? $identity;
-                    $loginSucceeded = true;
+                        $identity = $tokens['user'] ?? $identity;
+                        $loginSucceeded = true;
+                    } else {
+                        $tokens = null;
+                        $this->clearSessionKey('tokens');
+                        $this->clearSessionKey('user');
+                        $message = $this->translator->trans('auth.login.flash.user_not_found');
+                        $this->flash->addMessage('error', $message);
+                        $form->addError(new FormError($message));
+                    }
                 } catch (DomainException $exception) {
                     $tokens = null;
                     $this->clearSessionKey('tokens');
@@ -84,10 +93,8 @@ final class LoginController
         }
 
         if ($loginSucceeded) {
-            $userForRedirect = is_array($identity) ? $identity : [];
-
             return $response
-                ->withHeader('Location', $this->resolveRedirectPath($request, $userForRedirect))
+                ->withHeader('Location', $this->localizedPath($request))
                 ->withStatus(302);
         }
 
@@ -117,15 +124,11 @@ final class LoginController
         $this->session->set($key, null);
     }
 
-    private function resolveRedirectPath(ServerRequestInterface $request, array $user): string
+    private function isAllowedRole(array $user): bool
     {
         $roles = $this->normalizeRoles($user['roles'] ?? []);
 
-        if (in_array(RegisterFormData::ROLE_ADMIN, $roles, true)) {
-            return $this->localizedPath($request, 'admin');
-        }
-
-        return $this->localizedPath($request);
+        return in_array(RegisterFormData::ROLE_USER, $roles, true);
     }
 
     /**
