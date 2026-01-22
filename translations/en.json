@@ -476,5 +476,12 @@
     "admin.ads.filters.user": "User",
     "admin.ads.filters.user_placeholder": "User ID or email",
     "admin.ads.filters.apply": "Apply filters",
-    "admin.ads.filters.reset": "Reset"
+    "admin.ads.filters.reset": "Reset",
+    "front.react.badge": "Ads Command Center",
+    "front.react.title": "Launch smarter ads that reach buyers right when they are ready.",
+    "front.react.subtitle": "Slim Ads keeps your listings, promo campaigns, and analytics in one place—optimized for speed, clarity, and measurable conversions.",
+    "front.react.cta_primary": "Create campaign",
+    "front.react.cta_secondary": "View demo workspace",
+    "front.react.card_title": "Ads insights",
+    "front.react.card_body": "Keep tabs on campaign performance and respond quickly to new opportunities."
 }
