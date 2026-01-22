@@ -31,6 +31,7 @@ use App\Integration\View\Plates\RbacExtension;
 use App\Integration\View\Plates\ReactExtension;
 use App\Integration\View\Plates\ViteExtension;
 use App\Integration\View\TemplateRenderer;
+use App\Web\API\Controller\LocalizationController;
 use App\Web\Admin\Controller\User\UserManagementController;
 use App\Web\Admin\Service\UserService;
 use App\Web\Shared\Paginator;
@@ -144,6 +145,9 @@ return [
             $container->get(Messages::class),
             (array) $container->get('settings')
         );
+    },
+    LocalizationController::class => static function (ContainerInterface $container): LocalizationController {
+        return new LocalizationController((array) $container->get('settings'));
     },
 
     LoggerFactory::class => static fn(ContainerInterface $container): LoggerFactory => new LoggerFactory(
