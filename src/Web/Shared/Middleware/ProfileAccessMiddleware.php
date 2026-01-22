@@ -5,21 +5,20 @@ declare(strict_types=1);
 namespace App\Web\Shared\Middleware;
 
 use App\Web\Auth\Dto\RegisterFormData;
-use App\Web\Shared\LocalizedRouteTrait;
 use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ProfileAccessMiddleware implements MiddlewareInterface
 {
-    use LocalizedRouteTrait;
-
     public function __construct(
         private readonly SessionInterface $session,
-        private readonly ResponseFactoryInterface $responseFactory
+        private readonly ResponseFactoryInterface $responseFactory,
+        private readonly TranslatorInterface $translator
     ) {
     }
 
@@ -31,10 +30,11 @@ final class ProfileAccessMiddleware implements MiddlewareInterface
         }
 
         $roles = $this->normalizeRoles($user['roles'] ?? []);
-        if ($this->isAdminOnly($roles)) {
-            $response = $this->responseFactory->createResponse(302);
+        if ($this->hasAdminRole($roles)) {
+            $response = $this->responseFactory->createResponse(403);
+            $response->getBody()->write($this->translator->trans('auth.login.flash.access_denied'));
 
-            return $response->withHeader('Location', $this->localizedPath($request, 'admin'));
+            return $response;
         }
 
         return $handler->handle($request);
@@ -66,9 +66,8 @@ final class ProfileAccessMiddleware implements MiddlewareInterface
     /**
      * @param string[] $roles
      */
-    private function isAdminOnly(array $roles): bool
+    private function hasAdminRole(array $roles): bool
     {
-        return in_array(RegisterFormData::ROLE_ADMIN, $roles, true)
-            && !in_array(RegisterFormData::ROLE_USER, $roles, true);
+        return in_array(RegisterFormData::ROLE_ADMIN, $roles, true);
     }
 }

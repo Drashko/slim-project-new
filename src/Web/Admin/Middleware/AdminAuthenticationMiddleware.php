@@ -14,6 +14,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Flash\Messages;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AdminAuthenticationMiddleware implements MiddlewareInterface
 {
@@ -22,7 +24,9 @@ final class AdminAuthenticationMiddleware implements MiddlewareInterface
     public function __construct(
         private readonly AdminAuthenticator $authenticator,
         private readonly ResponseFactoryInterface $responseFactory,
-        private readonly SessionInterface $session
+        private readonly SessionInterface $session,
+        private readonly Messages $flash,
+        private readonly TranslatorInterface $translator
     ) {
     }
 
@@ -31,7 +35,8 @@ final class AdminAuthenticationMiddleware implements MiddlewareInterface
         $user = $this->session->get('user');
         if (is_array($user)) {
             $roles = $this->normalizeRoles($user['roles'] ?? []);
-            if ($this->isPublicOnly($roles)) {
+            if (!$this->hasAdminRole($roles)) {
+                $this->flash->addMessage('error', $this->translator->trans('auth.login.flash.access_denied'));
                 $response = $this->responseFactory->createResponse(302);
 
                 return $response->withHeader('Location', $this->localizedPath($request, 'auth/login'));
@@ -75,9 +80,8 @@ final class AdminAuthenticationMiddleware implements MiddlewareInterface
     /**
      * @param string[] $roles
      */
-    private function isPublicOnly(array $roles): bool
+    private function hasAdminRole(array $roles): bool
     {
-        return in_array(RegisterFormData::ROLE_USER, $roles, true)
-            && !in_array(RegisterFormData::ROLE_ADMIN, $roles, true);
+        return in_array(RegisterFormData::ROLE_ADMIN, $roles, true);
     }
 }
