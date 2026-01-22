@@ -23,9 +23,9 @@ $roles = array_map(static fn($role) => (string) $role, (array) ($user['roles'] ?
                             '%email%' => $user['email'] ?? '',
                         ])) ?></p>
                     <dl class="row mb-0">
-                        <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('admin.profile.session.email')) ?></dt>
+                        <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('profile.session.email')) ?></dt>
                         <dd class="col-sm-8 mb-1"><?= $this->e($user['email'] ?? '') ?></dd>
-                        <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('admin.profile.session.roles')) ?></dt>
+                        <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('profile.session.roles')) ?></dt>
                         <dd class="col-sm-8 mb-0"><?= $this->e($roles === [] ? '—' : implode(', ', $roles)) ?></dd>
                     </dl>
                 <?php else: ?>
@@ -45,9 +45,6 @@ $roles = array_map(static fn($role) => (string) $role, (array) ($user['roles'] ?
                 <div class="d-grid gap-2">
                     <a class="btn btn-primary" href="<?= $this->e($this->locale_url('profile/login')) ?>"><?= $this->e($this->trans('profile.actions.login')) ?></a>
                     <a class="btn btn-outline-primary" href="<?= $this->e($this->locale_url('profile/ads')) ?>"><?= $this->e($this->trans('profile.actions.ads')) ?></a>
-                    <a class="btn btn-outline-primary" href="<?= $this->e($this->locale_url('admin/login', null, 'admin')) ?>"><?= $this->e($this->trans('profile.actions.admin_login')) ?></a>
-                    <a class="btn btn-outline-secondary" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>"><?= $this->e($this->trans('profile.actions.dashboard')) ?></a>
-                    <a class="btn btn-outline-secondary" href="<?= $this->e($this->locale_url('admin/roles', null, 'admin')) ?>"><?= $this->e($this->trans('profile.actions.explore')) ?></a>
                 </div>
                 <?php if ($user !== null): ?>
                     <a class="btn btn-link text-danger mt-3 align-self-start" href="<?= $this->e($this->locale_url('auth/logout')) ?>"><?= $this->e($this->trans('profile.actions.logout')) ?></a>
