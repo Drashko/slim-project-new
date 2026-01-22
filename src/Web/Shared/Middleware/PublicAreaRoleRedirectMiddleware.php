@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Web\Shared\Middleware;
 
-use App\Web\Auth\Dto\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;
 use Odan\Session\SessionInterface;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -18,8 +16,7 @@ final class PublicAreaRoleRedirectMiddleware implements MiddlewareInterface
     use LocalizedRouteTrait;
 
     public function __construct(
-        private readonly SessionInterface $session,
-        private readonly ResponseFactoryInterface $responseFactory
+        private readonly SessionInterface $session
     ) {
     }
 
@@ -34,46 +31,7 @@ final class PublicAreaRoleRedirectMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        $roles = $this->normalizeRoles($user['roles'] ?? []);
-        if ($this->isAdminOnly($roles)) {
-            $response = $this->responseFactory->createResponse(302);
-
-            return $response->withHeader('Location', $this->localizedPath($request, 'admin'));
-        }
-
         return $handler->handle($request);
-    }
-
-    /**
-     * @return string[]
-     */
-    private function normalizeRoles(mixed $roles): array
-    {
-        if ($roles === null) {
-            return [];
-        }
-
-        if (!is_array($roles)) {
-            $roles = [$roles];
-        }
-
-        $normalized = [];
-        foreach ($roles as $role) {
-            if (is_scalar($role)) {
-                $normalized[] = trim((string) $role);
-            }
-        }
-
-        return array_values(array_filter($normalized, static fn(string $role): bool => $role !== ''));
-    }
-
-    /**
-     * @param string[] $roles
-     */
-    private function isAdminOnly(array $roles): bool
-    {
-        return in_array(RegisterFormData::ROLE_ADMIN, $roles, true)
-            && !in_array(RegisterFormData::ROLE_USER, $roles, true);
     }
 
     private function isAdminRequest(ServerRequestInterface $request): bool
