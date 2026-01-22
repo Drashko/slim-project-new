@@ -7,9 +7,12 @@ $title = $title ?? $this->trans('app.default_title');
 $bodyClass = 'public-layout bg-light';
 $primaryLinks = [
     ['href' => $this->locale_url(null, null, 'public'), 'label' => $this->trans('layout.nav.public_home')],
-    ['href' => $this->locale_url('auth/login', null, 'public'), 'label' => $this->trans('layout.nav.profile_login')],
-    ['href' => $this->locale_url('auth/register', null, 'public'), 'label' => $this->trans('layout.nav.register')],
 ];
+
+if ($user === null) {
+    $primaryLinks[] = ['href' => $this->locale_url('auth/login', null, 'public'), 'label' => $this->trans('layout.nav.profile_login')];
+    $primaryLinks[] = ['href' => $this->locale_url('auth/register', null, 'public'), 'label' => $this->trans('layout.nav.register')];
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= $this->e($this->current_locale()) ?>">
