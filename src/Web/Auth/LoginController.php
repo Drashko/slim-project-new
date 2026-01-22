@@ -10,6 +10,8 @@ use App\Feature\Login\Handler\LoginHandler;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Auth\Dto\LoginFormData;
 use App\Web\Auth\Form\LoginFormType;
+use App\Web\Auth\Dto\RegisterFormData;
+use App\Web\Shared\LocalizedRouteTrait;
 use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,6 +22,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class LoginController
 {
+    use LocalizedRouteTrait;
+
     public function __construct(
         private readonly TemplateRenderer $templates,
         private readonly LoginHandler $loginHandler,
@@ -34,6 +38,7 @@ final class LoginController
     {
         $sessionTokens = $this->session->get('tokens');
         $tokens = is_array($sessionTokens) ? $sessionTokens : null;
+        $loginSucceeded = false;
 
         $identity = is_array($tokens['user'] ?? null) ? $tokens['user'] : null;
         $defaultEmail = $identity['email'] ?? (($this->session->get('user') ?? [])['email'] ?? null);
@@ -64,6 +69,7 @@ final class LoginController
                     ]));
 
                     $identity = $tokens['user'] ?? $identity;
+                    $loginSucceeded = true;
                 } catch (DomainException $exception) {
                     $tokens = null;
                     $this->clearSessionKey('tokens');
@@ -75,6 +81,14 @@ final class LoginController
             } elseif ($form->isSubmitted()) {
                 $this->flash->addMessage('error', $this->translator->trans('auth.login.flash.missing_credentials'));
             }
+        }
+
+        if ($loginSucceeded) {
+            $userForRedirect = is_array($identity) ? $identity : [];
+
+            return $response
+                ->withHeader('Location', $this->resolveRedirectPath($request, $userForRedirect))
+                ->withStatus(302);
         }
 
         $user = $this->session->get('user') ?? $identity;
@@ -101,5 +115,39 @@ final class LoginController
         }
 
         $this->session->set($key, null);
+    }
+
+    private function resolveRedirectPath(ServerRequestInterface $request, array $user): string
+    {
+        $roles = $this->normalizeRoles($user['roles'] ?? []);
+
+        if (in_array(RegisterFormData::ROLE_ADMIN, $roles, true)) {
+            return $this->localizedPath($request, 'admin');
+        }
+
+        return $this->localizedPath($request);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function normalizeRoles(mixed $roles): array
+    {
+        if ($roles === null) {
+            return [];
+        }
+
+        if (!is_array($roles)) {
+            $roles = [$roles];
+        }
+
+        $normalized = [];
+        foreach ($roles as $role) {
+            if (is_scalar($role)) {
+                $normalized[] = trim((string) $role);
+            }
+        }
+
+        return array_values(array_filter($normalized, static fn(string $role): bool => $role !== ''));
     }
 }

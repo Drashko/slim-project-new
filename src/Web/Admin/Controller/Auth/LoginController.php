@@ -8,6 +8,7 @@ use App\Domain\Shared\DomainException;
 use App\Feature\Login\Command\LoginCommand;
 use App\Feature\Login\Handler\LoginHandler;
 use App\Integration\View\TemplateRenderer;
+use App\Web\Auth\Dto\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;
 use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -68,8 +69,10 @@ final class LoginController
         }
 
         if ($loginSucceeded) {
+            $userForRedirect = is_array($tokens['user'] ?? null) ? $tokens['user'] : [];
+
             return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin'))
+                ->withHeader('Location', $this->resolveRedirectPath($request, $userForRedirect))
                 ->withStatus(302);
         }
 
@@ -99,5 +102,39 @@ final class LoginController
         }
 
         $this->session->set($key, null);
+    }
+
+    private function resolveRedirectPath(ServerRequestInterface $request, array $user): string
+    {
+        $roles = $this->normalizeRoles($user['roles'] ?? []);
+
+        if (in_array(RegisterFormData::ROLE_ADMIN, $roles, true)) {
+            return $this->localizedPath($request, 'admin');
+        }
+
+        return $this->localizedPath($request);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function normalizeRoles(mixed $roles): array
+    {
+        if ($roles === null) {
+            return [];
+        }
+
+        if (!is_array($roles)) {
+            $roles = [$roles];
+        }
+
+        $normalized = [];
+        foreach ($roles as $role) {
+            if (is_scalar($role)) {
+                $normalized[] = trim((string) $role);
+            }
+        }
+
+        return array_values(array_filter($normalized, static fn(string $role): bool => $role !== ''));
     }
 }
