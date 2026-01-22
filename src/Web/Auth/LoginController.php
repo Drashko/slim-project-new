@@ -12,6 +12,7 @@ use App\Web\Auth\Dto\LoginFormData;
 use App\Web\Auth\Form\LoginFormType;
 use App\Web\Auth\Dto\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;
+use App\Web\Shared\PublicUserResolver;
 use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -40,8 +41,9 @@ final class LoginController
         $tokens = is_array($sessionTokens) ? $sessionTokens : null;
         $loginSucceeded = false;
 
-        $identity = is_array($tokens['user'] ?? null) ? $tokens['user'] : null;
-        $defaultEmail = $identity['email'] ?? (($this->session->get('user') ?? [])['email'] ?? null);
+        $identity = PublicUserResolver::resolve(is_array($tokens['user'] ?? null) ? $tokens['user'] : null);
+        $sessionUser = PublicUserResolver::resolve($this->session->get('user'));
+        $defaultEmail = $identity['email'] ?? ($sessionUser['email'] ?? null);
 
         $formData = new LoginFormData();
         $formData->email = $defaultEmail;
@@ -98,7 +100,7 @@ final class LoginController
                 ->withStatus(302);
         }
 
-        $user = $this->session->get('user') ?? $identity;
+        $user = $sessionUser ?? $identity;
 
         return $this->templates->render($response, 'auth::login', [
             'tokens' => $tokens,
