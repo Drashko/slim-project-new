@@ -14,6 +14,7 @@ use App\Feature\Ad\Handler\ListAdsHandler;
 use App\Feature\Ad\Query\ListAdsQuery;
 use App\Integration\Helper\ImageStorage;
 use App\Integration\View\TemplateRenderer;
+use App\Web\Shared\PublicUserResolver;
 use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,8 +38,7 @@ final readonly class AdsController
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $user = $this->session->get('user');
-        $normalizedUser = is_array($user) ? $user : null;
+        $normalizedUser = PublicUserResolver::resolve($this->session->get('user'));
 
         if ($normalizedUser === null || !isset($normalizedUser['id'])) {
             return $response

@@ -10,6 +10,7 @@ use App\Feature\Register\Command\RegisterUserCommand;
 use App\Feature\Register\Handler\RegisterUserHandler;
 use App\Web\Auth\Dto\RegisterFormData;
 use App\Web\Auth\Form\RegisterFormType;
+use App\Web\Shared\PublicUserResolver;
 use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -61,7 +62,7 @@ final readonly class RegisterController
 
         return $this->templates->render($response, 'auth::register', [
             'form' => $form->createView(),
-            'user' => $this->session->get('user'),
+            'user' => PublicUserResolver::resolve($this->session->get('user')),
         ]);
     }
 

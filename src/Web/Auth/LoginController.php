@@ -10,6 +10,9 @@ use App\Feature\Login\Handler\LoginHandler;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Auth\Dto\LoginFormData;
 use App\Web\Auth\Form\LoginFormType;
+use App\Web\Auth\Dto\RegisterFormData;
+use App\Web\Shared\LocalizedRouteTrait;
+use App\Web\Shared\PublicUserResolver;
 use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,6 +23,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class LoginController
 {
+    use LocalizedRouteTrait;
+
     public function __construct(
         private readonly TemplateRenderer $templates,
         private readonly LoginHandler $loginHandler,
@@ -34,9 +39,11 @@ final class LoginController
     {
         $sessionTokens = $this->session->get('tokens');
         $tokens = is_array($sessionTokens) ? $sessionTokens : null;
+        $loginSucceeded = false;
 
-        $identity = is_array($tokens['user'] ?? null) ? $tokens['user'] : null;
-        $defaultEmail = $identity['email'] ?? (($this->session->get('user') ?? [])['email'] ?? null);
+        $identity = PublicUserResolver::resolve(is_array($tokens['user'] ?? null) ? $tokens['user'] : null);
+        $sessionUser = PublicUserResolver::resolve($this->session->get('user'));
+        $defaultEmail = $identity['email'] ?? ($sessionUser['email'] ?? null);
 
         $formData = new LoginFormData();
         $formData->email = $defaultEmail;
@@ -59,11 +66,21 @@ final class LoginController
 
                     $this->session->set('tokens', $tokens);
                     $this->session->set('user', $tokens['user']);
-                    $this->flash->addMessage('success', $this->translator->trans('auth.login.flash.welcome', [
-                        '%email%' => $tokens['user']['email'] ?? $data->getEmail(),
-                    ]));
+                    if ($this->isAllowedRole($tokens['user'] ?? [])) {
+                        $this->flash->addMessage('success', $this->translator->trans('auth.login.flash.welcome', [
+                            '%email%' => $tokens['user']['email'] ?? $data->getEmail(),
+                        ]));
 
-                    $identity = $tokens['user'] ?? $identity;
+                        $identity = $tokens['user'] ?? $identity;
+                        $loginSucceeded = true;
+                    } else {
+                        $tokens = null;
+                        $this->clearSessionKey('tokens');
+                        $this->clearSessionKey('user');
+                        $message = $this->translator->trans('auth.login.flash.user_not_found');
+                        $this->flash->addMessage('error', $message);
+                        $form->addError(new FormError($message));
+                    }
                 } catch (DomainException $exception) {
                     $tokens = null;
                     $this->clearSessionKey('tokens');
@@ -77,7 +94,13 @@ final class LoginController
             }
         }
 
-        $user = $this->session->get('user') ?? $identity;
+        if ($loginSucceeded) {
+            return $response
+                ->withHeader('Location', $this->localizedPath($request))
+                ->withStatus(302);
+        }
+
+        $user = $sessionUser ?? $identity;
 
         return $this->templates->render($response, 'auth::login', [
             'tokens' => $tokens,
@@ -101,5 +124,35 @@ final class LoginController
         }
 
         $this->session->set($key, null);
+    }
+
+    private function isAllowedRole(array $user): bool
+    {
+        $roles = $this->normalizeRoles($user['roles'] ?? []);
+
+        return in_array(RegisterFormData::ROLE_USER, $roles, true);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function normalizeRoles(mixed $roles): array
+    {
+        if ($roles === null) {
+            return [];
+        }
+
+        if (!is_array($roles)) {
+            $roles = [$roles];
+        }
+
+        $normalized = [];
+        foreach ($roles as $role) {
+            if (is_scalar($role)) {
+                $normalized[] = trim((string) $role);
+            }
+        }
+
+        return array_values(array_filter($normalized, static fn(string $role): bool => $role !== ''));
     }
 }
