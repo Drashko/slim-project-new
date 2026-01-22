@@ -1,6 +1,9 @@
 <?php
+/** @var array|null $user */
+
 $this->layout('layout::public', [
     'title' => $this->trans('front.api.meta_title'),
+    'user' => $user ?? null,
 ]);
 ?>
 <div class="alert alert-info" role="alert">

@@ -133,7 +133,7 @@ $tokenField = $formView['_token'] ?? null;
                 </form>
 
                 <p class="text-muted mt-3 mb-0"><?= $this->trans('auth.register.login_prompt', [
-                        '%login%' => '<a href="' . $this->locale_url('profile/login') . '">' . $this->trans('layout.nav.profile_login') . '</a>',
+                        '%login%' => '<a href="' . $this->locale_url('auth/login') . '">' . $this->trans('layout.nav.profile_login') . '</a>',
                     ]) ?></p>
             </div>
         </div>
