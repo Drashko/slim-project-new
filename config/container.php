@@ -17,6 +17,7 @@ use App\Domain\User\UserRepositoryInterface;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Logger\LoggerFactory;
 use App\Integration\Helper\ImageStorage;
+use App\Integration\Http\NotFoundHandler;
 use App\Integration\Middleware\LocalizationMiddleware;
 use App\Integration\Rbac\Policy;
 use App\Integration\Repository\Doctrine\PermissionRepository;
@@ -49,6 +50,7 @@ use Slim\App;
 use Slim\Factory\AppFactory;
 use Slim\Flash\Messages;
 use Slim\Middleware\ErrorMiddleware;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Psr7\Factory\ResponseFactory;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
@@ -499,7 +501,7 @@ return [
             ->addFileHandler($settings['log_file'] ?? 'error.log')
             ->createLogger();
 
-        return new ErrorMiddleware(
+        $middleware = new ErrorMiddleware(
             $app->getCallableResolver(),
             $app->getResponseFactory(),
             (bool) $settings['display_error_details'],
@@ -507,5 +509,19 @@ return [
             (bool) $settings['log_error_details'],
             $logger
         );
+
+        $middleware->setErrorHandler(
+            HttpNotFoundException::class,
+            new NotFoundHandler(
+                $container->get(TemplateRenderer::class),
+                $container->get(ResponseFactoryInterface::class),
+                array_change_key_case(
+                    (array) ($container->get('settings')['localization']['supported_locales'] ?? []),
+                    CASE_LOWER
+                ),
+            ),
+        );
+
+        return $middleware;
     },
 ];
