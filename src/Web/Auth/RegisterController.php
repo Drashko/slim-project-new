@@ -51,7 +51,7 @@ final readonly class RegisterController
 
                     $this->flash->addMessage('success', $this->translator->trans('auth.register.flash.success'));
 
-                    return $response->withHeader('Location', $this->localizedPath($request, 'profile/login'))->withStatus(302);
+                    return $response->withHeader('Location', $this->localizedPath($request, 'auth/login'))->withStatus(302);
 
                 } catch (DomainException $exception) {
                     $message = $this->translator->trans($exception->getMessage());

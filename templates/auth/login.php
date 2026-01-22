@@ -127,18 +127,6 @@ $tokenField = $formView['_token'] ?? null;
                         ]) ?></p>
                 </div>
             </div>
-        <?php else: ?>
-            <div class="card border-0 shadow-sm mt-4">
-                <div class="card-body p-4">
-                    <h2 class="h6 text-uppercase text-secondary"><?= $this->e($this->trans('auth.login.demo.title')) ?></h2>
-                    <p class="text-muted small mb-0"><?= $this->trans('auth.login.demo.description', [
-                            '%user_email%' => '<code>jane.doe@example.com</code>',
-                            '%user_pass%' => '<code>user123</code>',
-                            '%api_email%' => '<code>api@example.com</code>',
-                            '%api_pass%' => '<code>api123</code>',
-                        ]) ?></p>
-                </div>
-            </div>
         <?php endif; ?>
     </div>
 </div>
