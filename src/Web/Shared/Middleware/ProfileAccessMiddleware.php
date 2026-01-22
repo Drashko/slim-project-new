@@ -2,30 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Admin\Middleware;
+namespace App\Web\Shared\Middleware;
 
-use App\Domain\Shared\DomainException;
-use App\Integration\Auth\AdminAuthenticator;
 use App\Web\Auth\Dto\RegisterFormData;
-use App\Web\Shared\LocalizedRouteTrait;
 use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Flash\Messages;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class AdminAuthenticationMiddleware implements MiddlewareInterface
+final class ProfileAccessMiddleware implements MiddlewareInterface
 {
-    use LocalizedRouteTrait;
-
     public function __construct(
-        private readonly AdminAuthenticator $authenticator,
-        private readonly ResponseFactoryInterface $responseFactory,
         private readonly SessionInterface $session,
-        private readonly Messages $flash,
+        private readonly ResponseFactoryInterface $responseFactory,
         private readonly TranslatorInterface $translator
     ) {
     }
@@ -33,22 +25,16 @@ final class AdminAuthenticationMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $user = $this->session->get('user');
-        if (is_array($user)) {
-            $roles = $this->normalizeRoles($user['roles'] ?? []);
-            if (!$this->hasAdminRole($roles)) {
-                $this->flash->addMessage('error', $this->translator->trans('auth.login.flash.access_denied'));
-                $response = $this->responseFactory->createResponse(302);
-
-                return $response->withHeader('Location', $this->localizedPath($request, 'auth/login'));
-            }
+        if (!is_array($user)) {
+            return $handler->handle($request);
         }
 
-        try {
-            $this->authenticator->authenticate($request);
-        } catch (DomainException) {
-            $response = $this->responseFactory->createResponse(302);
+        $roles = $this->normalizeRoles($user['roles'] ?? []);
+        if ($this->hasAdminRole($roles)) {
+            $response = $this->responseFactory->createResponse(403);
+            $response->getBody()->write($this->translator->trans('auth.login.flash.access_denied'));
 
-            return $response->withHeader('Location', $this->localizedPath($request, 'admin/login'));
+            return $response;
         }
 
         return $handler->handle($request);

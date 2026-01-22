@@ -17,6 +17,7 @@ use App\Web\Admin\Controller\Ad\AdDetailController;
 use App\Web\Admin\Controller\Ad\AdManagementController;
 use App\Web\Admin\Middleware\AdminAuthenticationMiddleware;
 use App\Web\Shared\Middleware\PublicAreaRoleRedirectMiddleware;
+use App\Web\Shared\Middleware\ProfileAccessMiddleware;
 use App\Web\API\Controller\AdminOverviewController;
 use App\Web\API\Controller\LocalizationController;
 use App\Web\Api\Controller\ApiIndexController;
@@ -106,7 +107,7 @@ return static function (App $app): void {
             $profileGroup->get('', ProfileController::class)->setName('profile.overview');
             $profileGroup->map(['GET', 'POST'], '/login', LoginController::class)->setName('profile.login');
             $profileGroup->map(['GET', 'POST'], '/ads', AdsController::class)->setName('profile.ads');
-        });
+        })->add(ProfileAccessMiddleware::class);
 
         $group->group('/admin', function (RouteCollectorProxy $adminGroup): void {
             $adminGroup->map(['GET', 'POST'], '/login', AdminLoginController::class)->setName('admin.login');
