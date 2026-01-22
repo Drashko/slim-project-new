@@ -515,6 +515,10 @@ return [
             new NotFoundHandler(
                 $container->get(TemplateRenderer::class),
                 $container->get(ResponseFactoryInterface::class),
+                array_change_key_case(
+                    (array) ($container->get('settings')['localization']['supported_locales'] ?? []),
+                    CASE_LOWER
+                ),
             ),
         );
 
