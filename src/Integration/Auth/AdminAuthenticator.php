@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Integration\Auth;
 
-use App\Domain\Auth\Identity;
 use App\Domain\Shared\DomainException;
+use App\Domain\Token\Identity;
 use App\Integration\Rbac\Policy;
 use App\Integration\Session\AdminSessionInterface;
 use Psr\Http\Message\ServerRequestInterface;

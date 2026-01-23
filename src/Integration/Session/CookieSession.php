@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Session;
 
 use InvalidArgumentException;
+use Random\RandomException;
 
 class CookieSession implements SessionInterface
 {
@@ -47,6 +48,9 @@ class CookieSession implements SessionInterface
         $this->persist();
     }
 
+    /**
+     * @throws RandomException
+     */
     public function delete(string $key): void
     {
         $this->load();
@@ -85,6 +89,9 @@ class CookieSession implements SessionInterface
         $this->loaded = true;
     }
 
+    /**
+     * @throws RandomException
+     */
     private function persist(): void
     {
         if ($this->id === null) {
@@ -95,6 +102,9 @@ class CookieSession implements SessionInterface
         $this->setCookie($this->id);
     }
 
+    /**
+     * @throws RandomException
+     */
     private function generateId(): string
     {
         return bin2hex(random_bytes(32));

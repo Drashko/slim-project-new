@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Integration\View\Plates;
 
-use App\Domain\Auth\Identity;
+use App\Domain\Token\Identity;
 use App\Integration\Rbac\Policy;
+use App\Integration\Session\AdminSessionInterface;
 use League\Plates\Engine;
 use League\Plates\Extension\ExtensionInterface;
-use App\Integration\Session\AdminSessionInterface;
 use Stringable;
 
 /**
