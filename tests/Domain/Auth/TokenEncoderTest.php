@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Domain\Auth;
 
-use App\Domain\Auth\TokenClaims;
-use App\Domain\Auth\TokenEncoder;
 use App\Domain\Shared\DomainException;
+use App\Domain\Token\TokenClaims;
+use App\Domain\Token\TokenEncoder;
 use DateInterval;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;

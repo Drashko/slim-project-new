@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Integration\Repository;
 
-use App\Domain\Auth\RefreshToken;
-use App\Domain\Auth\RefreshTokenRepositoryInterface;
+use App\Domain\Token\RefreshToken;
+use App\Domain\Token\RefreshTokenRepositoryInterface;
 use DateTimeImmutable;
 
 final class InMemoryRefreshTokenRepository implements RefreshTokenRepositoryInterface

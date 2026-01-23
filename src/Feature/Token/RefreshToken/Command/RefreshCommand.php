@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Feature\Auth\RefreshToken\Command;
+namespace App\Feature\Token\RefreshToken\Command;
 
 final readonly class RefreshCommand
 {

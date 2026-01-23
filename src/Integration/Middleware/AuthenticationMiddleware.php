@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Integration\Middleware;
 
-use App\Domain\Auth\Identity;
-use App\Domain\Auth\TokenVerifier;
 use App\Domain\Shared\DomainException;
+use App\Domain\Token\Identity;
+use App\Domain\Token\TokenVerifier;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

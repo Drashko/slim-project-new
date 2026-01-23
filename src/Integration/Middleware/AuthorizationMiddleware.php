@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Middleware;
 
-use App\Domain\Auth\Identity;
+use App\Domain\Token\Identity;
 use App\Integration\Rbac\Policy;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;

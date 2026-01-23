@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Auth;
+namespace App\Domain\Token;
 
 use App\Domain\Shared\Clock;
 use App\Domain\Shared\DomainException;
