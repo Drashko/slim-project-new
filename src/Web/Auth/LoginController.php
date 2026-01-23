@@ -149,7 +149,7 @@ final class LoginController
         $normalized = [];
         foreach ($roles as $role) {
             if (is_scalar($role)) {
-                $normalized[] = trim((string) $role);
+                $normalized[] = strtoupper(trim((string) $role));
             }
         }
 
