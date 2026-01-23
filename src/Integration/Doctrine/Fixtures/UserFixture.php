@@ -21,7 +21,7 @@ final class UserFixture implements FixtureInterface
         ];
 
         foreach ($users as $userData) {
-            $existing = $repository->findByEmail($userData['email']);
+            $existing = $repository->findOneBy(['email' => strtolower($userData['email'])]);
             if ($existing instanceof User) {
                 $existing->changePassword($userData['password']);
                 $existing->setRoles($userData['roles']);
