@@ -22,12 +22,20 @@ final readonly class Policy
             return false;
         }
 
+        $normalizedRoles = [];
         foreach ($roles as $role) {
             $normalizedRole = $this->normalizeRole($role);
             if ($normalizedRole === null) {
                 continue;
             }
+            $normalizedRoles[] = $normalizedRole;
+        }
 
+        if ($ability === 'admin.access' && in_array('role_admin', $normalizedRoles, true)) {
+            return true;
+        }
+
+        foreach ($normalizedRoles as $normalizedRole) {
             $roleEntity = $this->roles->findByKey($normalizedRole);
             if ($roleEntity === null) {
                 continue;

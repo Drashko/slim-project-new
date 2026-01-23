@@ -27,7 +27,8 @@ final readonly class AdminAuthenticator
     {
         $identity = $request->getAttribute(Identity::class);
         if ($identity instanceof Identity) {
-            if (!$this->policy->isGranted($identity->getRoles(), self::ADMIN_ACCESS_PERMISSION)) {
+            $roles = $this->normalizeRoles($identity->getRoles());
+            if (!$this->hasAdminRole($roles) && !$this->policy->isGranted($roles, self::ADMIN_ACCESS_PERMISSION)) {
                 throw new DomainException('Admin privileges are required.');
             }
 
@@ -52,8 +53,38 @@ final readonly class AdminAuthenticator
             $roles = [$roles];
         }
 
-        $roles = array_map(static fn(mixed $role): string => (string) $role, $roles);
+        $roles = $this->normalizeRoles($roles);
 
-        return $this->policy->isGranted($roles, self::ADMIN_ACCESS_PERMISSION);
+        return $this->hasAdminRole($roles) || $this->policy->isGranted($roles, self::ADMIN_ACCESS_PERMISSION);
+    }
+
+    /**
+     * @param string[] $roles
+     */
+    private function hasAdminRole(array $roles): bool
+    {
+        return in_array('ROLE_ADMIN', $roles, true);
+    }
+
+    /**
+     * @param array<int, mixed> $roles
+     *
+     * @return string[]
+     */
+    private function normalizeRoles(array $roles): array
+    {
+        $normalized = [];
+        foreach ($roles as $role) {
+            if (!is_scalar($role)) {
+                continue;
+            }
+
+            $value = strtoupper(trim((string) $role));
+            if ($value !== '') {
+                $normalized[] = $value;
+            }
+        }
+
+        return array_values(array_unique($normalized));
     }
 }
