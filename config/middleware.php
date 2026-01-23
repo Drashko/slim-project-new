@@ -8,6 +8,13 @@ use Slim\App;
 use Slim\Middleware\ErrorMiddleware;
 
 return static function (App $app): void {
+    $app->add(function ($request, $handler) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+
+        return $handler->handle($request);
+    });
     $app->add(LocalizationMiddleware::class);
     $app->addBodyParsingMiddleware();
     $app->addRoutingMiddleware();
