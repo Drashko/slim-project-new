@@ -102,7 +102,21 @@ error_reporting(E_ALL);
 ini_set('display_errors', $boolean($_ENV['APP_DEBUG'] ?? 0));
 
 return [
-    'session' => ['name' => 'webapp'],
+    'session' => [
+        'public' => [
+            'cookie' => $_ENV['PUBLIC_SESSION_COOKIE'] ?? 'app_session',
+            'path' => '/',
+            'ttl' => (int) ($_ENV['PUBLIC_SESSION_TTL'] ?? 1209600),
+        ],
+        'admin' => [
+            'cookie' => $_ENV['ADMIN_SESSION_COOKIE'] ?? 'admin_session',
+            'path' => '/admin',
+            'ttl' => (int) ($_ENV['ADMIN_SESSION_TTL'] ?? 1209600),
+        ],
+        'secure' => $boolean($_ENV['SESSION_SECURE'] ?? 0),
+        'httponly' => true,
+        'samesite' => $_ENV['SESSION_SAMESITE'] ?? 'Lax',
+    ],
     'public' => __DIR__ . '/../public',
     'error' => [
         'display_error_details' => $boolean($_ENV['APP_DEBUG'] ?? 0),
@@ -156,6 +170,7 @@ return [
             __DIR__ . '/../src/Domain/Category',
             __DIR__ . '/../src/Domain/Shared',
             __DIR__ . '/../src/Domain/Ad',
+            __DIR__ . '/../src/Domain/Session',
         ],
         'connection' => [
             'driver' => $normalizeDoctrineDriver($_ENV['DB_DRIVER'] ?? null),

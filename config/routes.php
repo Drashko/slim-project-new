@@ -16,6 +16,7 @@ use App\Web\Admin\Controller\User\UserManagementController;
 use App\Web\Admin\Controller\Ad\AdDetailController;
 use App\Web\Admin\Controller\Ad\AdManagementController;
 use App\Web\Admin\Middleware\AdminAuthenticationMiddleware;
+use App\Integration\Session\PublicSessionInterface;
 use App\Web\Shared\Middleware\PublicAreaRoleRedirectMiddleware;
 use App\Web\Shared\Middleware\ProfileAccessMiddleware;
 use App\Web\API\Controller\AdminOverviewController;
@@ -27,7 +28,6 @@ use App\Web\Auth\RegisterController;
 use App\Web\Front\Controller\IndexController as FrontController;
 use App\Web\Profile\ProfileController;
 use App\Web\Profile\AdsController;
-use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -65,9 +65,9 @@ return static function (App $app): void {
 
     $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) use ($container, $defaultLocale): ResponseInterface {
         $locale = $defaultLocale;
-        if ($container !== null && $container->has(SessionInterface::class)) {
-            /** @var SessionInterface $session */
-            $session = $container->get(SessionInterface::class);
+        if ($container !== null && $container->has(PublicSessionInterface::class)) {
+            /** @var PublicSessionInterface $session */
+            $session = $container->get(PublicSessionInterface::class);
             $storedLocale = $session->get('locale_public');
             if (is_string($storedLocale) && $storedLocale !== '') {
                 $locale = $storedLocale;
@@ -77,23 +77,7 @@ return static function (App $app): void {
         return $response->withHeader('Location', '/' . $locale)->withStatus(302);
     });
 
-    $app->get('/admin', function (ServerRequestInterface $request, ResponseInterface $response) use ($container, $defaultLocale): ResponseInterface {
-        $locale = $defaultLocale;
-        if ($container !== null && $container->has(SessionInterface::class)) {
-            /** @var SessionInterface $session */
-            $session = $container->get(SessionInterface::class);
-            $storedLocale = $session->get('locale_admin');
-            if (!is_string($storedLocale) || $storedLocale === '') {
-                $storedLocale = $session->get('locale_public');
-            }
-            if (is_string($storedLocale) && $storedLocale !== '') {
-                $locale = $storedLocale;
-            }
-        }
-
-        return $response->withHeader('Location', '/' . $locale . '/admin')->withStatus(302);
-    });
-    //public and admin localized
+    //public localized
     $app->group($localeGroupPrefix, function (RouteCollectorProxy $group): void {
         $group->get('', FrontController::class)->setName('front.home');
 
@@ -109,28 +93,32 @@ return static function (App $app): void {
             $profileGroup->map(['GET', 'POST'], '/ads', AdsController::class)->setName('profile.ads');
         })->add(ProfileAccessMiddleware::class);
 
-        $group->group('/admin', function (RouteCollectorProxy $adminGroup): void {
-            $adminGroup->map(['GET', 'POST'], '/login', AdminLoginController::class)->setName('admin.login');
-            $adminGroup->get('/logout', LogoutController::class)->setName('admin.logout');
-
-            $adminGroup->group('', function (RouteCollectorProxy $protectedGroup): void {
-                $protectedGroup->get('/profile', AdminProfileController::class)->setName('admin.profile');
-                $protectedGroup->get('/users', UserManagementController::class)->setName('admin.users');
-                $protectedGroup->map(['GET', 'POST'], '/users/new', UserCreateController::class)->setName('admin.users.new');
-                $protectedGroup->map(['GET', 'POST'], '/users/{id}', UserDetailController::class)->setName('admin.user_detail');
-                $protectedGroup->map(['GET', 'POST'], '/roles', RoleManagementController::class)->setName('admin.roles');
-                $protectedGroup->map(['GET', 'POST'], '/roles/new', RoleCreateController::class)->setName('admin.roles.new');
-                $protectedGroup->map(['GET', 'POST'], '/permissions', PermissionMatrixController::class)
-                    ->setName('admin.permissions');
-                $protectedGroup->map(['GET', 'POST'], '/categories', CategoryManagementController::class)
-                    ->setName('admin.categories');
-                $protectedGroup->get('/ads', AdManagementController::class)->setName('admin.ads');
-                $protectedGroup->map(['GET', 'POST'], '/ads/{id}', AdDetailController::class)->setName('admin.ad_detail');
-                $protectedGroup->get('/audit', AuditLogController::class)->setName('admin.audit');
-                $protectedGroup->get('', HomeController::class);
-            })->add(AdminAuthenticationMiddleware::class);
+        $group->get('/admin', function (ServerRequestInterface $request, ResponseInterface $response): ResponseInterface {
+            return $response->withHeader('Location', '/admin')->withStatus(302);
         });
     })->add(PublicAreaRoleRedirectMiddleware::class);
+
+    $app->group('/admin', function (RouteCollectorProxy $adminGroup): void {
+        $adminGroup->map(['GET', 'POST'], '/login', AdminLoginController::class)->setName('admin.login');
+        $adminGroup->get('/logout', LogoutController::class)->setName('admin.logout');
+
+        $adminGroup->group('', function (RouteCollectorProxy $protectedGroup): void {
+            $protectedGroup->get('/profile', AdminProfileController::class)->setName('admin.profile');
+            $protectedGroup->get('/users', UserManagementController::class)->setName('admin.users');
+            $protectedGroup->map(['GET', 'POST'], '/users/new', UserCreateController::class)->setName('admin.users.new');
+            $protectedGroup->map(['GET', 'POST'], '/users/{id}', UserDetailController::class)->setName('admin.user_detail');
+            $protectedGroup->map(['GET', 'POST'], '/roles', RoleManagementController::class)->setName('admin.roles');
+            $protectedGroup->map(['GET', 'POST'], '/roles/new', RoleCreateController::class)->setName('admin.roles.new');
+            $protectedGroup->map(['GET', 'POST'], '/permissions', PermissionMatrixController::class)
+                ->setName('admin.permissions');
+            $protectedGroup->map(['GET', 'POST'], '/categories', CategoryManagementController::class)
+                ->setName('admin.categories');
+            $protectedGroup->get('/ads', AdManagementController::class)->setName('admin.ads');
+            $protectedGroup->map(['GET', 'POST'], '/ads/{id}', AdDetailController::class)->setName('admin.ad_detail');
+            $protectedGroup->get('/audit', AuditLogController::class)->setName('admin.audit');
+            $protectedGroup->get('', HomeController::class);
+        })->add(AdminAuthenticationMiddleware::class);
+    });
 
     //api routes
     $app->group('/api', function (RouteCollectorProxy $group): void {

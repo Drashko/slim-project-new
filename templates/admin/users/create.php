@@ -1,17 +1,17 @@
 <?php
 /** @var array|null $user */
-/** @var \Slim\Flash\Messages|null $flash */
+/** @var \App\Integration\Flash\FlashMessages|null $flash */
 /** @var array<int, array{key: string, name: string, description: string, critical: bool}> $roles */
 /** @var array<int, string> $statuses */
 
-use Slim\Flash\Messages;
+use App\Integration\Flash\FlashMessages;
 
 $this->layout('layout::admin', [
     'title' => $this->trans('admin.users.meta_title'),
     'user' => $user ?? null,
 ]);
 
-$flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
+$flashMessages = $flash instanceof FlashMessages ? $flash->getMessages() : [];
 ?>
 
 <section class="content-header">

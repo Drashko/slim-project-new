@@ -1,7 +1,7 @@
 <?php
 /** @var array|null $user */
 /** @var array<int, array<string, string>> $allPermissions */
-/** @var \Slim\Flash\Messages|null $flash */
+/** @var \App\Integration\Flash\FlashMessages|null $flash */
 
 $this->layout('layout::admin', [
     'title' => $this->trans('admin.roles.create.title'),
@@ -9,7 +9,7 @@ $this->layout('layout::admin', [
 ]);
 
 $allPermissions = $allPermissions ?? [];
-$flashMessages = $flash instanceof \Slim\Flash\Messages ? $flash->getMessages() : [];
+$flashMessages = $flash instanceof \App\Integration\Flash\FlashMessages ? $flash->getMessages() : [];
 ?>
 
 <section class="content-header">

@@ -7,9 +7,9 @@
 /** @var int $totalUsers */
 /** @var array{page: int, perPage: int, total: int, totalPages: int, hasPrev: bool, hasNext: bool, from: int, to: int} $pagination */
 /** @var array<string, mixed> $queryParams */
-/** @var \Slim\Flash\Messages|null $flash */
+/** @var \App\Integration\Flash\FlashMessages|null $flash */
 
-use Slim\Flash\Messages;
+use App\Integration\Flash\FlashMessages;
 
 $this->layout('layout::admin', [
     'title' => $this->trans('admin.users.meta_title'),
@@ -31,7 +31,7 @@ $pagination = $pagination ?? [
     'to' => 0,
 ];
 $queryParams = $queryParams ?? [];
-$flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
+$flashMessages = $flash instanceof FlashMessages ? $flash->getMessages() : [];
 ?>
 
 <section class="content-header">

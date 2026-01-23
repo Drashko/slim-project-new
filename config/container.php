@@ -15,11 +15,17 @@ use App\Domain\Shared\Event\LoggingDomainEventDispatcher;
 use App\Domain\Shared\Clock;
 use App\Domain\User\UserRepositoryInterface;
 use App\Integration\Auth\AdminAuthenticator;
+use App\Integration\Flash\FlashMessages;
 use App\Integration\Logger\LoggerFactory;
 use App\Integration\Helper\ImageStorage;
 use App\Integration\Http\NotFoundHandler;
 use App\Integration\Middleware\LocalizationMiddleware;
 use App\Integration\Rbac\Policy;
+use App\Integration\Session\AdminSession;
+use App\Integration\Session\AdminSessionInterface;
+use App\Integration\Session\DatabaseSessionStore;
+use App\Integration\Session\PublicSession;
+use App\Integration\Session\PublicSessionInterface;
 use App\Integration\Repository\Doctrine\PermissionRepository;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
 use App\Integration\Repository\Doctrine\RoleRepository;
@@ -42,15 +48,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
 use League\Plates\Engine;
-use Odan\Session\PhpSession;
-use Odan\Session\SessionInterface;
-use Odan\Session\SessionManagerInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Slim\App;
 use Slim\Factory\AppFactory;
-use Slim\Flash\Messages;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Psr7\Factory\ResponseFactory;
@@ -112,29 +114,53 @@ return [
         return $entityManager;
     },
 
-    SessionInterface::class => static function (ContainerInterface $container): SessionInterface {
-        $session = new PhpSession($container->get('settings')['session']);
+    DatabaseSessionStore::class => static function (ContainerInterface $container): DatabaseSessionStore {
+        $connection = $container->get(EntityManagerInterface::class)->getConnection();
 
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            $session->start();
-        }
+        return new DatabaseSessionStore($connection);
+    },
 
-        return $session;
+    PublicSessionInterface::class => static function (ContainerInterface $container): PublicSessionInterface {
+        $settings = (array) $container->get('settings')['session'];
+        $public = (array) ($settings['public'] ?? []);
+
+        return new PublicSession(
+            $container->get(DatabaseSessionStore::class),
+            (string) ($public['cookie'] ?? 'app_session'),
+            (string) ($public['path'] ?? '/'),
+            'public',
+            (int) ($public['ttl'] ?? 1209600),
+            (bool) ($settings['secure'] ?? false),
+            (bool) ($settings['httponly'] ?? true),
+            (string) ($settings['samesite'] ?? 'Lax')
+        );
+    },
+
+    AdminSessionInterface::class => static function (ContainerInterface $container): AdminSessionInterface {
+        $settings = (array) $container->get('settings')['session'];
+        $admin = (array) ($settings['admin'] ?? []);
+
+        return new AdminSession(
+            $container->get(DatabaseSessionStore::class),
+            (string) ($admin['cookie'] ?? 'admin_session'),
+            (string) ($admin['path'] ?? '/admin'),
+            'admin',
+            (int) ($admin['ttl'] ?? 1209600),
+            (bool) ($settings['secure'] ?? false),
+            (bool) ($settings['httponly'] ?? true),
+            (string) ($settings['samesite'] ?? 'Lax')
+        );
+    },
+
+    FlashMessages::class => static function (ContainerInterface $container): FlashMessages {
+        return new FlashMessages(
+            $container->get(PublicSessionInterface::class),
+            $container->get(AdminSessionInterface::class)
+        );
     },
 
     Paginator::class => static function (): Paginator {
         return new Paginator();
-    },
-
-    SessionManagerInterface::class => static function (ContainerInterface $container): SessionInterface {
-        return $container->get(SessionInterface::class);
-    },
-
-    Messages::class => static function (ContainerInterface $container): Messages {
-        // Ensure the PHP session is active before creating flash messages
-        $container->get(SessionInterface::class);
-
-        return new Messages();
     },
 
     UserManagementController::class => static function (ContainerInterface $container): UserManagementController {
@@ -143,7 +169,7 @@ return [
             $container->get(AdminAuthenticator::class),
             $container->get(UserService::class),
             $container->get(Paginator::class),
-            $container->get(Messages::class),
+            $container->get(FlashMessages::class),
             (array) $container->get('settings')
         );
     },
@@ -221,7 +247,8 @@ return [
 
         return new LocalizationMiddleware(
             $container->get(TranslatorInterface::class),
-            $container->get(SessionInterface::class),
+            $container->get(PublicSessionInterface::class),
+            $container->get(AdminSessionInterface::class),
             (array) ($settings['supported_locales'] ?? ['en' => 'English']),
             (string) ($settings['default_locale'] ?? 'en')
         );
@@ -229,7 +256,7 @@ return [
 
     PublicAreaRoleRedirectMiddleware::class => static function (ContainerInterface $container): PublicAreaRoleRedirectMiddleware {
         return new PublicAreaRoleRedirectMiddleware(
-            $container->get(SessionInterface::class),
+            $container->get(PublicSessionInterface::class),
             $container->get(ResponseFactoryInterface::class)
         );
     },
@@ -298,7 +325,7 @@ return [
             ->addFolder('profile', $settings['path'] . '/profile');
 
         $engine->addData([
-            'flash' => $container->get(Messages::class),
+            'flash' => $container->get(FlashMessages::class),
         ]);
 
         $translator = $container->get(TranslatorInterface::class);
@@ -354,9 +381,23 @@ return [
             }
 
             $scopedLocale = null;
-            if ($scopeKey !== null && $container->has(SessionInterface::class)) {
-                $sessionLocale = $container->get(SessionInterface::class)->get($scopeKey);
+            if ($scopeKey !== null) {
+                $session = $scope === 'admin'
+                    ? $container->get(AdminSessionInterface::class)
+                    : $container->get(PublicSessionInterface::class);
+                $sessionLocale = $session->get($scopeKey);
                 $scopedLocale = $normalizeLocale($sessionLocale);
+            }
+
+            $normalizedPath = $path ?? '';
+            $normalizedPath = trim($normalizedPath);
+
+            if ($scope === 'admin') {
+                if ($normalizedPath === '' || $normalizedPath === '/') {
+                    return '/admin';
+                }
+
+                return '/' . ltrim($normalizedPath, '/');
             }
 
             $targetLocale = $normalizeLocale($locale);
@@ -375,9 +416,6 @@ return [
             if ($targetLocale === null) {
                 $targetLocale = 'en';
             }
-
-            $normalizedPath = $path ?? '';
-            $normalizedPath = trim($normalizedPath);
 
             if ($normalizedPath === '' || $normalizedPath === '/') {
                 return '/' . $targetLocale;
@@ -412,18 +450,28 @@ return [
                 }
             }
 
-            $newPath = '/' . $locale;
-            $remainingPath = implode('/', $segments);
-            $canonicalPath = $pathLocalizer->canonicalize($remainingPath);
-            $newPath = $pathLocalizer->prefix($canonicalPath, $locale);
-
             $queryParams = [];
             if (!empty($parts['query'])) {
                 parse_str((string) $parts['query'], $queryParams);
             }
 
+            if ($segments !== [] && strtolower($segments[0]) === 'admin') {
+                $queryParams['lang'] = $locale;
+                $queryString = http_build_query($queryParams);
+                $newPath = '/' . implode('/', $segments);
+                if ($queryString !== '') {
+                    $newPath .= '?' . $queryString;
+                }
+
+                return $newPath;
+            }
+
             unset($queryParams['lang']);
             $queryString = http_build_query($queryParams);
+
+            $remainingPath = implode('/', $segments);
+            $canonicalPath = $pathLocalizer->canonicalize($remainingPath);
+            $newPath = $pathLocalizer->prefix($canonicalPath, $locale);
 
             if ($queryString !== '') {
                 $newPath .= '?' . $queryString;
@@ -471,7 +519,7 @@ return [
 
         $engine->loadExtension(new RbacExtension(
             $container->get(Policy::class),
-            $container->get(SessionInterface::class)
+            $container->get(AdminSessionInterface::class)
         ));
 
         return $engine;

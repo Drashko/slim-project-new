@@ -7,7 +7,7 @@ namespace App\Integration\Auth;
 use App\Domain\Auth\Identity;
 use App\Domain\Shared\DomainException;
 use App\Integration\Rbac\Policy;
-use Odan\Session\SessionInterface;
+use App\Integration\Session\AdminSessionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 final readonly class AdminAuthenticator
@@ -15,7 +15,7 @@ final readonly class AdminAuthenticator
     private const ADMIN_ACCESS_PERMISSION = 'admin.access';
 
     public function __construct(
-        private SessionInterface $session,
+        private AdminSessionInterface $session,
         private Policy $policy
     ) {
     }

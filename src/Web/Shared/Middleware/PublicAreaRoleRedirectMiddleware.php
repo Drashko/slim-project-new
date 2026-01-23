@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Web\Shared\Middleware;
 
+use App\Integration\Session\PublicSessionInterface;
 use App\Web\Shared\LocalizedRouteTrait;
-use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -16,7 +16,7 @@ final class PublicAreaRoleRedirectMiddleware implements MiddlewareInterface
     use LocalizedRouteTrait;
 
     public function __construct(
-        private readonly SessionInterface $session
+        private readonly PublicSessionInterface $session
     ) {
     }
 

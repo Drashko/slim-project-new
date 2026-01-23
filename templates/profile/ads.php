@@ -2,16 +2,16 @@
 /** @var array|null $user */
 /** @var array<int, array<string, mixed>> $ads */
 /** @var string[] $categories */
-/** @var \Slim\Flash\Messages|null $flash */
+/** @var \App\Integration\Flash\FlashMessages|null $flash */
 
-use Slim\Flash\Messages;
+use App\Integration\Flash\FlashMessages;
 
 $this->layout('layout::public', [
     'title' => $this->trans('profile.ads.meta_title'),
     'user' => $user ?? null,
 ]);
 
-$flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
+$flashMessages = $flash instanceof FlashMessages ? $flash->getMessages() : [];
 $ads = $ads ?? [];
 $categories = $categories ?? [];
 ?>

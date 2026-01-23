@@ -8,7 +8,7 @@ use App\Domain\Auth\Identity;
 use App\Integration\Rbac\Policy;
 use League\Plates\Engine;
 use League\Plates\Extension\ExtensionInterface;
-use Odan\Session\SessionInterface;
+use App\Integration\Session\AdminSessionInterface;
 use Stringable;
 
 /**
@@ -18,7 +18,7 @@ final readonly class RbacExtension implements ExtensionInterface
 {
     public function __construct(
         private Policy           $policy,
-        private SessionInterface $session
+        private AdminSessionInterface $session
     ) {
     }
 

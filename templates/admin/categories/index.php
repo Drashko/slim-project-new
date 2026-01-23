@@ -1,6 +1,6 @@
 <?php
 /** @var array|null $user */
-/** @var \Slim\Flash\Messages|null $flash */
+/** @var \App\Integration\Flash\FlashMessages|null $flash */
 /** @var array<int, array{id: string, name: string, parent_id: string|null, parent_name: string|null}> $categories */
 /** @var array<int, array{id: string, label: string}> $parentOptions */
 /** @var array{id: string, name: string, parent_id: string|null, parent_name: string|null}|null $selected */
@@ -42,7 +42,7 @@ $flash = $flash ?? null;
     </div>
 </section>
 
-<?php if ($flash instanceof \Slim\Flash\Messages): ?>
+<?php if ($flash instanceof \App\Integration\Flash\FlashMessages): ?>
     <?php foreach ($flash->getMessages() as $type => $messages): ?>
         <?php foreach ((array) $messages as $message): ?>
             <div class="alert alert-<?= $this->e($type === 'error' || $type === 'admin_error' ? 'danger' : 'success') ?> alert-dismissible fade show" role="alert">

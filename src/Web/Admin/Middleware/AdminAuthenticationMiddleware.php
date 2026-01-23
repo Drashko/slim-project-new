@@ -6,15 +6,15 @@ namespace App\Web\Admin\Middleware;
 
 use App\Domain\Shared\DomainException;
 use App\Integration\Auth\AdminAuthenticator;
+use App\Integration\Flash\FlashMessages;
+use App\Integration\Session\AdminSessionInterface;
 use App\Web\Auth\Dto\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;
-use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Flash\Messages;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AdminAuthenticationMiddleware implements MiddlewareInterface
@@ -24,8 +24,8 @@ final class AdminAuthenticationMiddleware implements MiddlewareInterface
     public function __construct(
         private readonly AdminAuthenticator $authenticator,
         private readonly ResponseFactoryInterface $responseFactory,
-        private readonly SessionInterface $session,
-        private readonly Messages $flash,
+        private readonly AdminSessionInterface $session,
+        private readonly FlashMessages $flash,
         private readonly TranslatorInterface $translator
     ) {
     }

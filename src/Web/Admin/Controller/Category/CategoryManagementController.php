@@ -9,11 +9,11 @@ use App\Domain\Category\CategoryInterface;
 use App\Domain\Category\CategoryRepositoryInterface;
 use App\Domain\Shared\DomainException;
 use App\Integration\Auth\AdminAuthenticator;
+use App\Integration\Flash\FlashMessages;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class CategoryManagementController
@@ -24,7 +24,7 @@ final readonly class CategoryManagementController
         private TemplateRenderer $templates,
         private AdminAuthenticator $authenticator,
         private CategoryRepositoryInterface $categories,
-        private Messages $flash,
+        private FlashMessages $flash,
         private TranslatorInterface $translator,
     ) {
     }

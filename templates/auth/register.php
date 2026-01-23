@@ -5,7 +5,7 @@ use Symfony\Component\Form\FormView;
 
 /** @var FormView $form */
 /** @var array|null $user */
-/** @var \Slim\Flash\Messages $flash */
+/** @var \App\Integration\Flash\FlashMessages $flash */
 
 $this->layout('layout::public', [
     'title' => $this->trans('auth.register.meta_title'),

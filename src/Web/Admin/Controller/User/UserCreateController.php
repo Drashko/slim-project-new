@@ -10,12 +10,12 @@ use App\Feature\Admin\Role\Handler\ListRolesHandler;
 use App\Feature\Admin\User\Command\CreateUserCommand;
 use App\Feature\Admin\User\Handler\CreateUserHandler;
 use App\Integration\Auth\AdminAuthenticator;
+use App\Integration\Flash\FlashMessages;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Admin\Service\UserService;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 
 final readonly class UserCreateController
 {
@@ -25,7 +25,7 @@ final readonly class UserCreateController
         private TemplateRenderer   $templates,
         private AdminAuthenticator $authenticator,
         private CreateUserHandler  $createUser,
-        private Messages           $flash,
+        private FlashMessages      $flash,
         private UserService        $userDirectory,
         private ListRolesHandler   $listRoles,
     ) {

@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Web\Auth;
 
 use App\Domain\Shared\DomainException;
+use App\Integration\Flash\FlashMessages;
+use App\Integration\Session\PublicSessionInterface;
 use App\Integration\View\TemplateRenderer;
 use App\Feature\Register\Command\RegisterUserCommand;
 use App\Feature\Register\Handler\RegisterUserHandler;
 use App\Web\Auth\Dto\RegisterFormData;
 use App\Web\Auth\Form\RegisterFormType;
 use App\Web\Shared\PublicUserResolver;
-use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -24,8 +24,8 @@ final readonly class RegisterController
     public function __construct(
         private TemplateRenderer         $templates,
         private RegisterUserHandler      $registerUserHandler,
-        private Messages                $flash,
-        private SessionInterface        $session,
+        private FlashMessages            $flash,
+        private PublicSessionInterface   $session,
         private TranslatorInterface     $translator,
         private FormFactoryInterface    $formFactory
     ) {

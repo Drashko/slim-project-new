@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Web\Shared\Middleware;
 
+use App\Integration\Session\PublicSessionInterface;
 use App\Web\Auth\Dto\RegisterFormData;
-use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -16,7 +16,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final class ProfileAccessMiddleware implements MiddlewareInterface
 {
     public function __construct(
-        private readonly SessionInterface $session,
+        private readonly PublicSessionInterface $session,
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly TranslatorInterface $translator
     ) {

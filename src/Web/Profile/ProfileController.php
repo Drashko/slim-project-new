@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Web\Profile;
 
 use App\Integration\View\TemplateRenderer;
+use App\Integration\Session\PublicSessionInterface;
 use App\Web\Shared\PublicUserResolver;
-use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -14,7 +14,7 @@ final readonly class ProfileController
 {
     public function __construct(
         private TemplateRenderer $templates,
-        private SessionInterface $session
+        private PublicSessionInterface $session
     ) {
     }
 

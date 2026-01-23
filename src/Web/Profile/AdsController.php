@@ -14,11 +14,11 @@ use App\Feature\Ad\Handler\ListAdsHandler;
 use App\Feature\Ad\Query\ListAdsQuery;
 use App\Integration\Helper\ImageStorage;
 use App\Integration\View\TemplateRenderer;
+use App\Integration\Flash\FlashMessages;
+use App\Integration\Session\PublicSessionInterface;
 use App\Web\Shared\PublicUserResolver;
-use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 use App\Web\Shared\LocalizedRouteTrait;
 
 final readonly class AdsController
@@ -27,12 +27,12 @@ final readonly class AdsController
 
     public function __construct(
         private TemplateRenderer $templates,
-        private SessionInterface $session,
+        private PublicSessionInterface $session,
         private CreateAdHandler $createAdHandler,
         private ListAdsHandler $listAdsHandler,
         private CategoryRepositoryInterface $categories,
         private ImageStorage $imageStorage,
-        private Messages $flash,
+        private FlashMessages $flash,
     ) {
     }
 
