@@ -2,7 +2,7 @@
 /** @var array|null $tokens */
 /** @var array|null $user */
 /** @var string|null $last_email */
-/** @var \Slim\Flash\Messages $flash */
+/** @var \App\Integration\Flash\FlashMessages $flash */
 
 $this->layout('layout::admin', [
     'title' => $this->trans('admin.login.meta_title'),

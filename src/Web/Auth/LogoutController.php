@@ -4,31 +4,36 @@ declare(strict_types=1);
 
 namespace App\Web\Auth;
 
+use App\Integration\Flash\FlashMessages;
+use App\Integration\Session\AdminSessionInterface;
+use App\Integration\Session\PublicSessionInterface;
+use App\Integration\Session\SessionInterface;
 use App\Web\Shared\LocalizedRouteTrait;
-use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 
 final readonly class LogoutController
 {
     use LocalizedRouteTrait;
 
     public function __construct(
-        private SessionInterface $session,
-        private Messages         $flash
+        private PublicSessionInterface $publicSession,
+        private AdminSessionInterface $adminSession,
+        private FlashMessages         $flash
     ) {
     }
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
+        $session = $this->resolveSession($request);
+
         foreach (['tokens', 'user'] as $key) {
-            if (method_exists($this->session, 'delete')) {
-                $this->session->delete($key);
-            } elseif (method_exists($this->session, 'remove')) {
-                $this->session->remove($key);
+            if (method_exists($session, 'delete')) {
+                $session->delete($key);
+            } elseif (method_exists($session, 'remove')) {
+                $session->remove($key);
             } else {
-                $this->session->set($key, null);
+                $session->set($key, null);
             }
         }
 
@@ -54,5 +59,15 @@ final readonly class LogoutController
         }
 
         return $redirect;
+    }
+
+    private function resolveSession(ServerRequestInterface $request): SessionInterface
+    {
+        $scope = $request->getAttribute('locale_scope');
+        if ($scope === 'admin') {
+            return $this->adminSession;
+        }
+
+        return $this->publicSession;
     }
 }

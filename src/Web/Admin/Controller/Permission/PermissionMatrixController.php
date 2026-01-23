@@ -14,11 +14,11 @@ use App\Feature\Admin\Permission\Handler\DeletePermissionHandler;
 use App\Feature\Admin\Permission\Handler\ListPermissionsHandler;
 use App\Feature\Admin\Permission\ValidatePermissionRequest;
 use App\Integration\Auth\AdminAuthenticator;
+use App\Integration\Flash\FlashMessages;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class PermissionMatrixController
@@ -32,7 +32,7 @@ final readonly class PermissionMatrixController
         private ValidatePermissionRequest $validator,
         private CreatePermissionHandler $createPermission,
         private DeletePermissionHandler $deletePermission,
-        private Messages $flash,
+        private FlashMessages $flash,
         private TranslatorInterface $translator,
     ) {
     }

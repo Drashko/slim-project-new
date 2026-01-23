@@ -4,7 +4,7 @@
 /** @var string $search */
 /** @var array<int, string> $granted */
 /** @var int $totalPermissions */
-/** @var \Slim\Flash\Messages|null $flash */
+/** @var \App\Integration\Flash\FlashMessages|null $flash */
 
 $this->layout('layout::admin', [
     'title' => $this->trans('admin.permissions.meta_title'),
@@ -15,7 +15,7 @@ $groups = $groups ?? [];
 $search = $search ?? '';
 $granted = $granted ?? [];
 $totalPermissions = $totalPermissions ?? 0;
-$flashMessages = $flash instanceof \Slim\Flash\Messages ? $flash->getMessages() : [];
+$flashMessages = $flash instanceof \App\Integration\Flash\FlashMessages ? $flash->getMessages() : [];
 $deleteForms = [];
 ?>
 

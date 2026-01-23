@@ -5,7 +5,7 @@ use Symfony\Component\Form\FormView;
 /** @var array|null $tokens */
 /** @var array|null $user */
 /** @var FormView $form */
-/** @var \Slim\Flash\Messages $flash */
+/** @var \App\Integration\Flash\FlashMessages $flash */
 
 $this->layout('layout::public', [
     'title' => $this->trans('auth.login.meta_title'),

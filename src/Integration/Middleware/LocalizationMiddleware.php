@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Integration\Middleware;
 
-use Odan\Session\SessionInterface;
+use App\Integration\Session\AdminSessionInterface;
+use App\Integration\Session\PublicSessionInterface;
+use App\Integration\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -21,7 +23,8 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
      */
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly SessionInterface $session,
+        private readonly PublicSessionInterface $publicSession,
+        private readonly AdminSessionInterface $adminSession,
         private readonly array $supportedLocales,
         private readonly string $defaultLocale
     ) {
@@ -32,9 +35,10 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
         $context = $this->determineContext($request);
         $sessionKey = $this->sessionKeyForContext($context);
         $cookieName = $this->cookieNameForContext($context);
-        $locale = $this->resolveLocale($request, $sessionKey, $cookieName);
+        $session = $this->sessionForContext($context);
+        $locale = $this->resolveLocale($request, $session, $sessionKey, $cookieName);
 
-        $this->session->set($sessionKey, $locale);
+        $session->set($sessionKey, $locale);
         $this->translator->setLocale($locale);
         $this->translator->setFallbackLocales([$this->defaultLocale]);
 
@@ -47,7 +51,12 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
         return $this->addLocaleCookie($response, $cookieName, $locale);
     }
 
-    private function resolveLocale(ServerRequestInterface $request, string $sessionKey, string $cookieName): string
+    private function resolveLocale(
+        ServerRequestInterface $request,
+        SessionInterface $session,
+        string $sessionKey,
+        string $cookieName
+    ): string
     {
         $routeLocale = $this->localeFromRoute($request);
         if ($routeLocale !== null) {
@@ -64,7 +73,7 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
             return $queryLocale;
         }
 
-        $sessionLocale = $this->sanitizeLocale($this->session->get($sessionKey));
+        $sessionLocale = $this->sanitizeLocale($session->get($sessionKey));
         if ($sessionLocale !== null) {
             return $sessionLocale;
         }
@@ -180,6 +189,13 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
     private function cookieNameForContext(string $context): string
     {
         return $this->sessionKeyForContext($context);
+    }
+
+    private function sessionForContext(string $context): SessionInterface
+    {
+        return $context === 'admin'
+            ? $this->adminSession
+            : $this->publicSession;
     }
 
     private function extractLocaleFromPath(ServerRequestInterface $request): ?string

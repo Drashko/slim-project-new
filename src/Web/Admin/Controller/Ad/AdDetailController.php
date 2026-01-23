@@ -13,12 +13,12 @@ use App\Feature\Ad\Handler\UpdateAdHandler;
 use App\Feature\Ad\Query\GetAdQuery;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Helper\ImageStorage;
+use App\Integration\Flash\FlashMessages;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 
 final readonly class AdDetailController
 {
@@ -36,7 +36,7 @@ final readonly class AdDetailController
         private UpdateAdHandler $updateAdHandler,
         private CategoryRepositoryInterface $categories,
         private ImageStorage $imageStorage,
-        private Messages $flash,
+        private FlashMessages $flash,
     ) {
         $this->statuses = ['Pending', 'Published', 'Archived'];
     }

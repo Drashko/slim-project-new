@@ -17,11 +17,11 @@ use App\Feature\Admin\Role\Handler\ListRolesHandler;
 use App\Feature\Admin\Role\Handler\ResolveSelectedRoleHandler;
 use App\Feature\Admin\Role\Handler\UpdateRolePermissionsHandler;
 use App\Integration\Auth\AdminAuthenticator;
+use App\Integration\Flash\FlashMessages;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class RoleManagementController
@@ -36,7 +36,7 @@ final readonly class RoleManagementController
         private ListPermissionsHandler $listPermissions,
         private DeleteRoleHandler $deleteRole,
         private UpdateRolePermissionsHandler $updatePermissions,
-        private Messages $flash,
+        private FlashMessages $flash,
         private TranslatorInterface $translator
     ) {
     }

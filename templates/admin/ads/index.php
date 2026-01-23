@@ -3,16 +3,16 @@
 /** @var array<int, array<string, mixed>> $ads */
 /** @var array<string, mixed> $filters */
 /** @var string[] $statuses */
-/** @var \Slim\Flash\Messages|null $flash */
+/** @var \App\Integration\Flash\FlashMessages|null $flash */
 
-use Slim\Flash\Messages;
+use App\Integration\Flash\FlashMessages;
 
 $this->layout('layout::admin', [
     'title' => $this->trans('admin.ads.meta_title'),
     'user' => $user ?? null,
 ]);
 
-$flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
+$flashMessages = $flash instanceof FlashMessages ? $flash->getMessages() : [];
 $ads = $ads ?? [];
 $filters = $filters ?? [];
 $statuses = $statuses ?? ['Pending', 'Published', 'Archived'];

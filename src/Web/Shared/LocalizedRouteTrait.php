@@ -10,6 +10,19 @@ trait LocalizedRouteTrait
 {
     private function localizedPath(ServerRequestInterface $request, string $path = ''): string
     {
+        $scope = $request->getAttribute('locale_scope');
+        if ($scope === 'admin') {
+            $normalized = trim($path);
+            if ($normalized === '' || $normalized === '/') {
+                return '/admin';
+            }
+
+            $trimmed = ltrim($normalized, '/');
+            if (str_starts_with($trimmed, 'admin')) {
+                return '/' . $trimmed;
+            }
+        }
+
         $locale = $request->getAttribute('locale');
         $locale = is_string($locale) && $locale !== '' ? $locale : 'en';
 

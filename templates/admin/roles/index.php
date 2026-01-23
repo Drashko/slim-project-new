@@ -5,9 +5,9 @@
 /** @var string $selectedId */
 /** @var array<int, array<string, mixed>> $permissionGroups */
 /** @var array<int, string> $selectedPermissions */
-/** @var Messages|null $flash */
+/** @var FlashMessages|null $flash */
 
-use Slim\Flash\Messages;
+use App\Integration\Flash\FlashMessages;
 
 $this->layout('layout::admin', [
     'title' => $this->trans('admin.roles.meta_title'),
@@ -18,7 +18,7 @@ $roles = $roles ?? [];
 $selectedRole = $selectedRole ?? null;
 $permissionGroups = $permissionGroups ?? [];
 $selectedPermissions = $selectedPermissions ?? [];
-$flashMessages = $flash instanceof Messages ? $flash->getMessages() : [];
+$flashMessages = $flash instanceof FlashMessages ? $flash->getMessages() : [];
 ?>
 
 <section class="content-header">

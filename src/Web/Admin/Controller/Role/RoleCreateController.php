@@ -11,11 +11,11 @@ use App\Feature\Admin\Permission\Handler\ListPermissionsHandler;
 use App\Feature\Admin\Role\Command\CreateRoleCommand;
 use App\Feature\Admin\Role\Handler\CreateRoleHandler;
 use App\Integration\Auth\AdminAuthenticator;
+use App\Integration\Flash\FlashMessages;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class RoleCreateController
@@ -27,7 +27,7 @@ final readonly class RoleCreateController
         private AdminAuthenticator $authenticator,
         private ListPermissionsHandler $listPermissions,
         private CreateRoleHandler $createRole,
-        private Messages $flash,
+        private FlashMessages $flash,
         private TranslatorInterface $translator
     ) {
     }

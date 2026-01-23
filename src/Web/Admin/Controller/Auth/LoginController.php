@@ -7,13 +7,13 @@ namespace App\Web\Admin\Controller\Auth;
 use App\Domain\Shared\DomainException;
 use App\Feature\Login\Command\LoginCommand;
 use App\Feature\Login\Handler\LoginHandler;
+use App\Integration\Flash\FlashMessages;
+use App\Integration\Session\AdminSessionInterface;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Auth\Dto\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;
-use Odan\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class LoginController
@@ -25,8 +25,8 @@ final class LoginController
     public function __construct(
         private readonly TemplateRenderer $templates,
         private readonly LoginHandler $loginHandler,
-        private readonly SessionInterface $session,
-        private readonly Messages $flash,
+        private readonly AdminSessionInterface $session,
+        private readonly FlashMessages $flash,
         private readonly TranslatorInterface $translator
     ) {
     }

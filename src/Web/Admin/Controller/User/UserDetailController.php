@@ -12,6 +12,7 @@ use App\Feature\Admin\User\Command\UpdateUserCommand;
 use App\Feature\Admin\User\Handler\DeleteUserHandler;
 use App\Feature\Admin\User\Handler\UpdateUserHandler;
 use App\Integration\Auth\AdminAuthenticator;
+use App\Integration\Flash\FlashMessages;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Admin\Service\UserService;
 use App\Web\Shared\LocalizedRouteTrait;
@@ -19,7 +20,6 @@ use DateInterval;
 use DateTimeImmutable;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Flash\Messages;
 
 final readonly class UserDetailController
 {
@@ -31,7 +31,7 @@ final readonly class UserDetailController
         private UserService        $directory,
         private UpdateUserHandler  $updateUser,
         private DeleteUserHandler  $deleteUser,
-        private Messages           $flash,
+        private FlashMessages      $flash,
         private ListRolesHandler   $listRoles,
     ) {
     }
