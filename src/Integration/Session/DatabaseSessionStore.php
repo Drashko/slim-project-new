@@ -53,11 +53,17 @@ final readonly class DatabaseSessionStore
         $now = (new DateTimeImmutable())->format('Y-m-d H:i:s');
 
         try {
-            $this->connection->executeStatement(
-                'INSERT INTO app_sessions (id, type, data, updated_at) VALUES (?, ?, ?, ?)
-                 ON DUPLICATE KEY UPDATE data = VALUES(data), updated_at = VALUES(updated_at)',
-                [$id, $type, $payload, $now]
+            $affected = $this->connection->executeStatement(
+                'UPDATE app_sessions SET data = ?, updated_at = ? WHERE id = ? AND type = ?',
+                [$payload, $now, $id, $type]
             );
+
+            if ($affected === 0) {
+                $this->connection->executeStatement(
+                    'INSERT INTO app_sessions (id, type, data, updated_at) VALUES (?, ?, ?, ?)',
+                    [$id, $type, $payload, $now]
+                );
+            }
         } catch (Exception) {
         }
     }
