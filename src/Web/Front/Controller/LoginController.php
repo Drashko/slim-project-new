@@ -112,6 +112,7 @@ final class LoginController
             'tokens' => $tokens,
             'user' => $user,
             'form' => $form->createView(),
+            'flash' => $this->flash,
         ]);
     }
 
