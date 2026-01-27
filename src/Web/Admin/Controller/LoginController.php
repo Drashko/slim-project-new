@@ -10,24 +10,27 @@ use App\Feature\Login\Handler\LoginHandler;
 use App\Integration\Flash\FlashMessages;
 use App\Integration\Session\AdminSessionInterface;
 use App\Integration\View\TemplateRenderer;
+use App\Web\Admin\Dto\AdminLoginFormData;
+use App\Web\Admin\Form\AdminLoginFormType;
 use App\Web\Front\Dto\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class LoginController
 {
     use LocalizedRouteTrait;
 
-    private ?string $lastEmail = null;
-
     public function __construct(
         private readonly TemplateRenderer $templates,
         private readonly LoginHandler $loginHandler,
         private readonly AdminSessionInterface $session,
         private readonly FlashMessages $flash,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
+        private readonly FormFactoryInterface $formFactory
     ) {
     }
 
@@ -36,20 +39,26 @@ final class LoginController
         $sessionTokens = $this->session->get('tokens');
         $tokens = is_array($sessionTokens) ? $sessionTokens : null;
         $loginSucceeded = false;
+        $sessionUser = $this->session->get('user');
+
+        $identity = is_array($tokens['user'] ?? null) ? $tokens['user'] : null;
+        $defaultEmail = $identity['email'] ?? ($sessionUser['email'] ?? null);
+
+        $formData = new AdminLoginFormData();
+        $formData->email = $defaultEmail;
+        $form = $this->formFactory->create(AdminLoginFormType::class, $formData);
 
         if ($request->getMethod() === 'POST') {
-            $data = (array) $request->getParsedBody();
-            $email = trim((string) ($data['email'] ?? ''));
-            $password = (string) ($data['password'] ?? '');
-            $this->lastEmail = $email;
+            $form->submit((array) ($request->getParsedBody() ?? []));
 
-            if ($email === '' || $password === '') {
-                $this->flash->addMessage('error', $this->translator->trans('auth.login.flash.missing_credentials'));
-            } else {
+            if ($form->isSubmitted() && $form->isValid()) {
+                /** @var AdminLoginFormData $data */
+                $data = $form->getData();
+
                 try {
                     $tokens = $this->loginHandler->handle(new LoginCommand(
-                        $email,
-                        $password,
+                        $data->getEmail(),
+                        $data->getPassword(),
                         $request->getServerParams()['REMOTE_ADDR'] ?? null
                     ));
 
@@ -58,20 +67,26 @@ final class LoginController
                         $this->session->set('user', $tokens['user']);
                         $loginSucceeded = true;
                         $this->flash->addMessage('success', $this->translator->trans('auth.login.flash.welcome', [
-                            '%email%' => $tokens['user']['email'] ?? $email,
+                            '%email%' => $tokens['user']['email'] ?? $data->getEmail(),
                         ]));
                     } else {
                         $tokens = null;
                         $this->clearSessionKey('tokens');
                         $this->clearSessionKey('user');
-                        $this->flash->addMessage('error', $this->translator->trans('auth.login.flash.user_not_found'));
+                        $message = $this->translator->trans('auth.login.flash.user_not_found');
+                        $this->flash->addMessage('error', $message);
+                        $form->addError(new FormError($message));
                     }
                 } catch (DomainException $exception) {
                     $tokens = null;
                     $this->clearSessionKey('tokens');
                     $this->clearSessionKey('user');
-                    $this->flash->addMessage('error', $this->translator->trans($exception->getMessage()));
+                    $message = $this->translator->trans($exception->getMessage());
+                    $this->flash->addMessage('error', $message);
+                    $form->addError(new FormError($message));
                 }
+            } elseif ($form->isSubmitted()) {
+                $this->flash->addMessage('error', $this->translator->trans('auth.login.flash.missing_credentials'));
             }
         }
 
@@ -81,14 +96,13 @@ final class LoginController
                 ->withStatus(302);
         }
 
-        $identity = is_array($tokens['user'] ?? null) ? $tokens['user'] : null;
-        $user = $this->session->get('user') ?? $identity;
-        $lastEmail = $this->lastEmail ?? ($identity['email'] ?? null);
+        $user = $sessionUser ?? $identity;
 
         return $this->templates->render($response, 'admin::auth/login', [
             'tokens' => $tokens,
             'user' => $user,
-            'last_email' => $lastEmail,
+            'form' => $form->createView(),
+            'flash' => $this->flash,
         ]);
     }
 

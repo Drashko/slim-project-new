@@ -28,7 +28,10 @@ final readonly class AdminAuthenticator
         $identity = $request->getAttribute(Identity::class);
         if ($identity instanceof Identity) {
             $roles = $this->normalizeRoles($identity->getRoles());
-            if (!$this->hasAdminRole($roles) && !$this->policy->isGranted($roles, self::ADMIN_ACCESS_PERMISSION)) {
+            if (
+                !$this->hasAdminRole($roles)
+                && !$this->policy->isGranted($roles, self::ADMIN_ACCESS_PERMISSION, $identity->getRolesVersion())
+            ) {
                 throw new DomainException('Admin privileges are required.');
             }
 
@@ -55,7 +58,8 @@ final readonly class AdminAuthenticator
 
         $roles = $this->normalizeRoles($roles);
 
-        return $this->hasAdminRole($roles) || $this->policy->isGranted($roles, self::ADMIN_ACCESS_PERMISSION);
+        return $this->hasAdminRole($roles)
+            || $this->policy->isGranted($roles, self::ADMIN_ACCESS_PERMISSION, $this->resolveRolesVersion($user));
     }
 
     /**
@@ -86,5 +90,18 @@ final readonly class AdminAuthenticator
         }
 
         return array_values(array_unique($normalized));
+    }
+
+    /**
+     * @param array<string, mixed> $user
+     */
+    private function resolveRolesVersion(array $user): ?int
+    {
+        $version = $user['roles_version'] ?? $user['rolesVersion'] ?? null;
+        if (is_numeric($version)) {
+            return (int) $version;
+        }
+
+        return null;
     }
 }

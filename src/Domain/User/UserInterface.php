@@ -23,6 +23,8 @@ interface UserInterface
      */
     public function getRoles(): array;
 
+    public function getRolesVersion(): int;
+
     /**
      * @param string[] $roles
      */

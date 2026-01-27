@@ -28,6 +28,9 @@ class User implements UserInterface
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
+    #[ORM\Column(type: 'integer')]
+    private int $rolesVersion = 1;
+
     #[ORM\Column(type: 'string', length: 32)]
     private string $status = 'Active';
 
@@ -42,7 +45,7 @@ class User implements UserInterface
         $this->id = Uuid::v4()->toRfc4122();
         $this->setEmail($email);
         $this->changePassword($plainPassword);
-        $this->setRoles($roles);
+        $this->roles = $this->normalizeRoles($roles);
         $this->setStatus($status);
         $this->createdAt = new DateTimeImmutable('now');
         $this->updatedAt = $this->createdAt;
@@ -102,17 +105,23 @@ class User implements UserInterface
         return $this->roles;
     }
 
+    public function getRolesVersion(): int
+    {
+        return $this->rolesVersion;
+    }
+
     /**
      * @param string[] $roles
      */
     public function setRoles(array $roles): void
     {
-        $normalized = [];
-        foreach ($roles as $role) {
-            $normalized[] = strtoupper((string) $role);
+        $normalized = $this->normalizeRoles($roles);
+        if ($normalized === $this->roles) {
+            return;
         }
 
-        $this->roles = array_values(array_unique($normalized));
+        $this->roles = $normalized;
+        $this->rolesVersion++;
         $this->touch();
     }
 
@@ -145,5 +154,22 @@ class User implements UserInterface
     private function touch(): void
     {
         $this->updatedAt = new DateTimeImmutable('now');
+    }
+
+    /**
+     * @param string[] $roles
+     * @return string[]
+     */
+    private function normalizeRoles(array $roles): array
+    {
+        $normalized = [];
+        foreach ($roles as $role) {
+            $value = strtoupper(trim((string) $role));
+            if ($value !== '') {
+                $normalized[] = $value;
+            }
+        }
+
+        return array_values(array_unique($normalized));
     }
 }

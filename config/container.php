@@ -21,6 +21,7 @@ use App\Integration\Http\NotFoundHandler;
 use App\Integration\Logger\LoggerFactory;
 use App\Integration\Middleware\LocalizationMiddleware;
 use App\Integration\Rbac\Policy;
+use App\Integration\Rbac\RoleService;
 use App\Integration\Repository\Doctrine\AdRepository;
 use App\Integration\Repository\Doctrine\CategoryRepository;
 use App\Integration\Repository\Doctrine\PermissionRepository;
@@ -69,6 +70,7 @@ use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 return [
@@ -118,6 +120,13 @@ return [
         $connection = $container->get(EntityManagerInterface::class)->getConnection();
 
         return new DatabaseSessionStore($connection);
+    },
+
+    CacheInterface::class => static function (ContainerInterface $container): CacheInterface {
+        $settings = (array) ($container->get('settings')['cache'] ?? []);
+        $cacheDir = (string) ($settings['dir'] ?? '');
+
+        return new FilesystemAdapter('app', 0, $cacheDir !== '' ? $cacheDir : null);
     },
 
     PublicSessionInterface::class => static function (ContainerInterface $container): PublicSessionInterface {
@@ -277,8 +286,13 @@ return [
         $container->get(Clock::class)
     ),
 
+    RoleService::class => static fn(ContainerInterface $container): RoleService => new RoleService(
+        $container->get(RoleRepositoryInterface::class),
+        $container->get(CacheInterface::class)
+    ),
+
     Policy::class => static fn(ContainerInterface $container): Policy => new Policy(
-        $container->get(RoleRepositoryInterface::class)
+        $container->get(RoleService::class)
     ),
 
     RefreshTokenRepositoryInterface::class => static fn(ContainerInterface $container): RefreshTokenRepositoryInterface => new RefreshTokenRepository(

@@ -49,7 +49,7 @@ final readonly class RefreshHandler
             throw new DomainException('User not found for refresh token.');
         }
 
-        $identity = new Identity($user->getId(), $user->getEmail(), $user->getRoles());
+        $identity = new Identity($user->getId(), $user->getEmail(), $user->getRoles(), $user->getRolesVersion());
 
         $issuedAt = $this->clock->now();
         $expiresAt = $issuedAt->add(new DateInterval(sprintf('PT%dS', $this->accessTokenTtl)));

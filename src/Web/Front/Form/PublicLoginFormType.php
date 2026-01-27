@@ -4,44 +4,35 @@ declare(strict_types=1);
 
 namespace App\Web\Front\Form;
 
-use App\Web\Front\Dto\RegisterFormData;
+use App\Web\Front\Dto\LoginFormData;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-final class RegisterFormType extends AbstractType
+final class PublicLoginFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('email', EmailType::class, [
-                'label' => 'auth.register.email_label',
+                'label' => 'auth.login.email_label',
                 'attr' => ['autocomplete' => 'email'],
             ])
             ->add('password', PasswordType::class, [
-                'label' => 'auth.register.password_label',
-                'attr' => ['autocomplete' => 'new-password'],
-            ])
-            ->add('confirmPassword', PasswordType::class, [
-                'label' => 'auth.register.confirm_password_label',
-                'attr' => ['autocomplete' => 'new-password'],
-            ])
-            ->add('accountType', ChoiceType::class, [
-                'label' => 'auth.register.account_type.label',
-                'choices' => RegisterFormData::ACCOUNT_TYPE_CHOICES,
+                'label' => 'auth.login.password_label',
+                'attr' => ['autocomplete' => 'current-password'],
             ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => RegisterFormData::class,
+            'data_class' => LoginFormData::class,
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
-            'csrf_token_id' => 'register_form',
+            'csrf_token_id' => 'login_form',
             'method' => 'POST',
         ]);
     }

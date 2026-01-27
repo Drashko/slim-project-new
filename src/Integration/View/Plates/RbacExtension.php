@@ -44,7 +44,7 @@ final readonly class RbacExtension implements ExtensionInterface
             return false;
         }
 
-        return $this->policy->isGranted($roles, $ability);
+        return $this->policy->isGranted($roles, $ability, $this->resolveRolesVersion($subject));
     }
 
     /**
@@ -76,6 +76,29 @@ final readonly class RbacExtension implements ExtensionInterface
         }
 
         return $this->normalizeRoles($subject);
+    }
+
+    private function resolveRolesVersion(mixed $subject): ?int
+    {
+        if ($subject === null) {
+            $sessionUser = $this->session->get('user');
+            if (is_array($sessionUser)) {
+                $subject = $sessionUser;
+            }
+        }
+
+        if ($subject instanceof Identity) {
+            return $subject->getRolesVersion();
+        }
+
+        if (is_array($subject)) {
+            $version = $subject['roles_version'] ?? $subject['rolesVersion'] ?? null;
+            if (is_numeric($version)) {
+                return (int) $version;
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -11,7 +11,7 @@ use App\Integration\Flash\FlashMessages;
 use App\Integration\Session\PublicSessionInterface;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Front\Dto\RegisterFormData;
-use App\Web\Front\Form\RegisterFormType;
+use App\Web\Front\Form\PublicRegisterFormType;
 use App\Web\Shared\PublicUserResolver;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -33,7 +33,7 @@ final readonly class RegisterController
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $form = $this->formFactory->create(RegisterFormType::class, new RegisterFormData());
+        $form = $this->formFactory->create(PublicRegisterFormType::class, new RegisterFormData());
 
         if ($request->getMethod() === 'POST') {
             $form->submit((array) ($request->getParsedBody() ?? []));
