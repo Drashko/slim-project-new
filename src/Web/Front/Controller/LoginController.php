@@ -12,7 +12,7 @@ use App\Integration\Session\PublicSessionInterface;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Front\Dto\LoginFormData;
 use App\Web\Front\Dto\RegisterFormData;
-use App\Web\Front\Form\LoginFormType;
+use App\Web\Front\Form\PublicLoginFormType;
 use App\Web\Shared\LocalizedRouteTrait;
 use App\Web\Shared\PublicUserResolver;
 use Psr\Http\Message\ResponseInterface;
@@ -48,7 +48,7 @@ final class LoginController
         $formData = new LoginFormData();
         $formData->email = $defaultEmail;
 
-        $form = $this->formFactory->create(LoginFormType::class, $formData);
+        $form = $this->formFactory->create(PublicLoginFormType::class, $formData);
 
         if ($request->getMethod() === 'POST') {
             $form->submit((array) ($request->getParsedBody() ?? []));

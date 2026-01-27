@@ -37,7 +37,7 @@ final readonly class LoginHandler
             throw new DomainException('Invalid credentials provided.');
         }
 
-        $identity = new Identity($user->getId(), $user->getEmail(), $user->getRoles());
+        $identity = new Identity($user->getId(), $user->getEmail(), $user->getRoles(), $user->getRolesVersion());
 
         $issuedAt = $this->clock->now();
         $expiresAt = $issuedAt->add(new DateInterval(sprintf('PT%dS', $this->accessTokenTtl)));

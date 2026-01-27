@@ -34,7 +34,7 @@ final  class AuthorizationMiddleware implements MiddlewareInterface
             return $this->redirectToForbidden();
         }
 
-        if ($this->hasRequiredAbility($identity->getRoles())) {
+        if ($this->hasRequiredAbility($identity->getRoles(), $identity->getRolesVersion())) {
             return $handler->handle($request);
         }
 
@@ -44,14 +44,14 @@ final  class AuthorizationMiddleware implements MiddlewareInterface
     /**
      * @param string[] $roles
      */
-    private function hasRequiredAbility(array $roles): bool
+    private function hasRequiredAbility(array $roles, ?int $rolesVersion): bool
     {
         if ($this->requiredAbilities === []) {
             return true;
         }
 
         foreach ($this->requiredAbilities as $ability) {
-            if ($this->policy->isGranted($roles, $ability)) {
+            if ($this->policy->isGranted($roles, $ability, $rolesVersion)) {
                 return true;
             }
         }

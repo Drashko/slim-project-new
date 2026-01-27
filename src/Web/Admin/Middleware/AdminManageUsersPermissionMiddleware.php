@@ -31,7 +31,7 @@ final class AdminManageUsersPermissionMiddleware implements MiddlewareInterface
         $user = $this->authenticator->authenticate($request);
         $roles = $this->resolveRoles($user['roles'] ?? []);
 
-        if ($this->policy->isGranted($roles, self::REQUIRED_ABILITY)) {
+        if ($this->policy->isGranted($roles, self::REQUIRED_ABILITY, $this->resolveRolesVersion($user))) {
             return $handler->handle($request);
         }
 
@@ -61,5 +61,18 @@ final class AdminManageUsersPermissionMiddleware implements MiddlewareInterface
         }
 
         return array_values(array_map(static fn(mixed $role): string => (string) $role, $roles));
+    }
+
+    /**
+     * @param array<string, mixed> $user
+     */
+    private function resolveRolesVersion(array $user): ?int
+    {
+        $version = $user['roles_version'] ?? $user['rolesVersion'] ?? null;
+        if (is_numeric($version)) {
+            return (int) $version;
+        }
+
+        return null;
     }
 }

@@ -9,7 +9,8 @@ final class Identity
     public function __construct(
         private readonly string $userId,
         private readonly string $email,
-        private array $roles
+        private array $roles,
+        private readonly int $rolesVersion = 1
     ) {
         $this->roles = array_values(array_unique($roles));
     }
@@ -32,6 +33,11 @@ final class Identity
         return $this->roles;
     }
 
+    public function getRolesVersion(): int
+    {
+        return $this->rolesVersion;
+    }
+
     public function hasRole(string $role): bool
     {
         return in_array($role, $this->roles, true);
@@ -50,6 +56,7 @@ final class Identity
             'id' => $this->userId,
             'email' => $this->email,
             'roles' => $this->roles,
+            'roles_version' => $this->rolesVersion,
         ];
     }
 }

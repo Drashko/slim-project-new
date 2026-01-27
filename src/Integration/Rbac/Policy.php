@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace App\Integration\Rbac;
 
-use App\Domain\Role\RoleRepositoryInterface;
-
 final readonly class Policy
 {
-    public function __construct(private RoleRepositoryInterface $roles)
+    public function __construct(private RoleService $roles)
     {
     }
 
     /**
      * @param string[] $roles
      */
-    public function isGranted(array $roles, string $ability): bool
+    public function isGranted(array $roles, string $ability, ?int $rolesVersion = null): bool
     {
         $ability = $this->normalizeAbility($ability);
         if ($ability === null) {
@@ -35,16 +33,10 @@ final readonly class Policy
             return true;
         }
 
-        foreach ($normalizedRoles as $normalizedRole) {
-            $roleEntity = $this->roles->findByKey($normalizedRole);
-            if ($roleEntity === null) {
-                continue;
-            }
-
-            foreach ($roleEntity->getPermissions() as $permission) {
-                if (method_exists($permission, 'getKey') && $permission->getKey() === $ability) {
-                    return true;
-                }
+        $permissions = $this->roles->permissionsForRoles($normalizedRoles, $rolesVersion);
+        foreach ($permissions as $permission) {
+            if ($permission === $ability) {
+                return true;
             }
         }
 
