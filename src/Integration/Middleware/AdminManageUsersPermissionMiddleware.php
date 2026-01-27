@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Admin\Middleware;
+namespace App\Integration\Middleware;
 
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Rbac\Policy;

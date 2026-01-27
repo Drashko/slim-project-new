@@ -16,7 +16,7 @@ use App\Web\Admin\Controller\RoleManagementController;
 use App\Web\Admin\Controller\UserCreateController;
 use App\Web\Admin\Controller\UserDetailController;
 use App\Web\Admin\Controller\UserManagementController;
-use App\Web\Admin\Middleware\AdminAuthenticationMiddleware;
+use App\Integration\Middleware\AdminAuthenticationMiddleware;
 use App\Web\API\Controller\AdminOverviewController;
 use App\Web\Api\Controller\ApiIndexController;
 use App\Web\API\Controller\LocalizationController;
