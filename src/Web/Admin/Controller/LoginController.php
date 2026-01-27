@@ -8,6 +8,7 @@ use App\Domain\Shared\DomainException;
 use App\Feature\Login\Command\LoginCommand;
 use App\Feature\Login\Handler\LoginHandler;
 use App\Integration\Flash\FlashMessages;
+use App\Integration\Rbac\Policy;
 use App\Integration\Session\AdminSessionInterface;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Admin\Dto\AdminLoginFormData;
@@ -29,6 +30,7 @@ final class LoginController
         private readonly LoginHandler $loginHandler,
         private readonly AdminSessionInterface $session,
         private readonly FlashMessages $flash,
+        private readonly Policy $policy,
         private readonly TranslatorInterface $translator,
         private readonly FormFactoryInterface $formFactory
     ) {
@@ -133,7 +135,11 @@ final class LoginController
     {
         $roles = $this->normalizeRoles($user['roles'] ?? []);
 
-        return in_array(RegisterFormData::ROLE_ADMIN, $roles, true);
+        if (in_array(RegisterFormData::ROLE_ADMIN, $roles, true)) {
+            return true;
+        }
+
+        return $this->policy->isGranted($roles, 'admin.access', $this->resolveRolesVersion($user));
     }
 
     /**
@@ -157,5 +163,15 @@ final class LoginController
         }
 
         return array_values(array_filter($normalized, static fn(string $role): bool => $role !== ''));
+    }
+
+    private function resolveRolesVersion(array $user): ?int
+    {
+        $version = $user['roles_version'] ?? $user['rolesVersion'] ?? null;
+        if (is_numeric($version)) {
+            return (int) $version;
+        }
+
+        return null;
     }
 }

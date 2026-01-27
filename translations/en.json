@@ -428,6 +428,7 @@
     "auth.register.account_type.api": "API client",
     "auth.register.submit": "Create account",
     "auth.register.flash.success": "Account created successfully.",
+    "auth.register.flash.invalid": "Please review the highlighted fields and try again.",
     "auth.register.login_prompt": "Already registered? %login% instead.",
     "auth.register.errors.invalid_email": "Please enter a valid email address.",
     "auth.register.errors.password_required": "Password is required.",
