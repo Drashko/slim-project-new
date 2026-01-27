@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Admin\Controller\AuditLog;
+namespace App\Web\Admin\Controller;
 
 use App\Domain\Shared\DomainException;
-use App\Feature\Admin\Audit\Handler\ListDomainEventLogsHandler;
 use App\Feature\Admin\Audit\Command\ListDomainEventLogsCommand;
+use App\Feature\Admin\Audit\Handler\ListDomainEventLogsHandler;
 use App\Feature\Admin\Audit\ListDomainEventLogsResult;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\View\TemplateRenderer;

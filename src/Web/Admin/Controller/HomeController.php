@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Admin\Controller\Home;
+namespace App\Web\Admin\Controller;
 
 use App\Domain\Shared\DomainException;
 use App\Integration\Auth\AdminAuthenticator;

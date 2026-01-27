@@ -8,7 +8,7 @@ use App\Domain\Shared\DomainException;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
 use App\Integration\Session\AdminSessionInterface;
-use App\Web\Auth\Dto\RegisterFormData;
+use App\Web\Front\Dto\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Profile;
+namespace App\Web\Front\Controller;
 
-use App\Integration\View\TemplateRenderer;
 use App\Integration\Session\PublicSessionInterface;
+use App\Integration\View\TemplateRenderer;
 use App\Web\Shared\PublicUserResolver;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

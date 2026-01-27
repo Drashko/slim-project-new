@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Admin\Controller\User;
+namespace App\Web\Admin\Controller;
 
 use App\Domain\Shared\DomainException;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Admin\Service\UserService;
-use App\Web\Shared\Paginator;
 use App\Web\Shared\LocalizedRouteTrait;
+use App\Web\Shared\Paginator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 

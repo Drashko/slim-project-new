@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Auth;
+namespace App\Web\Front\Controller;
 
 use App\Domain\Shared\DomainException;
+use App\Feature\Register\Command\RegisterUserCommand;
+use App\Feature\Register\Handler\RegisterUserHandler;
 use App\Integration\Flash\FlashMessages;
 use App\Integration\Session\PublicSessionInterface;
 use App\Integration\View\TemplateRenderer;
-use App\Feature\Register\Command\RegisterUserCommand;
-use App\Feature\Register\Handler\RegisterUserHandler;
-use App\Web\Auth\Dto\RegisterFormData;
-use App\Web\Auth\Form\RegisterFormType;
+use App\Web\Front\Dto\RegisterFormData;
+use App\Web\Front\Form\RegisterFormType;
 use App\Web\Shared\PublicUserResolver;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

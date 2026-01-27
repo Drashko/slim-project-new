@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Web\Shared\Middleware;
 
 use App\Integration\Session\PublicSessionInterface;
-use App\Web\Auth\Dto\RegisterFormData;
+use App\Web\Front\Dto\RegisterFormData;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

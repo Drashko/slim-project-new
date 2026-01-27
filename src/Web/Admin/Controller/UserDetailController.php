@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Admin\Controller\User;
+namespace App\Web\Admin\Controller;
 
 use App\Domain\Shared\DomainException;
 use App\Feature\Admin\Role\Command\ListRolesCommand;

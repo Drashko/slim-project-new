@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Admin\Controller\Ad;
+namespace App\Web\Admin\Controller;
 
 use App\Domain\Ad\AdInterface;
 use App\Domain\Shared\DomainException;
