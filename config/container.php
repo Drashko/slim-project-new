@@ -37,7 +37,7 @@ use App\Integration\View\Plates\RbacExtension;
 use App\Integration\View\Plates\ReactExtension;
 use App\Integration\View\Plates\ViteExtension;
 use App\Integration\View\TemplateRenderer;
-use App\Web\Admin\Controller\User\UserManagementController;
+use App\Web\Admin\Controller\UserManagementController;
 use App\Web\Admin\Service\UserService;
 use App\Web\API\Controller\LocalizationController;
 use App\Web\Shared\Middleware\PublicAreaRoleRedirectMiddleware;

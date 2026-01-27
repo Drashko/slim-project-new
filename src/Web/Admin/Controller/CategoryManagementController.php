@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Admin\Controller\Category;
+namespace App\Web\Admin\Controller;
 
 use App\Domain\Category\Category;
 use App\Domain\Category\CategoryInterface;

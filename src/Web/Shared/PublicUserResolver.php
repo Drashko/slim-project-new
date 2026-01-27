@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Web\Shared;
 
-use App\Web\Auth\Dto\RegisterFormData;
+use App\Web\Front\Dto\RegisterFormData;
 
 final class PublicUserResolver
 {

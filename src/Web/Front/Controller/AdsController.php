@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Profile;
+namespace App\Web\Front\Controller;
 
 use App\Domain\Ad\AdInterface;
 use App\Domain\Category\CategoryInterface;
@@ -12,14 +12,14 @@ use App\Feature\Ad\Command\CreateAdCommand;
 use App\Feature\Ad\Handler\CreateAdHandler;
 use App\Feature\Ad\Handler\ListAdsHandler;
 use App\Feature\Ad\Query\ListAdsQuery;
-use App\Integration\Helper\ImageStorage;
-use App\Integration\View\TemplateRenderer;
 use App\Integration\Flash\FlashMessages;
+use App\Integration\Helper\ImageStorage;
 use App\Integration\Session\PublicSessionInterface;
+use App\Integration\View\TemplateRenderer;
+use App\Web\Shared\LocalizedRouteTrait;
 use App\Web\Shared\PublicUserResolver;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use App\Web\Shared\LocalizedRouteTrait;
 
 final readonly class AdsController
 {
