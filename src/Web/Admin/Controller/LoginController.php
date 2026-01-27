@@ -49,7 +49,13 @@ final class LoginController
         $form = $this->formFactory->create(AdminLoginFormType::class, $formData);
 
         if ($request->getMethod() === 'POST') {
-            $form->submit((array) ($request->getParsedBody() ?? []));
+            $parsedBody = $request->getParsedBody();
+            $submittedData = is_array($parsedBody) ? $parsedBody : [];
+            $formName = $form->getName();
+            if (isset($submittedData[$formName]) && is_array($submittedData[$formName])) {
+                $submittedData = $submittedData[$formName];
+            }
+            $form->submit($submittedData);
 
             if ($form->isSubmitted() && $form->isValid()) {
                 /** @var AdminLoginFormData $data */
