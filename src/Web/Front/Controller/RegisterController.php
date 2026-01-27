@@ -55,8 +55,11 @@ final readonly class RegisterController
 
                 } catch (DomainException $exception) {
                     $message = $this->translator->trans($exception->getMessage());
+                    $this->flash->addMessage('error', $message);
                     $form->addError(new FormError($message));
                 }
+            } elseif ($form->isSubmitted()) {
+                $this->flash->addMessage('error', $this->translator->trans('auth.register.flash.invalid'));
             }
         }
 
