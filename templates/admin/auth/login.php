@@ -63,7 +63,7 @@ $tokenField = $formView['_token'] ?? null;
                     </div>
                 <?php endif; ?>
 
-                <form method="<?= $this->e($formMethod) ?>" novalidate>
+                <form method="<?= $this->e($formMethod) ?>" name="admin_login" novalidate>
                     <?php if ($tokenField instanceof FormView): ?>
                         <input type="hidden" name="<?= $this->e($tokenField->vars['full_name'] ?? '') ?>" value="<?= $this->e($tokenField->vars['value'] ?? '') ?>">
                     <?php endif; ?>
