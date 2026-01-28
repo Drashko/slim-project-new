@@ -35,7 +35,6 @@ $hasErrors = static function (?FormView $field) use ($collectErrors): bool {
 $formMethod = strtolower((string) ($formView->vars['method'] ?? 'post')) === 'get' ? 'get' : 'post';
 $emailField = $formView['email'] ?? null;
 $passwordField = $formView['password'] ?? null;
-$tokenField = $formView['_token'] ?? null;
 ?>
 
 <div class="row justify-content-center">
@@ -64,9 +63,6 @@ $tokenField = $formView['_token'] ?? null;
                 <?php endif; ?>
 
                 <form method="<?= $this->e($formMethod) ?>" name="admin_login" novalidate>
-                    <?php if ($tokenField instanceof FormView): ?>
-                        <input type="hidden" name="<?= $this->e($tokenField->vars['full_name'] ?? '') ?>" value="<?= $this->e($tokenField->vars['value'] ?? '') ?>">
-                    <?php endif; ?>
                     <div class="mb-3">
                         <label class="form-label" for="<?= $this->e($emailField->vars['id'] ?? 'email') ?>"><?= $this->e($this->trans('admin.login.email_label')) ?></label>
                         <input
