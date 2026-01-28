@@ -48,7 +48,9 @@ final class LoginController
 
         $formData = new AdminLoginFormData();
         $formData->email = $defaultEmail;
-        $form = $this->formFactory->create(AdminLoginFormType::class, $formData, [], null);
+        $form = $this->formFactory->createBuilder(AdminLoginFormType::class, $formData)
+            ->setMethod('POST')
+            ->getForm();
 
         if ($request->getMethod() === 'POST') {
             $parsedBody = $request->getParsedBody();
