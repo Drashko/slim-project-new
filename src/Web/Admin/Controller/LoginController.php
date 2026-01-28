@@ -48,15 +48,11 @@ final class LoginController
 
         $formData = new AdminLoginFormData();
         $formData->email = $defaultEmail;
-        $form = $this->formFactory->create(AdminLoginFormType::class, $formData);
+        $form = $this->formFactory->create(AdminLoginFormType::class, $formData, ['csrf_field_name' => '_token']);
 
         if ($request->getMethod() === 'POST') {
             $parsedBody = $request->getParsedBody();
             $submittedData = is_array($parsedBody) ? $parsedBody : [];
-            $formName = $form->getName();
-            if (isset($submittedData[$formName]) && is_array($submittedData[$formName])) {
-                $submittedData = $submittedData[$formName];
-            }
             $form->submit($submittedData);
 
             if ($form->isSubmitted() && $form->isValid()) {
@@ -94,7 +90,13 @@ final class LoginController
                     $form->addError(new FormError($message));
                 }
             } elseif ($form->isSubmitted()) {
-                $this->flash->addMessage('error', $this->translator->trans('auth.login.flash.missing_credentials'));
+                // Form was submitted but validation failed
+                $errors = [];
+                foreach ($form->getErrors(true) as $error) {
+                    $errors[] = $error->getMessage();
+                }
+                $errorMessage = !empty($errors) ? implode(', ', $errors) : $this->translator->trans('auth.login.flash.missing_credentials');
+                $this->flash->addMessage('error', $errorMessage);
             }
         }
 
