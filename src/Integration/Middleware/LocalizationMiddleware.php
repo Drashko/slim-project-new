@@ -3,10 +3,6 @@
 declare(strict_types=1);
 
 namespace App\Integration\Middleware;
-
-use App\Integration\Session\AdminSessionInterface;
-use App\Integration\Session\PublicSessionInterface;
-use App\Integration\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -23,8 +19,6 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
      */
     public function __construct(
         private readonly TranslatorInterface $translator,
-        private readonly PublicSessionInterface $publicSession,
-        private readonly AdminSessionInterface $adminSession,
         private readonly array $supportedLocales,
         private readonly string $defaultLocale
     ) {
@@ -33,12 +27,9 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $context = $this->determineContext($request);
-        $sessionKey = $this->sessionKeyForContext($context);
         $cookieName = $this->cookieNameForContext($context);
-        $session = $this->sessionForContext($context);
-        $locale = $this->resolveLocale($request, $session, $sessionKey, $cookieName);
+        $locale = $this->resolveLocale($request, $cookieName);
 
-        $session->set($sessionKey, $locale);
         $this->translator->setLocale($locale);
         $this->translator->setFallbackLocales([$this->defaultLocale]);
 
@@ -53,8 +44,6 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
 
     private function resolveLocale(
         ServerRequestInterface $request,
-        SessionInterface $session,
-        string $sessionKey,
         string $cookieName
     ): string
     {
@@ -71,11 +60,6 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
         $queryLocale = $this->sanitizeLocale($request->getQueryParams()['lang'] ?? null);
         if ($queryLocale !== null) {
             return $queryLocale;
-        }
-
-        $sessionLocale = $this->sanitizeLocale($session->get($sessionKey));
-        if ($sessionLocale !== null) {
-            return $sessionLocale;
         }
 
         $cookieLocale = $this->sanitizeLocale($request->getCookieParams()[$cookieName] ?? null);
@@ -189,13 +173,6 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
     private function cookieNameForContext(string $context): string
     {
         return $this->sessionKeyForContext($context);
-    }
-
-    private function sessionForContext(string $context): SessionInterface
-    {
-        return $context === 'admin'
-            ? $this->adminSession
-            : $this->publicSession;
     }
 
     private function extractLocaleFromPath(ServerRequestInterface $request): ?string
