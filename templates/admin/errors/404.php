@@ -25,8 +25,5 @@ $requestedPath = $requestedPath ?? '';
         <a class="btn btn-primary" href="<?= $this->e($this->locale_url('admin', null, 'admin')) ?>">
             <?= $this->e($this->trans('layout.nav.dashboard')) ?>
         </a>
-        <a class="btn btn-outline-secondary" href="<?= $this->e($this->locale_url('admin/login', null, 'admin')) ?>">
-            <?= $this->e($this->trans('layout.nav.admin_login')) ?>
-        </a>
     </div>
 </div>

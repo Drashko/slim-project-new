@@ -2,7 +2,6 @@
 
 use Symfony\Component\Form\FormView;
 
-/** @var array|null $tokens */
 /** @var array|null $user */
 /** @var FormView $form */
 /** @var \App\Integration\Flash\FlashMessages $flash */
@@ -105,21 +104,5 @@ $tokenField = $formView['_token'] ?? null;
             </div>
         </div>
 
-        <?php if ($tokens !== null): ?>
-            <div class="card card-outline card-secondary mt-4">
-                <div class="card-header">
-                    <h3 class="card-title text-uppercase text-sm mb-0"><?= $this->e($this->trans('auth.login.tokens.title')) ?></h3>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small"><?= $this->e($this->trans('auth.login.tokens.description')) ?></p>
-                    <dl class="row gy-2 small mb-0">
-                        <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('auth.login.tokens.access_token')) ?></dt>
-                        <dd class="col-sm-8"><code><?= $this->e($tokens['access_token'] ?? '') ?></code></dd>
-                        <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('auth.login.tokens.expires_at')) ?></dt>
-                        <dd class="col-sm-8"><?= $this->e($tokens['expires_at'] ?? '') ?></dd>
-                    </dl>
-                </div>
-            </div>
-        <?php endif; ?>
     </div>
 </div>

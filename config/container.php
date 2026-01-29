@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use App\Domain\Ad\AdRepositoryInterface;
 use App\Domain\Category\CategoryRepositoryInterface;
-use App\Domain\Permission\PermissionRepositoryInterface;
-use App\Domain\Role\RoleRepositoryInterface;
 use App\Domain\Shared\Clock;
 use App\Domain\Shared\Event\DomainEventDispatcherInterface;
 use App\Domain\Shared\Event\InMemoryDomainEventDispatcher;
@@ -14,34 +12,19 @@ use App\Domain\Token\RefreshTokenRepositoryInterface;
 use App\Domain\Token\TokenEncoder;
 use App\Domain\Token\TokenVerifier;
 use App\Domain\User\UserRepositoryInterface;
-use App\Integration\Auth\AdminAuthenticator;
-use App\Integration\Flash\FlashMessages;
 use App\Integration\Helper\ImageStorage;
 use App\Integration\Http\NotFoundHandler;
 use App\Integration\Logger\LoggerFactory;
 use App\Integration\Middleware\LocalizationMiddleware;
-use App\Integration\Rbac\Policy;
-use App\Integration\Rbac\RoleService;
 use App\Integration\Repository\Doctrine\AdRepository;
 use App\Integration\Repository\Doctrine\CategoryRepository;
-use App\Integration\Repository\Doctrine\PermissionRepository;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
-use App\Integration\Repository\Doctrine\RoleRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
 use App\Integration\Routing\PathLocalizer;
-use App\Integration\Session\AdminSession;
-use App\Integration\Session\AdminSessionInterface;
-use App\Integration\Session\DatabaseSessionStore;
-use App\Integration\Session\PublicSession;
-use App\Integration\Session\PublicSessionInterface;
-use App\Integration\View\Plates\RbacExtension;
 use App\Integration\View\Plates\ReactExtension;
 use App\Integration\View\Plates\ViteExtension;
 use App\Integration\View\TemplateRenderer;
-use App\Web\Admin\Controller\UserManagementController;
-use App\Web\Admin\Service\UserService;
 use App\Web\API\Controller\LocalizationController;
-use App\Web\Shared\Middleware\PublicAreaRoleRedirectMiddleware;
 use App\Web\Shared\Paginator;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
@@ -58,13 +41,9 @@ use Slim\Factory\AppFactory;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Psr7\Factory\ResponseFactory;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\Forms;
-use Symfony\Component\Security\Csrf\CsrfTokenManager;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Csrf\TokenStorage\NativeSessionTokenStorage;
 use Symfony\Component\Translation\Loader\JsonFileLoader;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\TranslatorBagInterface;
@@ -116,12 +95,6 @@ return [
         return $entityManager;
     },
 
-    DatabaseSessionStore::class => static function (ContainerInterface $container): DatabaseSessionStore {
-        $connection = $container->get(EntityManagerInterface::class)->getConnection();
-
-        return new DatabaseSessionStore($connection);
-    },
-
     CacheInterface::class => static function (ContainerInterface $container): CacheInterface {
         $settings = (array) ($container->get('settings')['cache'] ?? []);
         $cacheDir = (string) ($settings['dir'] ?? '');
@@ -129,59 +102,10 @@ return [
         return new FilesystemAdapter('app', 0, $cacheDir !== '' ? $cacheDir : null);
     },
 
-    PublicSessionInterface::class => static function (ContainerInterface $container): PublicSessionInterface {
-        $settings = (array) $container->get('settings')['session'];
-        $public = (array) ($settings['public'] ?? []);
-
-        return new PublicSession(
-            $container->get(DatabaseSessionStore::class),
-            (string) ($public['cookie'] ?? 'app_session'),
-            (string) ($public['path'] ?? '/'),
-            'public',
-            (int) ($public['ttl'] ?? 1209600),
-            (bool) ($settings['secure'] ?? false),
-            (bool) ($settings['httponly'] ?? true),
-            (string) ($settings['samesite'] ?? 'Lax')
-        );
-    },
-
-    AdminSessionInterface::class => static function (ContainerInterface $container): AdminSessionInterface {
-        $settings = (array) $container->get('settings')['session'];
-        $admin = (array) ($settings['admin'] ?? []);
-
-        return new AdminSession(
-            $container->get(DatabaseSessionStore::class),
-            (string) ($admin['cookie'] ?? 'admin_session'),
-            (string) ($admin['path'] ?? '/admin'),
-            'admin',
-            (int) ($admin['ttl'] ?? 1209600),
-            (bool) ($settings['secure'] ?? false),
-            (bool) ($settings['httponly'] ?? true),
-            (string) ($settings['samesite'] ?? 'Lax')
-        );
-    },
-
-    FlashMessages::class => static function (ContainerInterface $container): FlashMessages {
-        return new FlashMessages(
-            $container->get(PublicSessionInterface::class),
-            $container->get(AdminSessionInterface::class)
-        );
-    },
-
     Paginator::class => static function (): Paginator {
         return new Paginator();
     },
 
-    UserManagementController::class => static function (ContainerInterface $container): UserManagementController {
-        return new UserManagementController(
-            $container->get(TemplateRenderer::class),
-            $container->get(AdminAuthenticator::class),
-            $container->get(UserService::class),
-            $container->get(Paginator::class),
-            $container->get(FlashMessages::class),
-            (array) $container->get('settings')
-        );
-    },
     LocalizationController::class => static function (ContainerInterface $container): LocalizationController {
         return new LocalizationController((array) $container->get('settings'));
     },
@@ -239,14 +163,8 @@ return [
             ->getValidator();
     },
 
-    CsrfTokenManagerInterface::class => static fn(): CsrfTokenManagerInterface => new CsrfTokenManager(
-        null,
-        new NativeSessionTokenStorage()
-    ),
-
     FormFactoryInterface::class => static function (ContainerInterface $container): FormFactoryInterface {
         return Forms::createFormFactoryBuilder()
-            ->addExtension(new CsrfExtension($container->get(CsrfTokenManagerInterface::class)))
             ->addExtension(new ValidatorExtension($container->get(ValidatorInterface::class)))
             ->getFormFactory();
     },
@@ -256,17 +174,8 @@ return [
 
         return new LocalizationMiddleware(
             $container->get(TranslatorInterface::class),
-            $container->get(PublicSessionInterface::class),
-            $container->get(AdminSessionInterface::class),
             (array) ($settings['supported_locales'] ?? ['en' => 'English']),
             (string) ($settings['default_locale'] ?? 'en')
-        );
-    },
-
-    PublicAreaRoleRedirectMiddleware::class => static function (ContainerInterface $container): PublicAreaRoleRedirectMiddleware {
-        return new PublicAreaRoleRedirectMiddleware(
-            $container->get(PublicSessionInterface::class),
-            $container->get(ResponseFactoryInterface::class)
         );
     },
 
@@ -286,14 +195,6 @@ return [
         $container->get(Clock::class)
     ),
 
-    RoleService::class => static fn(ContainerInterface $container): RoleService => new RoleService(
-        $container->get(RoleRepositoryInterface::class),
-        $container->get(CacheInterface::class)
-    ),
-
-    Policy::class => static fn(ContainerInterface $container): Policy => new Policy(
-        $container->get(RoleService::class)
-    ),
 
     RefreshTokenRepositoryInterface::class => static fn(ContainerInterface $container): RefreshTokenRepositoryInterface => new RefreshTokenRepository(
         $container->get(EntityManagerInterface::class)
@@ -303,13 +204,6 @@ return [
         $container->get(EntityManagerInterface::class)
     ),
 
-    RoleRepositoryInterface::class => static fn(ContainerInterface $container): RoleRepositoryInterface => new RoleRepository(
-        $container->get(EntityManagerInterface::class)
-    ),
-
-    PermissionRepositoryInterface::class => static fn(ContainerInterface $container): PermissionRepositoryInterface => new PermissionRepository(
-        $container->get(EntityManagerInterface::class)
-    ),
 
     AdRepositoryInterface::class => static fn(ContainerInterface $container): AdRepositoryInterface => new AdRepository(
         $container->get(EntityManagerInterface::class)
@@ -338,10 +232,6 @@ return [
             ->addFolder('admin', $settings['path'] . '/admin')
             ->addFolder('profile', $settings['path'] . '/profile');
 
-        $engine->addData([
-            'flash' => $container->get(FlashMessages::class),
-        ]);
-
         $translator = $container->get(TranslatorInterface::class);
         $localization = $container->get('settings')['localization'] ?? [];
         $supportedLocales = (array) ($localization['supported_locales'] ?? ['en' => 'English']);
@@ -368,7 +258,7 @@ return [
             return $supportedLocales[$locale] ?? $locale;
         });
 
-        $engine->registerFunction('locale_url', static function (?string $path = null, ?string $locale = null, ?string $scope = null) use ($supportedLocales, $translator, $container, $pathLocalizer): string {
+        $engine->registerFunction('locale_url', static function (?string $path = null, ?string $locale = null, ?string $scope = null) use ($supportedLocales, $translator, $pathLocalizer): string {
             $normalizeLocale = static function (mixed $value) use ($supportedLocales): ?string {
                 if (!is_string($value) || $value === '') {
                     return null;
@@ -387,22 +277,6 @@ return [
                 return null;
             };
 
-            $scopeKey = null;
-            if ($scope === 'admin') {
-                $scopeKey = 'locale_admin';
-            } elseif ($scope === 'public') {
-                $scopeKey = 'locale_public';
-            }
-
-            $scopedLocale = null;
-            if ($scopeKey !== null) {
-                $session = $scope === 'admin'
-                    ? $container->get(AdminSessionInterface::class)
-                    : $container->get(PublicSessionInterface::class);
-                $sessionLocale = $session->get($scopeKey);
-                $scopedLocale = $normalizeLocale($sessionLocale);
-            }
-
             $normalizedPath = $path ?? '';
             $normalizedPath = trim($normalizedPath);
 
@@ -415,10 +289,6 @@ return [
             }
 
             $targetLocale = $normalizeLocale($locale);
-            if ($targetLocale === null && $scopedLocale !== null) {
-                $targetLocale = $scopedLocale;
-            }
-
             if ($targetLocale === null) {
                 $targetLocale = $normalizeLocale($translator->getLocale());
             }
@@ -530,11 +400,6 @@ return [
                 'dev_server' => trim((string) ($publicSettings['dev_server'] ?? '')),
             ],
         ]));
-
-        $engine->loadExtension(new RbacExtension(
-            $container->get(Policy::class),
-            $container->get(AdminSessionInterface::class)
-        ));
 
         return $engine;
     },
