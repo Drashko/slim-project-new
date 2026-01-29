@@ -96,6 +96,8 @@
     "errors.not_found.action_home": "Към началната страница",
     "errors.not_found.action_login": "Вход",
     "admin.dashboard.meta_title": "Admin dashboard · Slim Market",
+    "admin.home.heading": "Админ начало",
+    "admin.home.subheading": "Тази зона вече съдържа само началната админ страница.",
     "admin.dashboard.heading": "Administration dashboard",
     "admin.dashboard.intro": "Only administrators can access these RBAC tools. Use them to manage accounts and permissions.",
     "admin.dashboard.badge": "Admin area",

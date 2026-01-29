@@ -2,7 +2,6 @@
 
 use Symfony\Component\Form\FormView;
 
-/** @var array|null $tokens */
 /** @var array|null $user */
 /** @var FormView $form */
 /** @var \App\Integration\Flash\FlashMessages $flash */
@@ -107,26 +106,5 @@ $tokenField = $formView['_token'] ?? null;
             </div>
         </div>
 
-        <?php if (!empty($tokens)): ?>
-            <div class="card border-0 shadow-sm mt-4">
-                <div class="card-body p-4">
-                    <h2 class="h5"><?= $this->e($this->trans('auth.login.tokens.title')) ?></h2>
-                    <p class="text-muted"><?= $this->e($this->trans('auth.login.tokens.description')) ?></p>
-                    <dl class="row gy-2">
-                        <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('auth.login.tokens.access_token')) ?></dt>
-                        <dd class="col-sm-8"><code><?= $this->e($tokens['access_token'] ?? '') ?></code></dd>
-                        <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('auth.login.tokens.expires_at')) ?></dt>
-                        <dd class="col-sm-8"><?= $this->e($tokens['expires_at'] ?? '') ?></dd>
-                        <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('auth.login.tokens.refresh_token')) ?></dt>
-                        <dd class="col-sm-8"><code><?= $this->e($tokens['refresh_token'] ?? '') ?></code></dd>
-                        <dt class="col-sm-4 text-secondary"><?= $this->e($this->trans('auth.login.tokens.refresh_expires_at')) ?></dt>
-                        <dd class="col-sm-8"><?= $this->e($tokens['refresh_expires_at'] ?? '') ?></dd>
-                    </dl>
-                    <p class="text-muted small mb-0"><?= $this->trans('auth.login.tokens.footer', [
-                            '%header%' => '<code>Authorization: Bearer &lt;token&gt;</code>',
-                        ]) ?></p>
-                </div>
-            </div>
-        <?php endif; ?>
     </div>
 </div>

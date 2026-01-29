@@ -38,13 +38,10 @@ final class LoginController
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $sessionTokens = $this->session->get('tokens');
-        $tokens = is_array($sessionTokens) ? $sessionTokens : null;
         $loginSucceeded = false;
         $sessionUser = $this->session->get('user');
 
-        $identity = is_array($tokens['user'] ?? null) ? $tokens['user'] : null;
-        $defaultEmail = $identity['email'] ?? ($sessionUser['email'] ?? null);
+        $defaultEmail = $sessionUser['email'] ?? null;
 
         $formData = new AdminLoginFormData();
         $formData->email = $defaultEmail;
@@ -62,30 +59,26 @@ final class LoginController
                 $data = $form->getData();
 
                 try {
-                    $tokens = $this->loginHandler->handle(new LoginCommand(
+                    $loginResult = $this->loginHandler->handle(new LoginCommand(
                         $data->getEmail(),
                         $data->getPassword(),
                         $request->getServerParams()['REMOTE_ADDR'] ?? null
                     ));
 
-                    if ($this->isAllowedRole($tokens['user'] ?? [])) {
-                        $this->session->set('tokens', $tokens);
-                        $this->session->set('user', $tokens['user']);
+                    $user = $loginResult['user'] ?? [];
+                    if ($this->isAllowedRole($user)) {
+                        $this->session->set('user', $user);
                         $loginSucceeded = true;
                         $this->flash->addMessage('success', $this->translator->trans('auth.login.flash.welcome', [
-                            '%email%' => $tokens['user']['email'] ?? $data->getEmail(),
+                            '%email%' => $user['email'] ?? $data->getEmail(),
                         ]));
                     } else {
-                        $tokens = null;
-                        $this->clearSessionKey('tokens');
                         $this->clearSessionKey('user');
                         $message = $this->translator->trans('auth.login.flash.user_not_found');
                         $this->flash->addMessage('error', $message);
                         $form->addError(new FormError($message));
                     }
                 } catch (DomainException $exception) {
-                    $tokens = null;
-                    $this->clearSessionKey('tokens');
                     $this->clearSessionKey('user');
                     $message = $this->translator->trans($exception->getMessage());
                     $this->flash->addMessage('error', $message);
@@ -102,10 +95,9 @@ final class LoginController
                 ->withStatus(302);
         }
 
-        $user = $sessionUser ?? $identity;
+        $user = $sessionUser;
 
         return $this->templates->render($response, 'admin::auth/login', [
-            'tokens' => $tokens,
             'user' => $user,
             'form' => $form->createView(),
             'flash' => $this->flash,
