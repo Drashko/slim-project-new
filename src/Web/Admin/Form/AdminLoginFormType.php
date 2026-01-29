@@ -30,9 +30,9 @@ final class AdminLoginFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AdminLoginFormData::class,
-            'csrf_protection' => true,
-            'csrf_token_id' => 'admin_login',
+            'csrf_protection' => false,
             'method' => 'POST',
+            'allow_extra_fields' => true,
         ]);
     }
 }

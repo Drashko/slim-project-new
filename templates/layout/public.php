@@ -1,18 +1,11 @@
 <?php
-/** @var array|null $user */
 /** @var string|null $title */
 
-$user = is_array($user ?? null) ? $user : null;
 $title = $title ?? $this->trans('app.default_title');
 $bodyClass = 'public-layout bg-light';
 $primaryLinks = [
     ['href' => $this->locale_url(null, null, 'public'), 'label' => $this->trans('layout.nav.public_home')],
 ];
-
-if ($user === null) {
-    $primaryLinks[] = ['href' => $this->locale_url('auth/login', null, 'public'), 'label' => $this->trans('layout.nav.profile_login')];
-    $primaryLinks[] = ['href' => $this->locale_url('auth/register', null, 'public'), 'label' => $this->trans('layout.nav.register')];
-}
 ?>
 <!DOCTYPE html>
 <html lang="<?= $this->e($this->current_locale()) ?>">
@@ -54,19 +47,6 @@ if ($user === null) {
                             <?php endforeach; ?>
                         </ul>
                     </li>
-                    <?php if ($user !== null && isset($user['email'])): ?>
-                        <li class="nav-item d-flex flex-column flex-lg-row align-items-lg-center gap-lg-2">
-                            <span class="navbar-text small text-secondary"><?= $this->e($this->trans('layout.account.signed_in_as', ['%email%' => $user['email'] ?? ''])) ?></span>
-                            <a class="nav-link" href="<?= $this->e($this->locale_url('profile')) ?>">
-                                <i class="fa-solid fa-user me-1" aria-hidden="true"></i><?= $this->e($this->trans('layout.nav.profile')) ?>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-danger" href="<?= $this->e($this->locale_url('auth/logout')) ?>">
-                                <i class="fa-solid fa-right-from-bracket me-1" aria-hidden="true"></i><?= $this->e($this->trans('layout.account.sign_out')) ?>
-                            </a>
-                        </li>
-                    <?php endif; ?>
                 </ul>
             </div>
         </div>

@@ -25,8 +25,5 @@ $requestedPath = $requestedPath ?? '';
         <a class="btn btn-primary" href="<?= $this->e($this->locale_url(null, null, 'public')) ?>">
             <?= $this->e($this->trans('errors.not_found.action_home')) ?>
         </a>
-        <a class="btn btn-outline-secondary" href="<?= $this->e($this->locale_url('auth/login', null, 'public')) ?>">
-            <?= $this->e($this->trans('errors.not_found.action_login')) ?>
-        </a>
     </div>
 </div>

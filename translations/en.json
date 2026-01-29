@@ -96,6 +96,8 @@
     "errors.not_found.action_home": "Back to homepage",
     "errors.not_found.action_login": "Sign in",
     "admin.dashboard.meta_title": "Admin dashboard · Slim Market",
+    "admin.home.heading": "Admin home",
+    "admin.home.subheading": "This area now contains only the admin homepage.",
     "admin.dashboard.heading": "Administration dashboard",
     "admin.dashboard.intro": "Only administrators can access these RBAC tools. Use them to manage accounts and permissions.",
     "admin.dashboard.badge": "Admin area",
