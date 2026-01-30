@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Web\Admin\Controller\HomeController;
 use App\Web\API\Controller\LocalizationController;
-use App\Web\Front\Controller\IndexController as FrontController;
+use App\Web\Public\Controller\IndexController as FrontController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
