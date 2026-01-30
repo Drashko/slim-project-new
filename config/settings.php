@@ -94,7 +94,9 @@ $resolveBuildPath = static function (string $path) use ($projectRoot): string {
 
 $assetBuildPath = $resolveBuildPath($_ENV['ASSET_BUILD_PATH'] ?? 'public/assets');
 $assetPublicPrefix = $normalizePublicPrefix($_ENV['ASSET_PUBLIC_PREFIX'] ?? '/assets/', '/assets/');
-$assetDevServer = rtrim((string) ($_ENV['ASSET_DEV_SERVER'] ?? ''), '/');
+$assetDevServer = $environment->isProduction()
+    ? ''
+    : rtrim((string) ($_ENV['ASSET_DEV_SERVER'] ?? ''), '/');
 $defaultCacheDir = $resolveBuildPath($_ENV['APP_CACHE_DIR'] ?? 'tmp/var');
 $cacheEnabled = !$environment->isDevelopment();
 
