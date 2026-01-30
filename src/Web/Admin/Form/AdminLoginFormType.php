@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Web\Admin\Form;
 
-use App\Web\Admin\Dto\AdminLoginFormData;
+use App\Web\Admin\DTO\AdminLoginFormData;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -30,10 +30,9 @@ final class AdminLoginFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AdminLoginFormData::class,
-            'csrf_protection' => true,
-            'csrf_field_name' => '_token',
-            'csrf_token_id' => 'admin_login_form',
+            'csrf_protection' => false,
             'method' => 'POST',
+            'allow_extra_fields' => true,
         ]);
     }
 }

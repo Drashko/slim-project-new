@@ -148,7 +148,7 @@ return [
             'namespace' => $_ENV['DOCTRINE_CACHE_NAMESPACE'] ?? $appSnakeName,
         ],
         'metadata_dirs' => [
-            __DIR__ . '/../src/Domain/Auth',
+//            __DIR__ . '/../src/Domain/Auth',
             __DIR__ . '/../src/Domain/User',
             __DIR__ . '/../src/Domain/Role',
             __DIR__ . '/../src/Domain/Permission',

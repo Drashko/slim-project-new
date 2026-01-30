@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Front\Dto;
+namespace App\Web\Public\DTO;
 
 use Symfony\Component\Validator\Constraints as Assert;
 

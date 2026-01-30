@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Front\Controller;
+namespace App\Web\Public\Controller;
 
 use App\Integration\View\TemplateRenderer;
 use Psr\Http\Message\ResponseInterface;

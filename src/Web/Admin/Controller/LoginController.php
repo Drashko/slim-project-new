@@ -11,7 +11,7 @@ use App\Integration\Flash\FlashMessages;
 use App\Integration\Rbac\Policy;
 use App\Integration\Session\AdminSessionInterface;
 use App\Integration\View\TemplateRenderer;
-use App\Web\Admin\Dto\AdminLoginFormData;
+use App\Web\Admin\DTO\AdminLoginFormData;
 use App\Web\Admin\Form\AdminLoginFormType;
 use App\Web\Front\Dto\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;
@@ -45,15 +45,13 @@ final class LoginController
 
         $formData = new AdminLoginFormData();
         $formData->email = $defaultEmail;
-        $form = $this->formFactory->create(AdminLoginFormType::class, $formData);
+        $form = $this->formFactory->createBuilder(AdminLoginFormType::class, $formData)
+            ->setMethod('POST')
+            ->getForm();
 
         if ($request->getMethod() === 'POST') {
             $parsedBody = $request->getParsedBody();
             $submittedData = is_array($parsedBody) ? $parsedBody : [];
-            $formName = $form->getName();
-            if (isset($submittedData[$formName]) && is_array($submittedData[$formName])) {
-                $submittedData = $submittedData[$formName];
-            }
             $form->submit($submittedData);
 
             if ($form->isSubmitted() && $form->isValid()) {

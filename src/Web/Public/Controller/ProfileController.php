@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Front\Controller;
+namespace App\Web\Public\Controller;
 
 use App\Integration\Session\PublicSessionInterface;
 use App\Integration\View\TemplateRenderer;
