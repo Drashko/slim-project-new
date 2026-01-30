@@ -199,6 +199,16 @@ final class ReactExtension implements ExtensionInterface
                         $entry = $value;
                         break;
                     }
+
+                    if (!isset($value['src']) || !is_string($value['src'])) {
+                        continue;
+                    }
+
+                    $normalizedSrc = ltrim(str_replace('\\', '/', $value['src']), '/');
+                    if ($normalizedSrc === $normalizedEntry || str_ends_with($normalizedSrc, '/' . $normalizedEntry)) {
+                        $entry = $value;
+                        break;
+                    }
                 }
             }
         }
