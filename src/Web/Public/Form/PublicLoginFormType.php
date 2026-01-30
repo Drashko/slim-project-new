@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Front\Form;
+namespace App\Web\Public\Form;
 
 use App\Web\Front\Dto\LoginFormData;
 use Symfony\Component\Form\AbstractType;

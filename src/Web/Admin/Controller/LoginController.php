@@ -11,7 +11,7 @@ use App\Integration\Flash\FlashMessages;
 use App\Integration\Rbac\Policy;
 use App\Integration\Session\AdminSessionInterface;
 use App\Integration\View\TemplateRenderer;
-use App\Web\Admin\Dto\AdminLoginFormData;
+use App\Web\Admin\DTO\AdminLoginFormData;
 use App\Web\Admin\Form\AdminLoginFormType;
 use App\Web\Front\Dto\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;

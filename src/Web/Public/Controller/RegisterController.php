@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Front\Controller;
+namespace App\Web\Public\Controller;
 
 use App\Domain\Shared\DomainException;
 use App\Feature\Register\Command\RegisterUserCommand;

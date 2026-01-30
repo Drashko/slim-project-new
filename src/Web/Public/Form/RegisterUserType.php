@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Web\Home\Form;
+namespace App\Web\Public\Form;
 
 final class RegisterUserType
 {
