@@ -7,7 +7,7 @@ use Symfony\Component\Form\FormView;
 /** @var array|null $user */
 /** @var \App\Integration\Flash\FlashMessages $flash */
 
-$this->layout('layout::public', [
+$this->layout('layout::home', [
     'title' => $this->trans('auth.register.meta_title'),
     'user' => $user ?? null,
 ]);

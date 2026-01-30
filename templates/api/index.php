@@ -1,7 +1,7 @@
 <?php
 /** @var array|null $user */
 
-$this->layout('layout::public', [
+$this->layout('layout::default', [
     'title' => $this->trans('front.api.meta_title'),
     'user' => $user ?? null,
 ]);

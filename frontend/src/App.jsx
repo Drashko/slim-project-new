@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 
 const translationKeys = {
-  badge: "front.react.badge",
-  title: "front.react.title",
-  subtitle: "front.react.subtitle",
-  cta_primary: "front.react.cta_primary",
-  cta_secondary: "front.react.cta_secondary",
-  card_title: "front.react.card_title",
-  card_body: "front.react.card_body",
+  badge: "home.react.badge",
+  title: "home.react.title",
+  subtitle: "home.react.subtitle",
+  cta_primary: "home.react.cta_primary",
+  cta_secondary: "home.react.cta_secondary",
+  card_title: "home.react.card_title",
+  card_body: "home.react.card_body",
 };
 
 const buildTranslations = (payload) =>

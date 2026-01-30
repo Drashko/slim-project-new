@@ -40,7 +40,7 @@ Build a language switcher that links back to the current page with the requested
 Link to a translated route (e.g., `/fr/profil`) while respecting admin/public locale scopes:
 
 ```php
-<a href="<?= $this->locale_url('profile', scope: 'public') ?>">
+<a href="<?= $this->locale_url('profile', scope: 'home') ?>">
     <?= $this->trans('layout.nav.profile') ?>
 </a>
 ```

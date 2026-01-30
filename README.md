@@ -39,7 +39,7 @@ Start the PHP development server from the project root and point it at the
 `public/` directory:
 
 ```bash
-php -S 0.0.0.0:8080 -t public public/index.php
+php -S 0.0.0.0:8080 -t home home/index.php
 ```
 
 You can then open <http://localhost:8080> in your browser for the public home

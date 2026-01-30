@@ -2,9 +2,9 @@
 /** @var string|null $title */
 
 $title = $title ?? $this->trans('app.default_title');
-$bodyClass = 'public-layout bg-light';
+$bodyClass = 'home-layout bg-light';
 $primaryLinks = [
-    ['href' => $this->locale_url(null, null, 'public'), 'label' => $this->trans('layout.nav.public_home')],
+    ['href' => $this->locale_url(null, null, 'home'), 'label' => $this->trans('layout.nav.public_home')],
 ];
 ?>
 <!DOCTYPE html>
@@ -16,7 +16,7 @@ $primaryLinks = [
     <title><?= $this->e($title) ?></title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <?= $this->vite_assets('public') ?>
+    <?= $this->vite_assets('home') ?>
     <?= $this->section('head') ?>
 </head>
 <body class="<?= $this->e($bodyClass) ?>">

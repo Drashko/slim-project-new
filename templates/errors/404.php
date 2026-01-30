@@ -2,7 +2,7 @@
 /** @var string|null $requestedPath */
 /** @var array|null $user */
 
-$this->layout('layout::public', [
+$this->layout('layout::default', [
     'title' => $this->trans('errors.not_found.meta_title'),
     'user' => $user ?? null,
 ]);
@@ -22,7 +22,7 @@ $requestedPath = $requestedPath ?? '';
         </p>
     <?php endif; ?>
     <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-        <a class="btn btn-primary" href="<?= $this->e($this->locale_url(null, null, 'public')) ?>">
+        <a class="btn btn-primary" href="<?= $this->e($this->locale_url(null, null, 'home')) ?>">
             <?= $this->e($this->trans('errors.not_found.action_home')) ?>
         </a>
     </div>

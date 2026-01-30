@@ -17,7 +17,7 @@ final readonly class IndexController
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->templates->render($response, 'front::home/index', [
+        return $this->templates->render($response, 'home::index', [
             'user' => null,
         ]);
     }

@@ -41,13 +41,13 @@ final class NotFoundHandler
     private function resolveScope(ServerRequestInterface $request): string
     {
         $scope = $request->getAttribute('locale_scope');
-        if (is_string($scope) && in_array($scope, ['admin', 'public'], true)) {
+        if (is_string($scope) && in_array($scope, ['admin', 'home'], true)) {
             return $scope;
         }
 
         $segments = $this->pathSegments($request);
         if ($segments === []) {
-            return 'public';
+            return 'home';
         }
 
         $first = strtolower($segments[0]);
@@ -59,7 +59,7 @@ final class NotFoundHandler
             return 'admin';
         }
 
-        return 'public';
+        return 'home';
     }
 
     private function isSupportedLocale(string $segment): bool

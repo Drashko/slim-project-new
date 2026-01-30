@@ -227,7 +227,8 @@ return [
 
         $engine
             ->addFolder('layout', $settings['path'] . '/layout')
-            ->addFolder('front', $settings['path'] . '/front')
+            ->addFolder('home', $settings['path'] . '/home')
+            ->addFolder('api', $settings['path'] . '/api')
             ->addFolder('auth', $settings['path'] . '/auth')
             ->addFolder('admin', $settings['path'] . '/admin')
             ->addFolder('profile', $settings['path'] . '/profile');
@@ -369,7 +370,7 @@ return [
         $adminReactSettings = (array) ($settings['admin_react'] ?? []);
 
         $engine->loadExtension(new ReactExtension([
-            'public' => [
+            'home' => [
                 'entry' => (string) ($reactSettings['entry'] ?? 'src/main.jsx'),
                 'manifest_path' => (string) ($reactSettings['manifest_path'] ?? ''),
                 'public_prefix' => (string) ($reactSettings['public_prefix'] ?? '/assets/'),
@@ -393,8 +394,8 @@ return [
                 'dev_server' => trim((string) ($adminSettings['dev_server'] ?? '')),
                 'styles' => array_values((array) ($adminSettings['styles'] ?? [])),
             ],
-            'public' => [
-                'entry' => (string) ($publicSettings['entry'] ?? 'src/public/main.js'),
+            'home' => [
+                'entry' => (string) ($publicSettings['entry'] ?? 'src/home/main.js'),
                 'manifest_path' => (string) ($publicSettings['manifest_path'] ?? ''),
                 'public_prefix' => (string) ($publicSettings['public_prefix'] ?? '/assets/'),
                 'dev_server' => trim((string) ($publicSettings['dev_server'] ?? '')),

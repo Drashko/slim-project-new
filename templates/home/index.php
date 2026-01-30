@@ -1,8 +1,8 @@
 <?php
 /** @var array|null $user */
 
-$this->layout('layout::public', [
-    'title' => $this->trans('front.home.meta_title'),
+$this->layout('layout::default', [
+    'title' => $this->trans('home.home.meta_title'),
     'user' => $user ?? null,
 ]);
 ?>

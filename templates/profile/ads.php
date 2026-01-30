@@ -6,7 +6,7 @@
 
 use App\Integration\Flash\FlashMessages;
 
-$this->layout('layout::public', [
+$this->layout('layout::home', [
     'title' => $this->trans('profile.ads.meta_title'),
     'user' => $user ?? null,
 ]);

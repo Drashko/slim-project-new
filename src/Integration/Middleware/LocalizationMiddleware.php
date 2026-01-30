@@ -143,7 +143,7 @@ final readonly class LocalizationMiddleware implements MiddlewareInterface
             return 'admin';
         }
 
-        return 'public';
+        return 'home';
     }
 
     /**
