@@ -40,7 +40,7 @@ return static function (App $app): void {
             ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     });
 
-    $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) use ($container, $defaultLocale): ResponseInterface {
+    $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) use ($container, $defaultLocale, $supportedLocales): ResponseInterface {
         $locale = $defaultLocale;
         $cookieLocale = $request->getCookieParams()['locale_public'] ?? null;
         if (is_string($cookieLocale) && $cookieLocale !== '') {

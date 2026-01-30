@@ -148,14 +148,7 @@ return [
             'namespace' => $_ENV['DOCTRINE_CACHE_NAMESPACE'] ?? $appSnakeName,
         ],
         'metadata_dirs' => [
-//            __DIR__ . '/../src/Domain/Auth',
-            __DIR__ . '/../src/Domain/User',
-            __DIR__ . '/../src/Domain/Role',
-            __DIR__ . '/../src/Domain/Permission',
-            __DIR__ . '/../src/Domain/Category',
-            __DIR__ . '/../src/Domain/Shared',
-            __DIR__ . '/../src/Domain/Ad',
-            __DIR__ . '/../src/Domain/Session',
+            __DIR__ . '/../src/Integration/Doctrine/Mapping',
         ],
         'connection' => [
             'driver' => $normalizeDoctrineDriver($_ENV['DB_DRIVER'] ?? null),

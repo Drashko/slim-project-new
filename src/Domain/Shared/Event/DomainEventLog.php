@@ -5,41 +5,25 @@ declare(strict_types=1);
 namespace App\Domain\Shared\Event;
 
 use DateTimeImmutable;
-use Doctrine\ORM\Mapping as ORM;
-
-#[ORM\Entity]
-#[ORM\Table(name: 'domain_event_log')]
-#[ORM\Index(columns: ['aggregate_type', 'aggregate_id'], name: 'idx_aggregate')]
-#[ORM\Index(columns: ['processed', 'occurred_at'], name: 'idx_processed')]
 class DomainEventLog
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private string $id;
 
-    #[ORM\Column(name: 'aggregate_id', type: 'string', length: 64)]
     private string $aggregateId;
 
-    #[ORM\Column(name: 'aggregate_type', type: 'string', length: 255)]
     private string $aggregateType;
 
-    #[ORM\Column(name: 'event_type', type: 'string', length: 255)]
     private string $eventType;
 
     /**
      * @var array<string, mixed>
      */
-    #[ORM\Column(type: 'json')]
     private array $payload;
 
-    #[ORM\Column(name: 'occurred_at', type: 'datetime_immutable', precision: 6, options: ['comment' => 'When the event occurred'])]
     private DateTimeImmutable $occurredAt;
 
-    #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $processed = false;
 
-    #[ORM\Column(name: 'processed_at', type: 'datetime_immutable', precision: 6, nullable: true, options: ['comment' => 'When the event was processed'])]
     private ?DateTimeImmutable $processedAt = null;
 
     /**
