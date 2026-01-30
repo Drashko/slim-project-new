@@ -7,43 +7,29 @@ namespace App\Domain\Ad;
 use App\Domain\User\User;
 use App\Domain\User\UserInterface;
 use DateTimeImmutable;
-use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'ads')]
 class Ad implements AdInterface
 {
-    #[ORM\Id]
-    #[ORM\Column(type: 'guid')]
     private string $id;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private User $owner;
 
-    #[ORM\Column(type: 'string', length: 180)]
     private string $title;
 
-    #[ORM\Column(type: 'text')]
     private string $description;
 
     /**
      * @var string[]
      */
-    #[ORM\Column(type: 'json')]
     private array $images = [];
 
-    #[ORM\Column(type: 'string', length: 120)]
     private string $category;
 
-    #[ORM\Column(type: 'string', length: 32)]
     private string $status = 'Pending';
 
-    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $updatedAt;
 
     public function __construct(

@@ -5,24 +5,14 @@ declare(strict_types=1);
 namespace App\Domain\Session;
 
 use DateTimeImmutable;
-use Doctrine\ORM\Mapping as ORM;
-
-#[ORM\Entity]
-#[ORM\Table(name: 'app_sessions')]
 class SessionRecord
 {
-    #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 64)]
     private string $id;
 
-    #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 16)]
     private string $type;
 
-    #[ORM\Column(type: 'json')]
     private array $data = [];
 
-    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $updatedAt;
 
     /**

@@ -5,39 +5,27 @@ declare(strict_types=1);
 namespace App\Domain\User;
 
 use DateTimeImmutable;
-use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'users')]
 class User implements UserInterface
 {
-    #[ORM\Id]
-    #[ORM\Column(type: 'guid')]
     private string $id;
 
-    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private string $email;
 
-    #[ORM\Column(type: 'string', length: 255)]
     private string $passwordHash;
 
     /**
      * @var string[]
      */
-    #[ORM\Column(type: 'json')]
     private array $roles = [];
 
-    #[ORM\Column(type: 'integer')]
     private int $rolesVersion = 1;
 
-    #[ORM\Column(type: 'string', length: 32)]
     private string $status = 'Active';
 
-    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $updatedAt;
 
     public function __construct(string $email, string $plainPassword, array $roles = ['ROLE_USER'], string $status = 'Active')

@@ -60,7 +60,7 @@ return [
     EntityManagerInterface::class => static function (ContainerInterface $container): EntityManagerInterface {
         $settings = $container->get('settings')['doctrine'] ?? [];
         $metaDirs = (array) ($settings['metadata_dirs'] ?? []);
-        $config = ORMSetup::createAttributeMetadataConfiguration(
+        $config = ORMSetup::createXMLMetadataConfiguration(
             $metaDirs,
             (bool) ($settings['dev_mode'] ?? false)
         );

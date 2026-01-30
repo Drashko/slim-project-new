@@ -8,37 +8,25 @@ use App\Domain\Permission\Permission;
 use App\Domain\Permission\PermissionInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'roles')]
 class Role implements RoleInterface
 {
-    #[ORM\Id]
-    #[ORM\Column(type: 'guid')]
     private string $id;
 
-    #[ORM\Column(name: 'role_key', type: 'string', length: 120, unique: true)]
     private string $key;
 
-    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
-    #[ORM\Column(type: 'text')]
     private string $description;
 
-    #[ORM\Column(type: 'boolean')]
     private bool $critical;
 
-    #[ORM\Column(type: 'integer')]
     private int $memberCount;
 
     /**
      * @var Collection<int, PermissionInterface>
      */
-    #[ORM\ManyToMany(targetEntity: Permission::class, cascade: ['persist'])]
-    #[ORM\JoinTable(name: 'role_permissions')]
     private Collection $permissions;
 
     public function __construct(string $key, string $name, string $description = '', bool $critical = false, int $memberCount = 0)

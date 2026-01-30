@@ -5,28 +5,18 @@ declare(strict_types=1);
 namespace App\Domain\Category;
 
 use DateTimeImmutable;
-use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'categories')]
 class Category implements CategoryInterface
 {
-    #[ORM\Id]
-    #[ORM\Column(type: 'guid')]
     private string $id;
 
-    #[ORM\Column(type: 'string', length: 160)]
     private string $name;
 
-    #[ORM\ManyToOne(targetEntity: Category::class)]
-    #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?Category $parent = null;
 
-    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $updatedAt;
 
     public function __construct(string $name, ?CategoryInterface $parent = null)

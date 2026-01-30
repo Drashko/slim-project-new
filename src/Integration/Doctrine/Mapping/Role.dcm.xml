@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="https://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping https://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="App\Domain\Role\Role" table="roles">
+        <id name="id" type="guid" column="id" />
+        <field name="key" type="string" column="role_key" length="120" unique="true" />
+        <field name="name" type="string" length="255" />
+        <field name="description" type="text" />
+        <field name="critical" type="boolean" />
+        <field name="memberCount" type="integer" />
+        <many-to-many field="permissions" target-entity="App\Domain\Permission\Permission">
+            <cascade>
+                <cascade-persist />
+            </cascade>
+            <join-table name="role_permissions">
+                <join-columns>
+                    <join-column name="role_id" referenced-column-name="id" />
+                </join-columns>
+                <inverse-join-columns>
+                    <join-column name="permission_id" referenced-column-name="id" />
+                </inverse-join-columns>
+            </join-table>
+        </many-to-many>
+    </entity>
+</doctrine-mapping>
