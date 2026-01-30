@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Web\Public\Form;
 
-use App\Web\Front\Dto\LoginFormData;
+use App\Web\Public\DTO\LoginFormData;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;

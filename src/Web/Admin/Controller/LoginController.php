@@ -13,7 +13,7 @@ use App\Integration\Session\AdminSessionInterface;
 use App\Integration\View\TemplateRenderer;
 use App\Web\Admin\DTO\AdminLoginFormData;
 use App\Web\Admin\Form\AdminLoginFormType;
-use App\Web\Front\Dto\RegisterFormData;
+use App\Web\Public\DTO\RegisterFormData;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

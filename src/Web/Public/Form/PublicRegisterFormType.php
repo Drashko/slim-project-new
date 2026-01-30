@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Web\Public\Form;
 
-use App\Web\Front\Dto\RegisterFormData;
+use App\Web\Public\DTO\RegisterFormData;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;

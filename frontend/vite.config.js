@@ -3,8 +3,20 @@ import react from "@vitejs/plugin-react";
 import { resolve } from "node:path";
 
 export default ({ command, mode }) => {
-  const env = loadEnv(mode, resolve(__dirname, ".."), "");
-  const outDir = env.ASSET_BUILD_PATH || "../public/assets";
+  const projectRoot = resolve(__dirname, "..");
+  const env = loadEnv(mode, projectRoot, "");
+  const resolveBuildPath = (buildPath) => {
+    if (!buildPath) {
+      return resolve(projectRoot, "public/assets");
+    }
+
+    if (buildPath.startsWith("/") || /^[a-zA-Z]:[\\/]/.test(buildPath)) {
+      return buildPath;
+    }
+
+    return resolve(projectRoot, buildPath);
+  };
+  const outDir = resolveBuildPath(env.ASSET_BUILD_PATH);
   const base = env.ASSET_PUBLIC_PREFIX || "/assets/";
 
   return defineConfig({
