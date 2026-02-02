@@ -96,7 +96,7 @@ $assetBuildPath = $resolveBuildPath($_ENV['ASSET_BUILD_PATH'] ?? 'public/assets'
 $assetPublicPrefix = $normalizePublicPrefix($_ENV['ASSET_PUBLIC_PREFIX'] ?? '/assets/', '/assets/');
 $assetDevServer = $environment->isProduction()
     ? ''
-    : rtrim((string) ($_ENV['ASSET_DEV_SERVER'] ?? ''), '/');
+    : rtrim((string) ($_ENV['ASSET_DEV_SERVER'] ?? 'http://localhost:5173'), '/');
 $defaultCacheDir = $resolveBuildPath($_ENV['APP_CACHE_DIR'] ?? 'tmp/var');
 $cacheEnabled = !$environment->isDevelopment();
 
