@@ -7,7 +7,7 @@ namespace App\Web\Admin\Controller;
 use App\Domain\Shared\DomainException;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Web\Admin\Service\UserService;
 use App\Web\Shared\LocalizedRouteTrait;
 use App\Web\Shared\Paginator;
@@ -17,9 +17,9 @@ use Psr\Http\Message\ServerRequestInterface;
 final readonly class UserManagementController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private TemplateRenderer   $templates,
         private AdminAuthenticator $authenticator,
         private UserService        $userDirectory,
         private Paginator          $paginator,
@@ -33,9 +33,10 @@ final readonly class UserManagementController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
 
         $directory = $this->userDirectory->all();
@@ -51,7 +52,8 @@ final readonly class UserManagementController
         $statuses = $this->userDirectory->statuses($directory);
         $queryParams = $request->getQueryParams();
 
-        return $this->templates->render($response, 'admin::users/index', [
+        return $this->respondWithJson($response, [
+            'route' => 'admin.users.index',
             'user' => $user,
             'directory' => $pagination['items'],
             'filters' => $filters,
@@ -60,7 +62,7 @@ final readonly class UserManagementController
             'totalUsers' => count($directory),
             'pagination' => $pagination,
             'queryParams' => $queryParams,
-            'flash' => $this->flash,
+            'messages' => $this->flash->getMessages(),
         ]);
     }
 

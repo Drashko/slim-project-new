@@ -8,9 +8,9 @@ use App\Domain\Shared\DomainException;
 use App\Feature\Login\Command\LoginCommand;
 use App\Feature\Login\Handler\LoginHandler;
 use App\Integration\Flash\FlashMessages;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Integration\Rbac\Policy;
 use App\Integration\Session\AdminSessionInterface;
-use App\Integration\View\TemplateRenderer;
 use App\Web\Admin\DTO\AdminLoginFormData;
 use App\Web\Admin\Form\AdminLoginFormType;
 use App\Web\Public\DTO\RegisterFormData;
@@ -18,15 +18,16 @@ use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class LoginController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private readonly TemplateRenderer $templates,
         private readonly LoginHandler $loginHandler,
         private readonly AdminSessionInterface $session,
         private readonly FlashMessages $flash,
@@ -39,6 +40,7 @@ final class LoginController
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $loginSucceeded = false;
+        $loggedInUser = null;
         $sessionUser = $this->session->get('user');
 
         $defaultEmail = $sessionUser['email'] ?? null;
@@ -69,6 +71,7 @@ final class LoginController
                     if ($this->isAllowedRole($user)) {
                         $this->session->set('user', $user);
                         $loginSucceeded = true;
+                        $loggedInUser = $user;
                         $this->flash->addMessage('success', $this->translator->trans('auth.login.flash.welcome', [
                             '%email%' => $user['email'] ?? $data->getEmail(),
                         ]));
@@ -90,18 +93,24 @@ final class LoginController
         }
 
         if ($loginSucceeded) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'status' => 'ok',
+                'user' => $loggedInUser,
+                'redirect' => $this->localizedPath($request, 'admin'),
+                'messages' => $this->flash->getMessages(),
+            ]);
         }
 
-        $user = $sessionUser;
+        $payload = [
+            'status' => $request->getMethod() === 'POST' ? 'error' : 'idle',
+            'user' => $sessionUser,
+            'errors' => $this->collectFormErrors($form),
+            'messages' => $this->flash->getMessages(),
+        ];
 
-        return $this->templates->render($response, 'admin::auth/login', [
-            'user' => $user,
-            'form' => $form->createView(),
-            'flash' => $this->flash,
-        ]);
+        $statusCode = $request->getMethod() === 'POST' ? 400 : 200;
+
+        return $this->respondWithJson($response, $payload, $statusCode);
     }
 
     private function clearSessionKey(string $key): void
@@ -163,5 +172,18 @@ final class LoginController
         }
 
         return null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function collectFormErrors(FormInterface $form): array
+    {
+        $errors = [];
+        foreach ($form->getErrors(true) as $error) {
+            $errors[] = $error->getMessage();
+        }
+
+        return $errors;
     }
 }

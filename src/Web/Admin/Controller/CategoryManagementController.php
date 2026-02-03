@@ -10,7 +10,7 @@ use App\Domain\Category\CategoryRepositoryInterface;
 use App\Domain\Shared\DomainException;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -19,9 +19,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class CategoryManagementController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private TemplateRenderer $templates,
         private AdminAuthenticator $authenticator,
         private CategoryRepositoryInterface $categories,
         private FlashMessages $flash,
@@ -34,10 +34,13 @@ final readonly class CategoryManagementController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
+
+        $statusCode = 200;
 
         if ($request->getMethod() === 'POST') {
             $payload = (array) ($request->getParsedBody() ?? []);
@@ -52,23 +55,29 @@ final readonly class CategoryManagementController
 
                     $this->flash->addMessage('success', $this->translator->trans($messageKey));
 
-                    return $response
-                        ->withHeader('Location', $this->localizedPath($request, 'admin/categories'))
-                        ->withStatus(302);
+                    return $this->respondWithJson($response, [
+                        'status' => 'saved',
+                        'redirect' => $this->localizedPath($request, 'admin/categories'),
+                        'messages' => $this->flash->getMessages(),
+                    ]);
                 }
 
                 if ($action === 'delete_category') {
                     $this->handleDelete($payload);
                     $this->flash->addMessage('success', $this->translator->trans('admin.categories.flash.deleted'));
 
-                    return $response
-                        ->withHeader('Location', $this->localizedPath($request, 'admin/categories'))
-                        ->withStatus(302);
+                    return $this->respondWithJson($response, [
+                        'status' => 'deleted',
+                        'redirect' => $this->localizedPath($request, 'admin/categories'),
+                        'messages' => $this->flash->getMessages(),
+                    ]);
                 }
             } catch (\InvalidArgumentException $exception) {
                 $this->flash->addMessage('error', $exception->getMessage());
+                $statusCode = 400;
             } catch (\Throwable $exception) {
                 $this->flash->addMessage('error', $this->translator->trans('admin.categories.flash.error'));
+                $statusCode = 400;
             }
         }
 
@@ -77,13 +86,14 @@ final readonly class CategoryManagementController
         $selectedCategory = $selectedId ? $this->categories->findById($selectedId) : null;
         $allCategories = $this->categories->all();
 
-        return $this->templates->render($response, 'admin::categories/index', [
+        return $this->respondWithJson($response, [
+            'route' => 'admin.categories.index',
             'user' => $user,
-            'flash' => $this->flash,
             'categories' => array_map([$this, 'normalizeCategory'], $allCategories),
             'parentOptions' => $this->buildParentOptions($allCategories, $selectedCategory),
             'selected' => $selectedCategory ? $this->normalizeCategory($selectedCategory) : null,
-        ]);
+            'messages' => $this->flash->getMessages(),
+        ], $statusCode);
     }
 
     /**

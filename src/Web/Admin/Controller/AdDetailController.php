@@ -13,8 +13,8 @@ use App\Feature\Ad\Handler\UpdateAdHandler;
 use App\Feature\Ad\Query\GetAdQuery;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Integration\Helper\ImageStorage;
-use App\Integration\View\TemplateRenderer;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -23,6 +23,7 @@ use Psr\Http\Message\UploadedFileInterface;
 final readonly class AdDetailController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     /**
      * @var string[]
@@ -30,7 +31,6 @@ final readonly class AdDetailController
     private array $statuses;
 
     public function __construct(
-        private TemplateRenderer $templates,
         private AdminAuthenticator $authenticator,
         private GetAdHandler $getAdHandler,
         private UpdateAdHandler $updateAdHandler,
@@ -46,9 +46,10 @@ final readonly class AdDetailController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
 
         $adId = (string) ($args['id'] ?? '');
@@ -58,20 +59,27 @@ final readonly class AdDetailController
         } catch (DomainException $exception) {
             $this->flash->addMessage('admin_error', $exception->getMessage());
 
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/ads'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => $exception->getMessage(),
+                'redirect' => $this->localizedPath($request, 'admin/ads'),
+                'messages' => $this->flash->getMessages(),
+            ], 404);
         }
 
         if (strtoupper($request->getMethod()) === 'POST') {
-            $response = $this->handleUpdate($request, $response, $adId);
+            $result = $this->handleUpdate($request, $adId);
+            $status = $result['success'] ? 200 : 400;
 
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/ads/' . rawurlencode($adId)))
-                ->withStatus($response->getStatusCode());
+            return $this->respondWithJson($response, [
+                'status' => $result['success'] ? 'updated' : 'error',
+                'redirect' => $this->localizedPath($request, 'admin/ads/' . rawurlencode($adId)),
+                'messages' => $this->flash->getMessages(),
+                'error' => $result['error'] ?? null,
+            ], $status);
         }
 
-        return $this->templates->render($response, 'admin::ads/detail', [
+        return $this->respondWithJson($response, [
+            'route' => 'admin.ads.detail',
             'user' => $user,
             'ad' => [
                 'id' => $ad->getId(),
@@ -85,11 +93,14 @@ final readonly class AdDetailController
             ],
             'statuses' => $this->statuses,
             'categories' => $this->getCategories(),
-            'flash' => $this->flash,
+            'messages' => $this->flash->getMessages(),
         ]);
     }
 
-    private function handleUpdate(ServerRequestInterface $request, ResponseInterface $response, string $adId): ResponseInterface
+    /**
+     * @return array{success: bool, error?: string}
+     */
+    private function handleUpdate(ServerRequestInterface $request, string $adId): array
     {
         $payload = (array) ($request->getParsedBody() ?? []);
         $uploadedFiles = $request->getUploadedFiles();
@@ -109,11 +120,14 @@ final readonly class AdDetailController
 
             $this->flash->addMessage('admin_success', 'Advertisement updated successfully.');
 
-            return $response->withStatus(302);
+            return ['success' => true];
         } catch (DomainException|\Throwable $exception) {
             $this->flash->addMessage('admin_error', $exception->getMessage());
 
-            return $response->withStatus(400);
+            return [
+                'success' => false,
+                'error' => $exception->getMessage(),
+            ];
         }
     }
 

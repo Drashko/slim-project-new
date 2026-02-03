@@ -12,7 +12,7 @@ use App\Feature\Admin\Role\Command\CreateRoleCommand;
 use App\Feature\Admin\Role\Handler\CreateRoleHandler;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,9 +21,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class RoleCreateController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private TemplateRenderer $templates,
         private AdminAuthenticator $authenticator,
         private ListPermissionsHandler $listPermissions,
         private CreateRoleHandler $createRole,
@@ -37,14 +37,17 @@ final readonly class RoleCreateController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
 
         $permissionMatrix = $this->listPermissions->handle(
             new ListPermissionsCommand(new DtoPermissionRequest([]))
         );
+
+        $statusCode = 200;
 
         if ($request->getMethod() === 'POST') {
             $body = (array) ($request->getParsedBody() ?? []);
@@ -60,19 +63,23 @@ final readonly class RoleCreateController
 
                 $this->flash->addMessage('success', $this->translator->trans('admin.roles.flash.created'));
 
-                return $response
-                    ->withHeader('Location', $this->localizedPath($request, 'admin/roles') . '?role=' . urlencode($created->getKey()))
-                    ->withStatus(302);
+                return $this->respondWithJson($response, [
+                    'status' => 'created',
+                    'redirect' => $this->localizedPath($request, 'admin/roles') . '?role=' . urlencode($created->getKey()),
+                    'messages' => $this->flash->getMessages(),
+                ], 201);
             } catch (DomainException $exception) {
                 $this->flash->addMessage('error', $this->translator->trans($exception->getMessage()));
+                $statusCode = 400;
             }
         }
 
-        return $this->templates->render($response, 'admin::roles/new', [
+        return $this->respondWithJson($response, [
+            'route' => 'admin.roles.new',
             'user' => $user,
             'allPermissions' => $this->flattenPermissions($permissionMatrix->getGroups()),
-            'flash' => $this->flash,
-        ]);
+            'messages' => $this->flash->getMessages(),
+        ], $statusCode);
     }
 
     /**
