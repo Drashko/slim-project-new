@@ -11,7 +11,7 @@ use App\Feature\Admin\User\Command\CreateUserCommand;
 use App\Feature\Admin\User\Handler\CreateUserHandler;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Web\Admin\Service\UserService;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
@@ -20,9 +20,9 @@ use Psr\Http\Message\ServerRequestInterface;
 final readonly class UserCreateController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private TemplateRenderer   $templates,
         private AdminAuthenticator $authenticator,
         private CreateUserHandler  $createUser,
         private FlashMessages      $flash,
@@ -36,31 +36,40 @@ final readonly class UserCreateController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
 
         if (strtoupper($request->getMethod()) === 'POST') {
-            $response = $this->handleCreate($request, $response);
+            $result = $this->handleCreate($request);
+            $status = $result['success'] ? 201 : 400;
 
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/users'))
-                ->withStatus($response->getStatusCode());
+            return $this->respondWithJson($response, [
+                'status' => $result['success'] ? 'created' : 'error',
+                'redirect' => $this->localizedPath($request, 'admin/users'),
+                'messages' => $this->flash->getMessages(),
+                'error' => $result['error'] ?? null,
+            ], $status);
         }
 
         $directory = $this->userDirectory->all();
         $availableRoles = $this->availableRoles();
 
-        return $this->templates->render($response, 'admin::users/create', [
+        return $this->respondWithJson($response, [
+            'route' => 'admin.users.create',
             'user' => $user,
-            'flash' => $this->flash,
             'roles' => $availableRoles,
             'statuses' => $this->userDirectory->statuses($directory),
+            'messages' => $this->flash->getMessages(),
         ]);
     }
 
-    private function handleCreate(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    /**
+     * @return array{success: bool, error?: string}
+     */
+    private function handleCreate(ServerRequestInterface $request): array
     {
         $payload = (array) ($request->getParsedBody() ?? []);
 
@@ -74,11 +83,14 @@ final readonly class UserCreateController
 
             $this->flash->addMessage('admin_success', 'User created successfully.');
 
-            return $response->withStatus(302);
+            return ['success' => true];
         } catch (\Throwable $exception) {
             $this->flash->addMessage('admin_error', $exception->getMessage());
 
-            return $response->withStatus(400);
+            return [
+                'success' => false,
+                'error' => $exception->getMessage(),
+            ];
         }
     }
 

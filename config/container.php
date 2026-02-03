@@ -20,10 +20,6 @@ use App\Integration\Repository\Doctrine\AdRepository;
 use App\Integration\Repository\Doctrine\CategoryRepository;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
-use App\Integration\Routing\PathLocalizer;
-use App\Integration\View\Plates\ReactExtension;
-use App\Integration\View\Plates\ViteExtension;
-use App\Integration\View\TemplateRenderer;
 use App\Web\API\Controller\LocalizationController;
 use App\Web\Shared\Paginator;
 use Doctrine\DBAL\DriverManager;
@@ -31,8 +27,6 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
-use League\Plates\Engine;
-use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Slim\App;
@@ -126,12 +120,6 @@ return [
         );
     },
 
-    PathLocalizer::class => static function (ContainerInterface $container): PathLocalizer {
-        $localization = $container->get('settings')['localization'] ?? [];
-
-        return new PathLocalizer((array) ($localization['route_paths'] ?? []));
-    },
-
     TranslatorInterface::class => static function (ContainerInterface $container): TranslatorInterface {
         $settings = $container->get('settings')['localization'] ?? [];
         $defaultLocale = (string) ($settings['default_locale'] ?? 'en');
@@ -221,210 +209,6 @@ return [
         return new ImageStorage($path, $publicPrefix);
     },
 
-    Engine::class => static function (ContainerInterface $container): Engine {
-        $settings = $container->get('settings')['templates'];
-        $engine = new Engine($settings['path'], $settings['extension'] ?? 'php');
-
-        $engine
-            ->addFolder('layout', $settings['path'] . '/layout')
-            ->addFolder('front', $settings['path'] . '/front')
-            ->addFolder('auth', $settings['path'] . '/auth')
-            ->addFolder('admin', $settings['path'] . '/admin')
-            ->addFolder('profile', $settings['path'] . '/profile');
-
-        $translator = $container->get(TranslatorInterface::class);
-        $localization = $container->get('settings')['localization'] ?? [];
-        $supportedLocales = (array) ($localization['supported_locales'] ?? ['en' => 'English']);
-        $pathLocalizer = $container->get(PathLocalizer::class);
-
-        $engine->registerFunction('trans', function (
-            string $id,
-            array $parameters = [],
-            ?string $domain = null,
-            ?string $locale = null
-        ) use ($translator): string {
-            return $translator->trans($id, $parameters, $domain, $locale);
-        });
-
-        $engine->registerFunction('current_locale', static function () use ($translator): string {
-            return $translator->getLocale();
-        });
-
-        $engine->registerFunction('available_locales', static function () use ($supportedLocales): array {
-            return $supportedLocales;
-        });
-
-        $engine->registerFunction('locale_name', static function (string $locale) use ($supportedLocales): string {
-            return $supportedLocales[$locale] ?? $locale;
-        });
-
-        $engine->registerFunction('locale_url', static function (?string $path = null, ?string $locale = null, ?string $scope = null) use ($supportedLocales, $translator, $pathLocalizer): string {
-            $normalizeLocale = static function (mixed $value) use ($supportedLocales): ?string {
-                if (!is_string($value) || $value === '') {
-                    return null;
-                }
-
-                $normalized = strtolower(str_replace('_', '-', $value));
-                if (array_key_exists($normalized, $supportedLocales)) {
-                    return $normalized;
-                }
-
-                $short = substr($normalized, 0, 2);
-                if ($short !== '' && array_key_exists($short, $supportedLocales)) {
-                    return $short;
-                }
-
-                return null;
-            };
-
-            $normalizedPath = $path ?? '';
-            $normalizedPath = trim($normalizedPath);
-
-            if ($scope === 'admin') {
-                if ($normalizedPath === '' || $normalizedPath === '/') {
-                    return '/admin';
-                }
-
-                return '/' . ltrim($normalizedPath, '/');
-            }
-
-            $targetLocale = $normalizeLocale($locale);
-            if ($targetLocale === null) {
-                $targetLocale = $normalizeLocale($translator->getLocale());
-            }
-
-            if ($targetLocale === null) {
-                $targetLocale = $normalizeLocale(array_key_first($supportedLocales));
-            }
-
-            if ($targetLocale === null) {
-                $targetLocale = 'en';
-            }
-
-            if ($normalizedPath === '' || $normalizedPath === '/') {
-                return '/' . $targetLocale;
-            }
-
-            $translatedPath = $pathLocalizer->prefix($normalizedPath, $targetLocale);
-
-            if ($translatedPath === '') {
-                return '/' . $targetLocale;
-            }
-
-            return $translatedPath;
-        });
-
-        $engine->registerFunction('locale_switch_url', static function (string $locale) use ($supportedLocales, $pathLocalizer): string {
-            if (!array_key_exists($locale, $supportedLocales)) {
-                return '#';
-            }
-
-            $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
-            $parts = parse_url($requestUri);
-            $path = isset($parts['path']) && $parts['path'] !== '' ? $parts['path'] : '/';
-            $segments = array_values(array_filter(
-                explode('/', trim($path, '/')),
-                static fn(string $segment): bool => $segment !== ''
-            ));
-
-            if ($segments !== []) {
-                $candidate = strtolower($segments[0]);
-                if (array_key_exists($candidate, $supportedLocales)) {
-                    array_shift($segments);
-                }
-            }
-
-            $queryParams = [];
-            if (!empty($parts['query'])) {
-                parse_str((string) $parts['query'], $queryParams);
-            }
-
-            if ($segments !== [] && strtolower($segments[0]) === 'admin') {
-                $queryParams['lang'] = $locale;
-                $queryString = http_build_query($queryParams);
-                $newPath = '/' . implode('/', $segments);
-                if ($queryString !== '') {
-                    $newPath .= '?' . $queryString;
-                }
-
-                return $newPath;
-            }
-
-            unset($queryParams['lang']);
-            $queryString = http_build_query($queryParams);
-
-            $remainingPath = implode('/', $segments);
-            $canonicalPath = $pathLocalizer->canonicalize($remainingPath);
-            $newPath = $pathLocalizer->prefix($canonicalPath, $locale);
-
-            if ($queryString !== '') {
-                $newPath .= '?' . $queryString;
-            }
-
-            return $newPath;
-        });
-
-        $settings = (array) $container->get('settings');
-        $reactSettings = (array) ($settings['react'] ?? []);
-        $adminReactSettings = (array) ($settings['admin_react'] ?? []);
-
-        $engine->loadExtension(new ReactExtension([
-            'public' => [
-                'entry' => (string) ($reactSettings['entry'] ?? 'src/main.jsx'),
-                'manifest_path' => (string) ($reactSettings['manifest_path'] ?? ''),
-                'public_prefix' => (string) ($reactSettings['public_prefix'] ?? '/assets/'),
-                'dev_server' => trim((string) ($reactSettings['dev_server'] ?? '')),
-            ],
-            'admin' => [
-                'entry' => (string) ($adminReactSettings['entry'] ?? 'src/admin/react.jsx'),
-                'manifest_path' => (string) ($adminReactSettings['manifest_path'] ?? ''),
-                'public_prefix' => (string) ($adminReactSettings['public_prefix'] ?? '/assets/'),
-                'dev_server' => trim((string) ($adminReactSettings['dev_server'] ?? '')),
-            ],
-        ]));
-
-        $adminSettings = (array) ($settings['admin_assets'] ?? []);
-        $publicSettings = (array) ($settings['public_assets'] ?? []);
-        $engine->loadExtension(new ViteExtension([
-            'admin' => [
-                'entry' => (string) ($adminSettings['entry'] ?? 'src/admin/main.js'),
-                'manifest_path' => (string) ($adminSettings['manifest_path'] ?? ''),
-                'public_prefix' => (string) ($adminSettings['public_prefix'] ?? '/assets/'),
-                'dev_server' => trim((string) ($adminSettings['dev_server'] ?? '')),
-                'styles' => array_values((array) ($adminSettings['styles'] ?? [])),
-            ],
-            'public' => [
-                'entry' => (string) ($publicSettings['entry'] ?? 'src/public/main.js'),
-                'manifest_path' => (string) ($publicSettings['manifest_path'] ?? ''),
-                'public_prefix' => (string) ($publicSettings['public_prefix'] ?? '/assets/'),
-                'dev_server' => trim((string) ($publicSettings['dev_server'] ?? '')),
-            ],
-        ]));
-
-        return $engine;
-    },
-
-    TemplateRenderer::class => static function (ContainerInterface $container): TemplateRenderer {
-        $settings = (array) $container->get('settings');
-        $templateSettings = (array) ($settings['templates'] ?? []);
-        $cacheSettings = (array) ($templateSettings['cache'] ?? []);
-        $cachePool = null;
-
-        if (!empty($cacheSettings['enabled']) && !empty($cacheSettings['path'])) {
-            $cachePath = (string) $cacheSettings['path'];
-            if (!is_dir($cachePath)) {
-                mkdir($cachePath, 0775, true);
-            }
-            $cachePool = new FilesystemAdapter('templates', 0, $cachePath);
-        }
-
-        return new TemplateRenderer(
-            $container->get(Engine::class),
-            $cachePool instanceof CacheItemPoolInterface ? $cachePool : null,
-            $cacheSettings
-        );
-    },
-
     App::class => static function (ContainerInterface $container): App {
         AppFactory::setContainer($container);
 
@@ -452,7 +236,6 @@ return [
         $middleware->setErrorHandler(
             HttpNotFoundException::class,
             new NotFoundHandler(
-                $container->get(TemplateRenderer::class),
                 $container->get(ResponseFactoryInterface::class),
                 array_change_key_case(
                     (array) ($container->get('settings')['localization']['supported_locales'] ?? []),

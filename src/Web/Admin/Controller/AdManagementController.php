@@ -10,7 +10,7 @@ use App\Feature\Ad\Handler\ListAdsHandler;
 use App\Feature\Ad\Query\ListAdsQuery;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -18,9 +18,9 @@ use Psr\Http\Message\ServerRequestInterface;
 final readonly class AdManagementController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private TemplateRenderer $templates,
         private AdminAuthenticator $authenticator,
         private ListAdsHandler $listAdsHandler,
         private FlashMessages $flash,
@@ -32,9 +32,10 @@ final readonly class AdManagementController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
 
         $queryParams = $request->getQueryParams();
@@ -53,10 +54,10 @@ final readonly class AdManagementController
             $toDate
         ));
 
-        return $this->templates->render($response, 'admin::ads/index', [
+        return $this->respondWithJson($response, [
+            'route' => 'admin.ads.index',
             'user' => $user,
             'ads' => array_map($this->normalizeAd(), $ads),
-            'flash' => $this->flash,
             'filters' => [
                 'category' => $category,
                 'status' => $status,
@@ -65,6 +66,7 @@ final readonly class AdManagementController
                 'to_date' => $toDate?->format('Y-m-d'),
             ],
             'statuses' => ['Pending', 'Published', 'Archived'],
+            'messages' => $this->flash->getMessages(),
         ]);
     }
 

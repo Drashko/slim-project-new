@@ -13,7 +13,7 @@ use App\Feature\Admin\User\Handler\DeleteUserHandler;
 use App\Feature\Admin\User\Handler\UpdateUserHandler;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Web\Admin\Service\UserService;
 use App\Web\Shared\LocalizedRouteTrait;
 use DateInterval;
@@ -24,9 +24,9 @@ use Psr\Http\Message\ServerRequestInterface;
 final readonly class UserDetailController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private TemplateRenderer   $templates,
         private AdminAuthenticator $authenticator,
         private UserService        $directory,
         private UpdateUserHandler  $updateUser,
@@ -41,39 +41,49 @@ final readonly class UserDetailController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
 
         $memberId = (string) ($args['id'] ?? '');
         $member = $memberId !== '' ? $this->directory->find($memberId) : null;
 
         if ($member !== null && strtoupper($request->getMethod()) === 'POST') {
-            $response = $this->handleAction($request, $response, $memberId);
+            $result = $this->handleAction($request, $memberId);
+            $status = $result['success'] ? 200 : 400;
 
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/users/' . $memberId))
-                ->withStatus($response->getStatusCode());
+            return $this->respondWithJson($response, [
+                'status' => $result['success'] ? 'updated' : 'error',
+                'redirect' => $this->localizedPath($request, 'admin/users/' . $memberId),
+                'messages' => $this->flash->getMessages(),
+                'error' => $result['error'] ?? null,
+            ], $status);
         }
 
         $payload = [
+            'route' => 'admin.users.detail',
             'user' => $user,
             'member' => $member,
             'roles' => $this->availableRoles(),
             'contact' => $member !== null ? $this->buildContact($member) : [],
             'timeline' => $member !== null ? $this->buildTimeline($member) : [],
             'activity' => $member !== null ? $this->buildActivity($member) : [],
+            'messages' => $this->flash->getMessages(),
         ];
 
         if ($member === null) {
-            return $this->templates->render($response->withStatus(404), 'admin::users/detail', $payload);
+            return $this->respondWithJson($response, $payload, 404);
         }
 
-        return $this->templates->render($response, 'admin::users/detail', $payload);
+        return $this->respondWithJson($response, $payload);
     }
 
-    private function handleAction(ServerRequestInterface $request, ResponseInterface $response, string $userId): ResponseInterface
+    /**
+     * @return array{success: bool, error?: string}
+     */
+    private function handleAction(ServerRequestInterface $request, string $userId): array
     {
         $payload = (array) ($request->getParsedBody() ?? []);
         $action = strtoupper((string) ($payload['_action'] ?? ''));
@@ -83,9 +93,7 @@ final readonly class UserDetailController
                 $this->deleteUser->handle(new DeleteUserCommand($userId));
                 $this->flash->addMessage('admin_success', 'User deleted successfully.');
 
-                return $response
-                    ->withHeader('Location', $this->localizedPath($request, 'admin/users'))
-                    ->withStatus(302);
+                return ['success' => true];
             }
 
             $this->updateUser->handle(new UpdateUserCommand(
@@ -98,11 +106,14 @@ final readonly class UserDetailController
 
             $this->flash->addMessage('admin_success', 'User updated successfully.');
 
-            return $response->withStatus(302);
+            return ['success' => true];
         } catch (\Throwable $exception) {
             $this->flash->addMessage('admin_error', $exception->getMessage());
 
-            return $response->withStatus(400);
+            return [
+                'success' => false,
+                'error' => $exception->getMessage(),
+            ];
         }
     }
 

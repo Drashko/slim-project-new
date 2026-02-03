@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Http;
 
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,11 +12,12 @@ use Throwable;
 
 final class NotFoundHandler
 {
+    use JsonResponseTrait;
+
     /**
      * @param array<string, string> $supportedLocales
      */
     public function __construct(
-        private readonly TemplateRenderer $renderer,
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly array $supportedLocales = [],
     ) {
@@ -31,11 +32,12 @@ final class NotFoundHandler
     ): ResponseInterface {
         $response = $this->responseFactory->createResponse(404);
         $scope = $this->resolveScope($request);
-        $template = $scope === 'admin' ? 'admin::errors/404' : 'errors/404';
 
-        return $this->renderer->render($response, $template, [
-            'requestedPath' => $request->getUri()->getPath(),
-        ]);
+        return $this->respondWithJson($response, [
+            'error' => 'Not Found',
+            'path' => $request->getUri()->getPath(),
+            'scope' => $scope,
+        ], 404);
     }
 
     private function resolveScope(ServerRequestInterface $request): string

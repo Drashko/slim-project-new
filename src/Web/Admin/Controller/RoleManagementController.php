@@ -18,7 +18,7 @@ use App\Feature\Admin\Role\Handler\ResolveSelectedRoleHandler;
 use App\Feature\Admin\Role\Handler\UpdateRolePermissionsHandler;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -27,9 +27,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class RoleManagementController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private TemplateRenderer $templates,
         private AdminAuthenticator $authenticator,
         private ListRolesHandler $listRoles,
         private ResolveSelectedRoleHandler $resolveSelectedRole,
@@ -46,9 +46,10 @@ final readonly class RoleManagementController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
 
         $roleDtoMap = $this->mapRoles();
@@ -72,6 +73,8 @@ final readonly class RoleManagementController
             ]))
         );
 
+        $statusCode = 200;
+
         if ($request->getMethod() === 'POST') {
             $body = (array) ($request->getParsedBody() ?? []);
             $action = (string) ($body['action'] ?? '');
@@ -84,9 +87,11 @@ final readonly class RoleManagementController
 
                     $this->flash->addMessage('success', $this->translator->trans('admin.roles.flash.deleted'));
 
-                    return $response
-                        ->withHeader('Location', $this->localizedPath($request, 'admin/roles'))
-                        ->withStatus(302);
+                    return $this->respondWithJson($response, [
+                        'status' => 'deleted',
+                        'redirect' => $this->localizedPath($request, 'admin/roles'),
+                        'messages' => $this->flash->getMessages(),
+                    ]);
                 }
 
                 if ($action === 'update_permissions') {
@@ -99,24 +104,28 @@ final readonly class RoleManagementController
 
                     $this->flash->addMessage('success', $this->translator->trans('admin.roles.flash.permissions_updated'));
 
-                    return $response
-                        ->withHeader('Location', $this->localizedPath($request, 'admin/roles') . '?role=' . urlencode($roleKey))
-                        ->withStatus(302);
+                    return $this->respondWithJson($response, [
+                        'status' => 'updated',
+                        'redirect' => $this->localizedPath($request, 'admin/roles') . '?role=' . urlencode($roleKey),
+                        'messages' => $this->flash->getMessages(),
+                    ]);
                 }
             } catch (DomainException $exception) {
                 $this->flash->addMessage('error', $this->translator->trans($exception->getMessage()));
+                $statusCode = 400;
             }
         }
 
-        return $this->templates->render($response, 'admin::roles/index', [
+        return $this->respondWithJson($response, [
+            'route' => 'admin.roles.index',
             'user' => $user,
             'roles' => array_values($roleDtoMap),
             'selectedRole' => $selectedRole,
             'selectedId' => $selectedId,
             'permissionGroups' => array_map(static fn($group) => $group->toArray(), $permissionMatrix->getGroups()),
             'selectedPermissions' => $selectedRole['permissionKeys'] ?? [],
-            'flash' => $this->flash,
-        ]);
+            'messages' => $this->flash->getMessages(),
+        ], $statusCode);
     }
 
     private function resolveSelectedRole(ServerRequestInterface $request, array $available): string

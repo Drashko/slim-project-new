@@ -6,7 +6,7 @@ namespace App\Web\Admin\Controller;
 
 use App\Domain\Shared\DomainException;
 use App\Integration\Auth\AdminAuthenticator;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -14,9 +14,9 @@ use Psr\Http\Message\ServerRequestInterface;
 final class ProfileController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private readonly TemplateRenderer $templates,
         private readonly AdminAuthenticator $authenticator
     ) {
     }
@@ -26,12 +26,14 @@ final class ProfileController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
 
-        return $this->templates->render($response, 'admin::profile/index', [
+        return $this->respondWithJson($response, [
+            'route' => 'admin.profile',
             'user' => $user,
         ]);
     }

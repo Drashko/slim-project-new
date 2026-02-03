@@ -13,9 +13,9 @@ use App\Feature\Ad\Handler\CreateAdHandler;
 use App\Feature\Ad\Handler\ListAdsHandler;
 use App\Feature\Ad\Query\ListAdsQuery;
 use App\Integration\Flash\FlashMessages;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Integration\Helper\ImageStorage;
 use App\Integration\Session\PublicSessionInterface;
-use App\Integration\View\TemplateRenderer;
 use App\Web\Shared\LocalizedRouteTrait;
 use App\Web\Shared\PublicUserResolver;
 use Psr\Http\Message\ResponseInterface;
@@ -24,9 +24,9 @@ use Psr\Http\Message\ServerRequestInterface;
 final readonly class AdsController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private TemplateRenderer $templates,
         private PublicSessionInterface $session,
         private CreateAdHandler $createAdHandler,
         private ListAdsHandler $listAdsHandler,
@@ -41,34 +41,43 @@ final readonly class AdsController
         $normalizedUser = PublicUserResolver::resolve($this->session->get('user'));
 
         if ($normalizedUser === null || !isset($normalizedUser['id'])) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'auth/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'auth/login'),
+            ], 401);
         }
 
         $statusCode = 200;
+        $redirect = null;
 
         if (strtoupper($request->getMethod()) === 'POST') {
             $created = $this->handleCreate($request, $normalizedUser['id']);
             if ($created) {
-                return $response
-                    ->withHeader('Location', $this->localizedPath($request, 'profile/ads'))
-                    ->withStatus(302);
+                return $this->respondWithJson($response, [
+                    'status' => 'created',
+                    'redirect' => $this->localizedPath($request, 'profile/ads'),
+                ], 201);
             }
 
             $statusCode = 400;
+            $redirect = $this->localizedPath($request, 'profile/ads');
         }
 
         $ads = $this->listAdsHandler->handle(new ListAdsQuery($normalizedUser['id']));
 
-        $rendered = $this->templates->render($response, 'profile::ads', [
+        $payload = [
+            'route' => 'profile.ads',
             'user' => $normalizedUser,
-            'flash' => $this->flash,
             'categories' => $this->getCategories(),
             'ads' => array_map($this->normalizeAd(), $ads),
-        ]);
+            'messages' => $this->flash->getMessages(),
+        ];
 
-        return $rendered->withStatus($statusCode);
+        if ($redirect !== null) {
+            $payload['redirect'] = $redirect;
+        }
+
+        return $this->respondWithJson($response, $payload, $statusCode);
     }
 
     private function handleCreate(ServerRequestInterface $request, string $userId): bool
