@@ -49,7 +49,7 @@ DOCTRINE_PROXY_DIR=tmp/var/doctrine/proxies
 - **Session and flash**: Starts a PHP session via `Odan\Session` using the configured session name, then exposes `Messages` for flash storage.
 - **Logging**: Instantiates a `LoggerFactory` seeded with file path, filename, and log level from the `logger` settings.
 - **Localization**: Creates a `Translator` with JSON loaders so routes and middleware can render locale-aware responses.
-- **Forms, CSRF, and validation**: Wires Symfony form and CSRF components with the shared translator-backed validator for consistent error messages.
+- **Validation**: Wires Symfony's validator with the shared translator so validation errors are localized consistently.
 - **RBAC policy**: Hydrates a Laminas RBAC graph from the `rbac.roles` map, normalizing role names and permissions before exposing them through a `Policy` service.
 - **Slim app and middleware**: Provides the Slim `App`, `ResponseFactory`, and `ErrorMiddleware` using the settings that control error display and logging.
 - **Doctrine caches**: When enabled, the container wires Symfony cache pools into Doctrine's metadata, query, and result caches, while keeping proxy classes in the configured proxy cache directory.

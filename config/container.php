@@ -35,9 +35,6 @@ use Slim\Factory\AppFactory;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Psr7\Factory\ResponseFactory;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Form\Forms;
 use Symfony\Component\Translation\Loader\JsonFileLoader;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\TranslatorBagInterface;
@@ -149,12 +146,6 @@ return [
             ->setTranslator($container->get(TranslatorInterface::class))
             ->setTranslationDomain('messages')
             ->getValidator();
-    },
-
-    FormFactoryInterface::class => static function (ContainerInterface $container): FormFactoryInterface {
-        return Forms::createFormFactoryBuilder()
-            ->addExtension(new ValidatorExtension($container->get(ValidatorInterface::class)))
-            ->getFormFactory();
     },
 
     LocalizationMiddleware::class => static function (ContainerInterface $container): LocalizationMiddleware {
