@@ -11,13 +11,10 @@ use App\Integration\Flash\FlashMessages;
 use App\Integration\Helper\JsonResponseTrait;
 use App\Integration\Session\PublicSessionInterface;
 use App\Web\Public\DTO\RegisterFormData;
-use App\Web\Public\Form\PublicRegisterFormType;
 use App\Web\Shared\PublicUserResolver;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class RegisterController
@@ -29,26 +26,30 @@ final readonly class RegisterController
         private FlashMessages            $flash,
         private PublicSessionInterface   $session,
         private TranslatorInterface     $translator,
-        private FormFactoryInterface    $formFactory
+        private ValidatorInterface      $validator
     ) {
     }
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $form = $this->formFactory->create(PublicRegisterFormType::class, new RegisterFormData());
+        $errors = [];
+        $formData = new RegisterFormData();
 
         if ($request->getMethod() === 'POST') {
-            $form->submit((array) ($request->getParsedBody() ?? []));
+            $submittedData = $this->resolveSubmittedData($request, ['public_register_form']);
+            $formData->email = isset($submittedData['email']) ? (string) $submittedData['email'] : null;
+            $formData->password = isset($submittedData['password']) ? (string) $submittedData['password'] : null;
+            $formData->confirmPassword = isset($submittedData['confirmPassword']) ? (string) $submittedData['confirmPassword'] : null;
+            $formData->accountType = isset($submittedData['accountType']) ? (string) $submittedData['accountType'] : $formData->accountType;
 
-            if ($form->isSubmitted() && $form->isValid()) {
-                /** @var RegisterFormData $data */
-                $data = $form->getData();
+            $errors = $this->collectValidationErrors($formData);
 
+            if ($errors === []) {
                 try {
                     $this->registerUserHandler->handle(new RegisterUserCommand(
-                        $data->getEmail(),
-                        $data->getPassword(),
-                        $data->getRoles()
+                        $formData->getEmail(),
+                        $formData->getPassword(),
+                        $formData->getRoles()
                     ));
 
                     $this->flash->addMessage('success', $this->translator->trans('auth.register.flash.success'));
@@ -62,9 +63,9 @@ final readonly class RegisterController
                 } catch (DomainException $exception) {
                     $message = $this->translator->trans($exception->getMessage());
                     $this->flash->addMessage('error', $message);
-                    $form->addError(new FormError($message));
+                    $errors[] = $message;
                 }
-            } elseif ($form->isSubmitted()) {
+            } else {
                 $this->flash->addMessage('error', $this->translator->trans('auth.register.flash.invalid'));
             }
         }
@@ -72,7 +73,7 @@ final readonly class RegisterController
         $payload = [
             'status' => $request->getMethod() === 'POST' ? 'error' : 'idle',
             'user' => PublicUserResolver::resolve($this->session->get('user')),
-            'errors' => $this->collectFormErrors($form),
+            'errors' => $errors,
             'messages' => $this->flash->getMessages(),
         ];
 
@@ -99,15 +100,34 @@ final readonly class RegisterController
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
-    private function collectFormErrors(FormInterface $form): array
+    private function collectValidationErrors(RegisterFormData $data): array
     {
         $errors = [];
-        foreach ($form->getErrors(true) as $error) {
+        foreach ($this->validator->validate($data) as $error) {
             $errors[] = $error->getMessage();
         }
 
         return $errors;
+    }
+
+    /**
+     * @param list<string> $nestedKeys
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveSubmittedData(ServerRequestInterface $request, array $nestedKeys): array
+    {
+        $parsedBody = $request->getParsedBody();
+        $submittedData = is_array($parsedBody) ? $parsedBody : [];
+
+        foreach ($nestedKeys as $nestedKey) {
+            if (isset($submittedData[$nestedKey]) && is_array($submittedData[$nestedKey])) {
+                return $submittedData[$nestedKey];
+            }
+        }
+
+        return $submittedData;
     }
 }

@@ -12,14 +12,11 @@ use App\Integration\Helper\JsonResponseTrait;
 use App\Integration\Session\PublicSessionInterface;
 use App\Web\Public\DTO\LoginFormData;
 use App\Web\Public\DTO\RegisterFormData;
-use App\Web\Public\Form\PublicLoginFormType;
 use App\Web\Shared\LocalizedRouteTrait;
 use App\Web\Shared\PublicUserResolver;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class LoginController
@@ -32,7 +29,7 @@ final class LoginController
         private readonly PublicSessionInterface $session,
         private readonly FlashMessages $flash,
         private readonly TranslatorInterface $translator,
-        private readonly FormFactoryInterface $formFactory
+        private readonly ValidatorInterface $validator
     ) {
     }
 
@@ -46,26 +43,19 @@ final class LoginController
 
         $formData = new LoginFormData();
         $formData->email = $defaultEmail;
-
-        $form = $this->formFactory->create(PublicLoginFormType::class, $formData);
+        $errors = [];
 
         if ($request->getMethod() === 'POST') {
-            $parsedBody = $request->getParsedBody();
-            $submittedData = is_array($parsedBody) ? $parsedBody : [];
-            $formName = $form->getName();
-            if (isset($submittedData[$formName]) && is_array($submittedData[$formName])) {
-                $submittedData = $submittedData[$formName];
-            }
-            $form->submit($submittedData);
+            $submittedData = $this->resolveSubmittedData($request, ['public_login_form']);
+            $formData->email = isset($submittedData['email']) ? (string) $submittedData['email'] : $defaultEmail;
+            $formData->password = isset($submittedData['password']) ? (string) $submittedData['password'] : null;
+            $errors = $this->collectValidationErrors($formData);
 
-            if ($form->isSubmitted() && $form->isValid()) {
-                /** @var LoginFormData $data */
-                $data = $form->getData();
-
+            if ($errors === []) {
                 try {
                     $loginResult = $this->loginHandler->handle(new LoginCommand(
-                        $data->getEmail(),
-                        $data->getPassword(),
+                        $formData->getEmail(),
+                        $formData->getPassword(),
                         $request->getServerParams()['REMOTE_ADDR'] ?? null
                     ));
 
@@ -73,7 +63,7 @@ final class LoginController
                     $this->session->set('user', $user);
                     if ($this->isAllowedRole($user)) {
                         $this->flash->addMessage('success', $this->translator->trans('auth.login.flash.welcome', [
-                            '%email%' => $user['email'] ?? $data->getEmail(),
+                            '%email%' => $user['email'] ?? $formData->getEmail(),
                         ]));
 
                         $loginSucceeded = true;
@@ -82,15 +72,15 @@ final class LoginController
                         $this->clearSessionKey('user');
                         $message = $this->translator->trans('auth.login.flash.user_not_found');
                         $this->flash->addMessage('error', $message);
-                        $form->addError(new FormError($message));
+                        $errors[] = $message;
                     }
                 } catch (DomainException $exception) {
                     $this->clearSessionKey('user');
                     $message = $this->translator->trans($exception->getMessage());
                     $this->flash->addMessage('error', $message);
-                    $form->addError(new FormError($message));
+                    $errors[] = $message;
                 }
-            } elseif ($form->isSubmitted()) {
+            } else {
                 $this->flash->addMessage('error', $this->translator->trans('auth.login.flash.missing_credentials'));
             }
         }
@@ -107,7 +97,7 @@ final class LoginController
         $payload = [
             'status' => $request->getMethod() === 'POST' ? 'error' : 'idle',
             'user' => $sessionUser,
-            'errors' => $this->collectFormErrors($form),
+            'errors' => $errors,
             'messages' => $this->flash->getMessages(),
         ];
 
@@ -164,15 +154,34 @@ final class LoginController
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
-    private function collectFormErrors(FormInterface $form): array
+    private function collectValidationErrors(LoginFormData $data): array
     {
         $errors = [];
-        foreach ($form->getErrors(true) as $error) {
+        foreach ($this->validator->validate($data) as $error) {
             $errors[] = $error->getMessage();
         }
 
         return $errors;
+    }
+
+    /**
+     * @param list<string> $nestedKeys
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveSubmittedData(ServerRequestInterface $request, array $nestedKeys): array
+    {
+        $parsedBody = $request->getParsedBody();
+        $submittedData = is_array($parsedBody) ? $parsedBody : [];
+
+        foreach ($nestedKeys as $nestedKey) {
+            if (isset($submittedData[$nestedKey]) && is_array($submittedData[$nestedKey])) {
+                return $submittedData[$nestedKey];
+            }
+        }
+
+        return $submittedData;
     }
 }
