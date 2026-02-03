@@ -9,7 +9,7 @@ use App\Feature\Admin\Audit\Command\ListDomainEventLogsCommand;
 use App\Feature\Admin\Audit\Handler\ListDomainEventLogsHandler;
 use App\Feature\Admin\Audit\ListDomainEventLogsResult;
 use App\Integration\Auth\AdminAuthenticator;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -17,9 +17,9 @@ use Psr\Http\Message\ServerRequestInterface;
 final readonly class AuditLogController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private TemplateRenderer $templates,
         private AdminAuthenticator $authenticator,
         private ListDomainEventLogsHandler $listDomainEventLogs,
     ) {
@@ -30,9 +30,10 @@ final readonly class AuditLogController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
 
         $params = $request->getQueryParams();
@@ -60,7 +61,8 @@ final readonly class AuditLogController
             ),
         );
 
-        return $this->templates->render($response, 'admin::audit/index', [
+        return $this->respondWithJson($response, [
+            'route' => 'admin.audit.index',
             'user' => $user,
             'logs' => $this->mapLogs($result),
             'total' => $result->getTotal(),

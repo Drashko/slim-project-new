@@ -8,21 +8,23 @@ use App\Domain\Shared\DomainException;
 use App\Feature\Register\Command\RegisterUserCommand;
 use App\Feature\Register\Handler\RegisterUserHandler;
 use App\Integration\Flash\FlashMessages;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Integration\Session\PublicSessionInterface;
-use App\Integration\View\TemplateRenderer;
 use App\Web\Public\DTO\RegisterFormData;
 use App\Web\Public\Form\PublicRegisterFormType;
 use App\Web\Shared\PublicUserResolver;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class RegisterController
 {
+    use JsonResponseTrait;
+
     public function __construct(
-        private TemplateRenderer         $templates,
         private RegisterUserHandler      $registerUserHandler,
         private FlashMessages            $flash,
         private PublicSessionInterface   $session,
@@ -51,7 +53,11 @@ final readonly class RegisterController
 
                     $this->flash->addMessage('success', $this->translator->trans('auth.register.flash.success'));
 
-                    return $response->withHeader('Location', $this->localizedPath($request, 'auth/login'))->withStatus(302);
+                    return $this->respondWithJson($response, [
+                        'status' => 'ok',
+                        'redirect' => $this->localizedPath($request, 'auth/login'),
+                        'messages' => $this->flash->getMessages(),
+                    ]);
 
                 } catch (DomainException $exception) {
                     $message = $this->translator->trans($exception->getMessage());
@@ -63,10 +69,16 @@ final readonly class RegisterController
             }
         }
 
-        return $this->templates->render($response, 'auth::register', [
-            'form' => $form->createView(),
+        $payload = [
+            'status' => $request->getMethod() === 'POST' ? 'error' : 'idle',
             'user' => PublicUserResolver::resolve($this->session->get('user')),
-        ]);
+            'errors' => $this->collectFormErrors($form),
+            'messages' => $this->flash->getMessages(),
+        ];
+
+        $statusCode = $request->getMethod() === 'POST' ? 400 : 200;
+
+        return $this->respondWithJson($response, $payload, $statusCode);
     }
 
     private function localizedPath(ServerRequestInterface $request, string $path = ''): string
@@ -84,5 +96,18 @@ final readonly class RegisterController
         }
 
         return '/' . $locale . '/' . ltrim($normalized, '/');
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function collectFormErrors(FormInterface $form): array
+    {
+        $errors = [];
+        foreach ($form->getErrors(true) as $error) {
+            $errors[] = $error->getMessage();
+        }
+
+        return $errors;
     }
 }

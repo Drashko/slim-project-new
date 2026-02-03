@@ -21,7 +21,6 @@
     "symfony/translation": "^6.4",
     "ext-pdo": "*",
     "doctrine/migrations": "^3.9",
-    "league/plates": "^3.6",
     "mezzio/mezzio-authorization-rbac": "^1.10"
   },
   "autoload": {

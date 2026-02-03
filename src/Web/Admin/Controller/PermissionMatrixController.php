@@ -15,7 +15,7 @@ use App\Feature\Admin\Permission\Handler\ListPermissionsHandler;
 use App\Feature\Admin\Permission\ValidatePermissionRequest;
 use App\Integration\Auth\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Helper\JsonResponseTrait;
 use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -24,9 +24,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class PermissionMatrixController
 {
     use LocalizedRouteTrait;
+    use JsonResponseTrait;
 
     public function __construct(
-        private TemplateRenderer $templates,
         private AdminAuthenticator $authenticator,
         private ListPermissionsHandler $permissions,
         private ValidatePermissionRequest $validator,
@@ -42,10 +42,13 @@ final readonly class PermissionMatrixController
         try {
             $user = $this->authenticator->authenticate($request);
         } catch (DomainException) {
-            return $response
-                ->withHeader('Location', $this->localizedPath($request, 'admin/login'))
-                ->withStatus(302);
+            return $this->respondWithJson($response, [
+                'error' => 'Unauthorized',
+                'redirect' => $this->localizedPath($request, 'admin/login'),
+            ], 401);
         }
+
+        $statusCode = 200;
 
         if ($request->getMethod() === 'POST') {
             $body = (array) ($request->getParsedBody() ?? []);
@@ -60,9 +63,11 @@ final readonly class PermissionMatrixController
 
                     $this->flash->addMessage('success', $this->translator->trans('admin.permissions.flash.created'));
 
-                    return $response
-                        ->withHeader('Location', $this->localizedPath($request, 'admin/permissions'))
-                        ->withStatus(302);
+                    return $this->respondWithJson($response, [
+                        'status' => 'created',
+                        'redirect' => $this->localizedPath($request, 'admin/permissions'),
+                        'messages' => $this->flash->getMessages(),
+                    ]);
                 }
 
                 if ($action === 'delete_permission') {
@@ -70,12 +75,15 @@ final readonly class PermissionMatrixController
 
                     $this->flash->addMessage('success', $this->translator->trans('admin.permissions.flash.deleted'));
 
-                    return $response
-                        ->withHeader('Location', $this->localizedPath($request, 'admin/permissions'))
-                        ->withStatus(302);
+                    return $this->respondWithJson($response, [
+                        'status' => 'deleted',
+                        'redirect' => $this->localizedPath($request, 'admin/permissions'),
+                        'messages' => $this->flash->getMessages(),
+                    ]);
                 }
             } catch (DomainException $exception) {
                 $this->flash->addMessage('error', $this->translator->trans($exception->getMessage()));
+                $statusCode = 400;
             }
         }
 
@@ -93,13 +101,14 @@ final readonly class PermissionMatrixController
 
         $result = $this->permissions->handle(new ListPermissionsCommand($input));
 
-        return $this->templates->render($response, 'admin::permissions/index', [
+        return $this->respondWithJson($response, [
+            'route' => 'admin.permissions.index',
             'user' => $user,
             'groups' => array_map(static fn($group) => $group->toArray(), $result->getGroups()),
             'search' => $input->getSearch(),
             'granted' => $result->getGranted(),
             'totalPermissions' => $result->getTotalPermissions(),
-            'flash' => $this->flash,
-        ]);
+            'messages' => $this->flash->getMessages(),
+        ], $statusCode);
     }
 }
