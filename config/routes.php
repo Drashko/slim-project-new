@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use App\API\Controller\LocalizationController;
 use App\Web\Admin\Controller\HomeController;
-use App\Web\API\Controller\LocalizationController;
 use App\Web\Public\Controller\IndexController as FrontController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

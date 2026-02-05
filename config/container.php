@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\API\Controller\LocalizationController;
 use App\Domain\Ad\AdRepositoryInterface;
 use App\Domain\Category\CategoryRepositoryInterface;
 use App\Domain\Shared\Clock;
@@ -20,7 +21,6 @@ use App\Integration\Repository\Doctrine\AdRepository;
 use App\Integration\Repository\Doctrine\CategoryRepository;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
-use App\Web\API\Controller\LocalizationController;
 use App\Web\Shared\Paginator;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
