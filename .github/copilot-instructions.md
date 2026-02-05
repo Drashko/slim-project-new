@@ -45,7 +45,7 @@ HTTP controllers wired to routes. Organized by domain boundary (Admin, Front, AP
 ```bash
 # Backend
 composer install
-php -S 0.0.0.0:8080 -t public public/index.php
+php -S 0.0.0.0:8080 -t home home/index.php
 
 # Frontend (separate terminal)
 npm run dev

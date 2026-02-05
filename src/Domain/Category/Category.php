@@ -60,7 +60,7 @@ class Category implements CategoryInterface
             throw new \InvalidArgumentException('Category cannot be its own parent.');
         }
 
-        $this->parent = $parent instanceof Category ? $parent : null;
+        $this->parent = $parent instanceof self ? $parent : null;
         $this->touch();
     }
 

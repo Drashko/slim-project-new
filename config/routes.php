@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use App\API\Controller\LocalizationController;
 use App\Web\Admin\Controller\HomeController;
-use App\Web\API\Controller\LocalizationController;
 use App\Web\Public\Controller\IndexController as FrontController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -53,9 +53,9 @@ return static function (App $app): void {
         return $response->withHeader('Location', '/' . $locale)->withStatus(302);
     });
 
-    //public localized
+    //home localized
     $app->group($localeGroupPrefix, function (RouteCollectorProxy $group): void {
-        $group->get('', FrontController::class)->setName('front.home');
+        $group->get('', FrontController::class)->setName('home.home');
     });
 
     $app->group('/admin', function (RouteCollectorProxy $adminGroup): void {
