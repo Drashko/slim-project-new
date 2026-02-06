@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\API\V1\Admin;
+namespace App\API\Endpoint\V1\Admin;
 
-class HomeAdminController
+class HomeAdminEndpoint
 {
 
     public function index(): string

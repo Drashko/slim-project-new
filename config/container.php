@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\API\Controller\LocalizationController;
 use App\Domain\Ad\AdRepositoryInterface;
 use App\Domain\Category\CategoryRepositoryInterface;
 use App\Domain\Shared\Clock;
@@ -21,7 +20,6 @@ use App\Integration\Repository\Doctrine\AdRepository;
 use App\Integration\Repository\Doctrine\CategoryRepository;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
-use App\Web\Shared\Paginator;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -93,13 +91,6 @@ return [
         return new FilesystemAdapter('app', 0, $cacheDir !== '' ? $cacheDir : null);
     },
 
-    Paginator::class => static function (): Paginator {
-        return new Paginator();
-    },
-
-    LocalizationController::class => static function (ContainerInterface $container): LocalizationController {
-        return new LocalizationController((array) $container->get('settings'));
-    },
 
     LoggerFactory::class => static fn(ContainerInterface $container): LoggerFactory => new LoggerFactory(
         $container->get('settings')['logger']
