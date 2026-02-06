@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Middleware;
 
 use App\Domain\Shared\DomainException;
-use App\Integration\Auth\AdminAuthenticator;
+use App\Integration\Authentication\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
 use App\Integration\Session\AdminSessionInterface;
 use App\Web\Shared\LocalizedRouteTrait;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\Auth;
+namespace App\Integration\Authentication;
 
 use App\Domain\Shared\DomainException;
 use App\Domain\Token\Identity;
