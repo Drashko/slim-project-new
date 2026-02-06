@@ -144,18 +144,6 @@ return [
             'public_prefix' => '/uploads/ads/',
         ],
     ],
-    'localization' => [
-        'default_locale' => 'en',
-        'supported_locales' => [
-            'en' => 'English',
-            'bg' => 'Български',
-        ],
-        'paths' => [
-            'en' => __DIR__ . '/../translations/en.json',
-            'bg' => __DIR__ . '/../translations/bg.json',
-        ],
-        'route_paths' => [],
-    ],
     'pagination' => [
         'default_per_page' => max(1, (int) ($_ENV['DEFAULT_PER_PAGE'] ?? 10)),
         'admin_users_per_page' => max(1, (int) ($_ENV['ADMIN_USERS_PER_PAGE'] ?? 0)),

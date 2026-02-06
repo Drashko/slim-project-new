@@ -15,7 +15,6 @@ use App\Domain\User\UserRepositoryInterface;
 use App\Integration\Helper\ImageStorage;
 use App\Integration\Http\NotFoundHandler;
 use App\Integration\Logger\LoggerFactory;
-use App\Integration\Middleware\LocalizationMiddleware;
 use App\Integration\Repository\Doctrine\AdRepository;
 use App\Integration\Repository\Doctrine\CategoryRepository;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
@@ -108,20 +107,10 @@ return [
         );
     },
 
-    TranslatorInterface::class => static function (ContainerInterface $container): TranslatorInterface {
-        $settings = $container->get('settings')['localization'] ?? [];
-        $defaultLocale = (string) ($settings['default_locale'] ?? 'en');
+    TranslatorInterface::class => static function (): TranslatorInterface {
+        $defaultLocale = 'en';
         $translator = new Translator($defaultLocale);
         $translator->addLoader('json', new JsonFileLoader());
-
-        $paths = $settings['paths'] ?? [];
-        foreach ($paths as $locale => $path) {
-            if (!is_string($path) || $path === '' || !is_file($path)) {
-                continue;
-            }
-
-            $translator->addResource('json', $path, (string) $locale);
-        }
 
         $translator->setFallbackLocales([$defaultLocale]);
 
@@ -139,15 +128,6 @@ return [
             ->getValidator();
     },
 
-    LocalizationMiddleware::class => static function (ContainerInterface $container): LocalizationMiddleware {
-        $settings = $container->get('settings')['localization'] ?? [];
-
-        return new LocalizationMiddleware(
-            $container->get(TranslatorInterface::class),
-            (array) ($settings['supported_locales'] ?? ['en' => 'English']),
-            (string) ($settings['default_locale'] ?? 'en')
-        );
-    },
 
     TokenEncoder::class => static function (ContainerInterface $container): TokenEncoder {
         $secret = $_ENV['TOKEN_SECRET'] ?? $_SERVER['TOKEN_SECRET'] ?? null;
@@ -219,10 +199,6 @@ return [
             HttpNotFoundException::class,
             new NotFoundHandler(
                 $container->get(ResponseFactoryInterface::class),
-                array_change_key_case(
-                    (array) ($container->get('settings')['localization']['supported_locales'] ?? []),
-                    CASE_LOWER
-                ),
             ),
         );
 
