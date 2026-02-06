@@ -8,7 +8,6 @@ use App\Domain\Shared\DomainException;
 use App\Integration\Authentication\AdminAuthenticator;
 use App\Integration\Flash\FlashMessages;
 use App\Integration\Session\AdminSessionInterface;
-use App\Web\Shared\LocalizedRouteTrait;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -18,8 +17,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AdminAuthenticationMiddleware implements MiddlewareInterface
 {
-    use LocalizedRouteTrait;
-
     public function __construct(
         private readonly AdminAuthenticator $authenticator,
         private readonly ResponseFactoryInterface $responseFactory,
@@ -38,12 +35,12 @@ final class AdminAuthenticationMiddleware implements MiddlewareInterface
                 $this->flash->addMessage('error', $this->translator->trans('auth.login.flash.access_denied'));
                 $response = $this->responseFactory->createResponse(302);
 
-                return $response->withHeader('Location', $this->localizedPath($request, 'auth/login'));
+                return $response->withHeader('Location', '/auth/login');
             }
 
             $response = $this->responseFactory->createResponse(302);
 
-            return $response->withHeader('Location', $this->localizedPath($request, 'admin/login'));
+            return $response->withHeader('Location', '/admin/login');
         }
 
         return $handler->handle($request);
