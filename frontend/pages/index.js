@@ -5,15 +5,16 @@ export default function Home() {
         <p className="eyebrow">Next.js is ready</p>
         <h1>Welcome to the Slim Project frontend</h1>
         <p>
-          This frontend is powered by Next.js. Start editing{' '}
-          <code>frontend/pages/index.js</code> to customize the experience.
+          This frontend now includes dedicated pages for the public and admin API
+          endpoints. Use the links below to see live responses from the Slim
+          back end.
         </p>
         <div className="actions">
-          <a className="primary" href="https://nextjs.org/docs" target="_blank" rel="noreferrer">
-            Read the docs
+          <a className="primary" href="/public">
+            View public API status
           </a>
-          <a className="ghost" href="https://nextjs.org/learn" target="_blank" rel="noreferrer">
-            Learn Next.js
+          <a className="ghost" href="/admin">
+            View admin API status
           </a>
         </div>
       </div>
