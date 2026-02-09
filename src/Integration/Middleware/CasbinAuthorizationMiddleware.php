@@ -25,6 +25,14 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        if (strtoupper($request->getMethod()) === 'OPTIONS') {
+            return $this->withCorsHeaders($this->responseFactory->createResponse(200));
+        }
+
+        if ($this->hasNoPolicies()) {
+            return $handler->handle($request);
+        }
+
         $subject = $this->resolveSubject($request);
         $scope = $this->resolveScope($request);
         $object = $this->resolveObject($request);
@@ -86,6 +94,20 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
             'message' => $message,
         ], JSON_UNESCAPED_SLASHES) ?: '');
 
-        return $response->withHeader('Content-Type', 'application/json');
+        return $this->withCorsHeaders($response)->withHeader('Content-Type', 'application/json');
+    }
+
+    private function hasNoPolicies(): bool
+    {
+        return $this->enforcer->getPolicy() === []
+            && $this->enforcer->getGroupingPolicy() === [];
+    }
+
+    private function withCorsHeaders(ResponseInterface $response): ResponseInterface
+    {
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope');
     }
 }

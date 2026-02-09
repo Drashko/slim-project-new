@@ -56,6 +56,9 @@ export default function AdminHome() {
           <a className="ghost" href="/">
             Back to overview
           </a>
+          <a className="primary" href="/admin/permissions">
+            Manage permissions
+          </a>
           <a className="primary" href="/public">
             View public API status
           </a>
