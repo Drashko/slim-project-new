@@ -19,7 +19,7 @@
     "symfony/translation": "^6.4",
     "ext-pdo": "*",
     "doctrine/migrations": "^3.9",
-    "mezzio/mezzio-authorization-rbac": "^1.10"
+    "casbin/casbin": "^4.0"
   },
   "autoload": {
     "psr-4": {

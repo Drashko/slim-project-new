@@ -53,43 +53,36 @@ Once dependencies are installed you can execute the PHPUnit test suite:
 composer test
 ```
 
-## Checking permissions in Plates templates
+## Casbin authorization flow
 
-Templates rendered through the custom Plates integration expose a `can`
-function for RBAC checks. It resolves the caller’s roles and defers to the
-shared `Policy` service so authorization is consistent across the app. The
-helper is registered by `App\Integration\View\Plates\RbacExtension` and
-supports an optional subject argument when you need to evaluate another user or
-a specific role set.
+API authorization is handled by a Casbin enforcer registered in the container
+and applied as middleware to the `/api/v1` route group. The default model lives
+in `config/casbin/model.conf` and ships with a simple RBAC + scope matcher that
+supports path patterns, HTTP methods, and a scope segment for client or
+server-to-server use cases. Policies are persisted in the database via Doctrine
+using the `casbin_rule` table.
 
-```php
-<?php if ($this->can('admin.access')): ?>
-    <!-- Render admin navigation when the current user has the ability -->
-<?php endif; ?>
+### Request headers used by the middleware
 
-<?php if ($this->can('admin.users.manage', $user ?? null)): ?>
-    <!-- Check against an explicit user/role payload rather than the session -->
-<?php endif; ?>
+- `X-Subject`: Primary subject identifier (user id, role, or service id).
+- `X-Client-Id`: Fallback subject for server-to-server calls.
+- `Authorization: Bearer <subject>`: Optional bearer value used as a subject
+  when `X-Subject` and `X-Client-Id` are missing.
+- `X-Scope`: Optional scope string (defaults to `api`).
 
-<?php if ($this->can('admin.users.view')): ?>
-    <!-- Hide or show a users listing card in the admin area -->
-    <?= $this->insert('admin::users/card') ?>
-<?php else: ?>
-    <p class="text-muted">You do not have permission to view users.</p>
-<?php endif; ?>
+### Example policy entry (database row)
+
+```
+p, role_admin, /api/v1/admin, GET, api
+g, user:1, role_admin
 ```
 
-Under the hood the helper:
+### Example API call
 
-- Pulls the current user array from the session when no subject is provided.
-- Accepts `App\Domain\Auth\Identity` instances, associative arrays with a
-  `roles` key, plain role lists, or stringable values and normalizes them into a
-  role array.
-- Lowercases and trims the requested ability before delegating to the RBAC
-  policy’s `isGranted` check, so `can('Admin.Access')` matches the `admin.access`
-  rule.
+```
+curl -H "X-Subject: user:1" -H "X-Scope: api" http://localhost:8080/api/v1/admin
+```
 
-Providing an invalid ability or role returns `false`, allowing templates to
-fail closed without throwing. This mirrors the behavior used by the API layer’s
-authorization middleware, so a `can` check in Plates reflects the same decision
-as a server-side guard.
+Policies are stored in the `casbin_rule` table via a Doctrine-backed Casbin
+adapter configured in `config/container.php`, sharing the same Doctrine
+connection settings defined in `config/settings.php`.

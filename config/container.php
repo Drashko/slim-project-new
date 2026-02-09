@@ -13,12 +13,15 @@ use App\Domain\Token\TokenEncoder;
 use App\Domain\Token\TokenVerifier;
 use App\Domain\User\UserRepositoryInterface;
 use App\Integration\Helper\ImageStorage;
+use App\Integration\Casbin\CasbinRuleRepository;
+use App\Integration\Casbin\DoctrineAdapter;
 use App\Integration\Http\NotFoundHandler;
 use App\Integration\Logger\LoggerFactory;
 use App\Integration\Repository\Doctrine\AdRepository;
 use App\Integration\Repository\Doctrine\CategoryRepository;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
+use Casbin\Enforcer;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -88,6 +91,23 @@ return [
         $cacheDir = (string) ($settings['dir'] ?? '');
 
         return new FilesystemAdapter('app', 0, $cacheDir !== '' ? $cacheDir : null);
+    },
+
+    CasbinRuleRepository::class => static fn(ContainerInterface $container): CasbinRuleRepository => new CasbinRuleRepository(
+        $container->get(EntityManagerInterface::class)
+    ),
+
+    DoctrineAdapter::class => static fn(ContainerInterface $container): DoctrineAdapter => new DoctrineAdapter(
+        $container->get(CasbinRuleRepository::class)
+    ),
+
+    Enforcer::class => static function (ContainerInterface $container): Enforcer {
+        $settings = (array) ($container->get('settings')['casbin'] ?? []);
+        $modelPath = (string) ($settings['model_path'] ?? __DIR__ . '/../config/casbin/model.conf');
+
+        $adapter = $container->get(DoctrineAdapter::class);
+
+        return new Enforcer($modelPath, $adapter);
     },
 
 

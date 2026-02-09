@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="https://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="App\Integration\Casbin\CasbinRule" table="casbin_rule">
+        <id name="id" type="integer" column="id">
+            <generator strategy="AUTO"/>
+        </id>
+        <field name="ptype" column="ptype" type="string" length="16" nullable="false"/>
+        <field name="v0" column="v0" type="string" length="255" nullable="true"/>
+        <field name="v1" column="v1" type="string" length="255" nullable="true"/>
+        <field name="v2" column="v2" type="string" length="255" nullable="true"/>
+        <field name="v3" column="v3" type="string" length="255" nullable="true"/>
+        <field name="v4" column="v4" type="string" length="255" nullable="true"/>
+        <field name="v5" column="v5" type="string" length="255" nullable="true"/>
+    </entity>
+</doctrine-mapping>

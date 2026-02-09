@@ -144,6 +144,9 @@ return [
             'public_prefix' => '/uploads/ads/',
         ],
     ],
+    'casbin' => [
+        'model_path' => $resolveBuildPath($_ENV['CASBIN_MODEL_PATH'] ?? 'config/casbin/model.conf'),
+    ],
     'pagination' => [
         'default_per_page' => max(1, (int) ($_ENV['DEFAULT_PER_PAGE'] ?? 10)),
         'admin_users_per_page' => max(1, (int) ($_ENV['ADMIN_USERS_PER_PAGE'] ?? 0)),
