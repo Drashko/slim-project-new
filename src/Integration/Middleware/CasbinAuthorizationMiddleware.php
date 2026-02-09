@@ -29,6 +29,10 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
             return $this->withCorsHeaders($this->responseFactory->createResponse(200));
         }
 
+        if ($this->hasNoPolicies()) {
+            return $handler->handle($request);
+        }
+
         $subject = $this->resolveSubject($request);
         $scope = $this->resolveScope($request);
         $object = $this->resolveObject($request);
@@ -91,6 +95,12 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
         ], JSON_UNESCAPED_SLASHES) ?: '');
 
         return $this->withCorsHeaders($response)->withHeader('Content-Type', 'application/json');
+    }
+
+    private function hasNoPolicies(): bool
+    {
+        return $this->enforcer->getPolicy() === []
+            && $this->enforcer->getGroupingPolicy() === [];
     }
 
     private function withCorsHeaders(ResponseInterface $response): ResponseInterface
