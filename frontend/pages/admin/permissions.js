@@ -94,8 +94,8 @@ export default function AdminPermissions() {
   };
 
   return (
-    <main className="container container--start">
-      <div className="card card--wide">
+    <main className="container container--start container--full">
+      <div className="card card--wide card--full">
         <p className="eyebrow">Admin</p>
         <h1>Permission management</h1>
         <p>
