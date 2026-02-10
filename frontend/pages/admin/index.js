@@ -7,7 +7,7 @@ export default function AdminHome() {
         <div className="card card--full">
         <p className="eyebrow">Admin Panel</p>
         <h1>Admin dashboard</h1>
-        <p>Use the menu on the right to move through admin pages.</p>
+        <p>Use the menu on the left to move through admin pages.</p>
 
         <div className="actions">
           <a className="ghost" href="/">

@@ -232,6 +232,10 @@ button.primary:hover {
     grid-template-columns: minmax(0, 1fr) 260px;
     align-items: start;
   }
+
+  .admin-aside {
+    order: -1;
+  }
 }
 
 .admin-aside {
@@ -253,7 +257,7 @@ button.primary:hover {
   text-decoration: none;
   border: 1px solid #e2e8f0;
   color: #334155;
-  border-radius: 10px;
+  border-radius: 0;
   padding: 10px 12px;
   display: flex;
   align-items: center;
