@@ -17,8 +17,6 @@ use App\Integration\Casbin\CasbinRuleRepository;
 use App\Integration\Casbin\DoctrineAdapter;
 use App\Integration\Http\NotFoundHandler;
 use App\Integration\Logger\LoggerFactory;
-use App\Integration\Repository\Doctrine\AdRepository;
-use App\Integration\Repository\Doctrine\CategoryRepository;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
 use Casbin\Enforcer;
@@ -171,15 +169,6 @@ return [
     ),
 
     UserRepositoryInterface::class => static fn(ContainerInterface $container): UserRepositoryInterface => new UserRepository(
-        $container->get(EntityManagerInterface::class)
-    ),
-
-
-    AdRepositoryInterface::class => static fn(ContainerInterface $container): AdRepositoryInterface => new AdRepository(
-        $container->get(EntityManagerInterface::class)
-    ),
-
-    CategoryRepositoryInterface::class => static fn(ContainerInterface $container): CategoryRepositoryInterface => new CategoryRepository(
         $container->get(EntityManagerInterface::class)
     ),
 
