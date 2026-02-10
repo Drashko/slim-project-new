@@ -34,8 +34,8 @@ export default function PublicHome() {
   }, []);
 
   return (
-    <main className="container">
-      <div className="card">
+    <main className="container container--full">
+      <div className="card card--full">
         <p className="eyebrow">Public endpoint</p>
         <h1>HomeEndpoint response</h1>
         <p>

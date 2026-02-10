@@ -1,7 +1,7 @@
 export default function Home() {
   return (
-    <main className="container">
-      <div className="card">
+    <main className="container container--full">
+      <div className="card card--full">
         <p className="eyebrow">Next.js is ready</p>
         <h1>Welcome to the Slim Project frontend</h1>
         <p>
