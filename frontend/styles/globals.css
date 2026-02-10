@@ -229,8 +229,17 @@ button.primary:hover {
 
 @media (min-width: 1100px) {
   .admin-layout {
-    grid-template-columns: minmax(0, 1fr) 260px;
+    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-areas: "aside main";
     align-items: start;
+  }
+
+  .admin-layout > .card {
+    grid-area: main;
+  }
+
+  .admin-aside {
+    grid-area: aside;
   }
 }
 
@@ -253,7 +262,7 @@ button.primary:hover {
   text-decoration: none;
   border: 1px solid #e2e8f0;
   color: #334155;
-  border-radius: 10px;
+  border-radius: 0;
   padding: 10px 12px;
   display: flex;
   align-items: center;
