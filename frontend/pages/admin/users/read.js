@@ -1,3 +1,4 @@
+import AdminAsideNav from '../../../components/AdminAsideNav';
 import { useState } from 'react';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -31,18 +32,11 @@ export default function AdminUsersReadPage() {
 
   return (
     <main className="container container--start container--full">
-      <div className="card card--full">
+      <div className="admin-layout">
+        <div className="card card--full">
         <p className="eyebrow">Admin / Users</p>
         <h1>Get user by id</h1>
         <p>Simple read page for <code>GET /api/v1/users/{'{id}'}</code>.</p>
-
-        <div className="admin-nav">
-          <a className="ghost" href="/admin">Admin home</a>
-          <a className="ghost" href="/admin/users">List</a>
-          <a className="ghost" href="/admin/users/create">Create</a>
-          <a className="ghost" href="/admin/users/update">Update</a>
-          <a className="ghost" href="/admin/users/delete">Delete</a>
-        </div>
 
         <form className="panel" onSubmit={loadUser}>
           <label className="input-group">
@@ -58,6 +52,8 @@ export default function AdminUsersReadPage() {
         ) : (
           <p className="muted">No user loaded yet.</p>
         )}
+        </div>
+        <AdminAsideNav />
       </div>
     </main>
   );

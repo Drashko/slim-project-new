@@ -1,3 +1,4 @@
+import AdminAsideNav from '../../../components/AdminAsideNav';
 import { useState } from 'react';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -22,18 +23,11 @@ export default function AdminUsersListPage() {
 
   return (
     <main className="container container--start container--full">
-      <div className="card card--full">
+      <div className="admin-layout">
+        <div className="card card--full">
         <p className="eyebrow">Admin / Users</p>
         <h1>User list</h1>
         <p>Simple list page for <code>GET /api/v1/users</code>.</p>
-
-        <div className="admin-nav">
-          <a className="ghost" href="/admin">Admin home</a>
-          <a className="ghost" href="/admin/users/create">Create</a>
-          <a className="ghost" href="/admin/users/read">Get by id</a>
-          <a className="ghost" href="/admin/users/update">Update</a>
-          <a className="ghost" href="/admin/users/delete">Delete</a>
-        </div>
 
         <section className="panel">
           <div className="actions">
@@ -52,6 +46,8 @@ export default function AdminUsersListPage() {
             )}
           </div>
         </section>
+        </div>
+        <AdminAsideNav />
       </div>
     </main>
   );

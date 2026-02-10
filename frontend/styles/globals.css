@@ -220,30 +220,49 @@ button.primary:hover {
 }
 
 
-.admin-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+
+.admin-layout {
+  width: 100%;
+  display: grid;
+  gap: 20px;
 }
 
-.admin-nav a,
-.admin-menu-item {
-  text-decoration: none;
-  border: 1px solid #cbd5f5;
-  color: #4338ca;
-  border-radius: 10px;
-  padding: 8px 12px;
-  background: #eef2ff;
+@media (min-width: 1100px) {
+  .admin-layout {
+    grid-template-columns: minmax(0, 1fr) 260px;
+    align-items: start;
+  }
 }
 
-.admin-menu-grid {
+.admin-aside {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
+  padding: 18px;
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  height: fit-content;
 }
 
-.admin-menu-item {
+.admin-aside-nav {
   display: grid;
-  gap: 6px;
-  background: #fff;
+  gap: 8px;
+}
+
+.admin-aside-link {
+  text-decoration: none;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.admin-aside-link--active {
+  border-color: #4338ca;
+  color: #312e81;
+  background: #eef2ff;
 }
