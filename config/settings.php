@@ -79,10 +79,14 @@ $resolveBuildPath = static function (string $path) use ($projectRoot): string {
 };
 
 $defaultCacheDir = $resolveBuildPath($_ENV['APP_CACHE_DIR'] ?? 'tmp/var');
+$isCli = PHP_SAPI === 'cli';
 $cacheEnabled = !$environment->isDevelopment();
-if (PHP_SAPI === 'cli') {
+if ($isCli) {
     $cacheEnabled = false;
 }
+
+$doctrineCacheEnabled = !$isCli
+    && $boolean($_ENV['DOCTRINE_CACHE_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false'));
 
 error_reporting(E_ALL);
 ini_set('display_errors', $boolean($_ENV['APP_DEBUG'] ?? 0));
@@ -120,7 +124,7 @@ return [
         'dev_mode' => $environment->isDevelopment(),
         'cache_dir' => $resolveBuildPath($_ENV['DOCTRINE_PROXY_DIR'] ?? ($defaultCacheDir . '/doctrine/proxies')),
         'cache' => [
-            'enabled' => $boolean($_ENV['DOCTRINE_CACHE_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false')),
+            'enabled' => $doctrineCacheEnabled,
             'dir' => $resolveBuildPath($_ENV['DOCTRINE_CACHE_DIR'] ?? ($defaultCacheDir . '/doctrine/cache')),
             'namespace' => $_ENV['DOCTRINE_CACHE_NAMESPACE'] ?? $appSnakeName,
         ],
