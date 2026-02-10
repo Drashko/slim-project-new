@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Integration\Doctrine\Fixtures\PermissionFixture;
-use App\Integration\Doctrine\Fixtures\RoleFixture;
 use App\Integration\Doctrine\Fixtures\UserFixture;
 use DI\ContainerBuilder;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,8 +16,6 @@ $container = $containerBuilder->build();
 $entityManager = $container->get(EntityManagerInterface::class);
 
 $fixtures = [
-    new PermissionFixture(),
-    new RoleFixture(),
     new UserFixture(),
 ];
 
@@ -27,4 +23,4 @@ foreach ($fixtures as $fixture) {
     $fixture->load($entityManager);
 }
 
-echo "Database fixtures loaded for permissions, roles, and users." . PHP_EOL;
+echo "Database fixtures loaded for users." . PHP_EOL;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Domain\Ad\AdRepositoryInterface;
 use App\Domain\Category\CategoryRepositoryInterface;
-use App\Domain\Permission\PermissionRepositoryInterface;
 use App\Domain\Shared\Clock;
 use App\Domain\Shared\Event\DomainEventDispatcherInterface;
 use App\Domain\Shared\Event\InMemoryDomainEventDispatcher;
@@ -20,7 +19,6 @@ use App\Integration\Http\NotFoundHandler;
 use App\Integration\Logger\LoggerFactory;
 use App\Integration\Repository\Doctrine\AdRepository;
 use App\Integration\Repository\Doctrine\CategoryRepository;
-use App\Integration\Repository\Doctrine\PermissionRepository;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
 use Casbin\Enforcer;
@@ -182,10 +180,6 @@ return [
     ),
 
     CategoryRepositoryInterface::class => static fn(ContainerInterface $container): CategoryRepositoryInterface => new CategoryRepository(
-        $container->get(EntityManagerInterface::class)
-    ),
-
-    PermissionRepositoryInterface::class => static fn(ContainerInterface $container): PermissionRepositoryInterface => new PermissionRepository(
         $container->get(EntityManagerInterface::class)
     ),
 
