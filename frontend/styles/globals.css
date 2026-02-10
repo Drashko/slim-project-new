@@ -229,12 +229,17 @@ button.primary:hover {
 
 @media (min-width: 1100px) {
   .admin-layout {
-    grid-template-columns: minmax(0, 1fr) 260px;
+    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-areas: "aside main";
     align-items: start;
   }
 
+  .admin-layout > .card {
+    grid-area: main;
+  }
+
   .admin-aside {
-    order: -1;
+    grid-area: aside;
   }
 }
 
