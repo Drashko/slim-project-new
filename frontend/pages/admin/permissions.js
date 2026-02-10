@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080';
+const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
 const defaultForm = {
   key: '',
