@@ -1,3 +1,4 @@
+import AdminAsideNav from '../../components/AdminAsideNav';
 import { useEffect, useMemo, useState } from 'react';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -95,7 +96,8 @@ export default function AdminPermissions() {
 
   return (
     <main className="container container--start container--full">
-      <div className="card card--wide card--full">
+      <div className="admin-layout">
+        <div className="card card--wide card--full">
         <p className="eyebrow">Admin</p>
         <h1>Permission management</h1>
         <p>
@@ -244,6 +246,8 @@ export default function AdminPermissions() {
             Back to admin overview
           </a>
         </div>
+        </div>
+        <AdminAsideNav />
       </div>
     </main>
   );

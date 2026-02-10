@@ -1,3 +1,4 @@
+import AdminAsideNav from '../../../components/AdminAsideNav';
 import { useState } from 'react';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -43,18 +44,11 @@ export default function AdminUsersUpdatePage() {
 
   return (
     <main className="container container--start container--full">
-      <div className="card card--full">
+      <div className="admin-layout">
+        <div className="card card--full">
         <p className="eyebrow">Admin / Users</p>
         <h1>Update user</h1>
         <p>Simple update page for <code>PUT /api/v1/users/{'{id}'}</code>.</p>
-
-        <div className="admin-nav">
-          <a className="ghost" href="/admin">Admin home</a>
-          <a className="ghost" href="/admin/users">List</a>
-          <a className="ghost" href="/admin/users/create">Create</a>
-          <a className="ghost" href="/admin/users/read">Get by id</a>
-          <a className="ghost" href="/admin/users/delete">Delete</a>
-        </div>
 
         <form className="panel" onSubmit={submit}>
           <label className="input-group">
@@ -74,6 +68,8 @@ export default function AdminUsersUpdatePage() {
 
         {error ? <p className="notice notice--error">{error}</p> : null}
         {success ? <p className="notice notice--success">{success}</p> : null}
+        </div>
+        <AdminAsideNav />
       </div>
     </main>
   );
