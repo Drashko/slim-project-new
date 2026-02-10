@@ -1,38 +1,33 @@
-const userApiRoutes = [
+const adminMenu = [
   {
-    method: 'GET',
-    path: '/api/v1/users',
-    description: 'List all users',
-    action: 'Open users console',
+    title: 'User list',
+    description: 'List all users (GET /api/v1/users)',
     href: '/admin/users',
   },
   {
-    method: 'GET',
-    path: '/api/v1/users/{id}',
-    description: 'Get a single user by id',
-    action: 'Find user by id',
-    href: '/admin/users#get-user',
+    title: 'Create user',
+    description: 'Create a new user (POST /api/v1/users)',
+    href: '/admin/users/create',
   },
   {
-    method: 'POST',
-    path: '/api/v1/users',
-    description: 'Create a new user',
-    action: 'Create user',
-    href: '/admin/users#create-user',
+    title: 'Get user by id',
+    description: 'Read one user (GET /api/v1/users/{id})',
+    href: '/admin/users/read',
   },
   {
-    method: 'PUT',
-    path: '/api/v1/users/{id}',
-    description: 'Update user by id',
-    action: 'Update user',
-    href: '/admin/users#update-user',
+    title: 'Update user',
+    description: 'Update one user (PUT /api/v1/users/{id})',
+    href: '/admin/users/update',
   },
   {
-    method: 'DELETE',
-    path: '/api/v1/users/{id}',
-    description: 'Delete user by id',
-    action: 'Delete user',
-    href: '/admin/users#delete-user',
+    title: 'Delete user',
+    description: 'Delete one user (DELETE /api/v1/users/{id})',
+    href: '/admin/users/delete',
+  },
+  {
+    title: 'Permissions',
+    description: 'Manage Casbin permissions and rules',
+    href: '/admin/permissions',
   },
 ];
 
@@ -40,31 +35,21 @@ export default function AdminHome() {
   return (
     <main className="container container--start container--full">
       <div className="card card--full">
-        <p className="eyebrow">Admin API</p>
-        <h1>Admin routes menu</h1>
+        <p className="eyebrow">Admin Panel</p>
+        <h1>Simple admin navigation</h1>
         <p>
-          These links are generated from the existing user routes in
+          Pick a page for user CRUD operations. Routes are based on
           <code> config/routes.php </code>.
         </p>
 
-        <section className="panel">
-          <h2>User endpoints</h2>
-          <div className="list">
-            {userApiRoutes.map((route) => (
-              <div key={`${route.method}-${route.path}`} className="list-item">
-                <p>
-                  <strong>{route.method}</strong> <code>{route.path}</code>
-                </p>
-                <p className="muted">{route.description}</p>
-                <div className="actions">
-                  <a className="primary" href={route.href}>
-                    {route.action}
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <div className="admin-menu-grid">
+          {adminMenu.map((item) => (
+            <a key={item.href} className="admin-menu-item" href={item.href}>
+              <strong>{item.title}</strong>
+              <span className="muted">{item.description}</span>
+            </a>
+          ))}
+        </div>
 
         <div className="actions">
           <a className="ghost" href="/">
