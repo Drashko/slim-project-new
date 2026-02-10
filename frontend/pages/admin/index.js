@@ -1,66 +1,74 @@
-import { useEffect, useState } from 'react';
-
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const userApiRoutes = [
+  {
+    method: 'GET',
+    path: '/api/v1/users',
+    description: 'List all users',
+    action: 'Open users console',
+    href: '/admin/users',
+  },
+  {
+    method: 'GET',
+    path: '/api/v1/users/{id}',
+    description: 'Get a single user by id',
+    action: 'Find user by id',
+    href: '/admin/users#get-user',
+  },
+  {
+    method: 'POST',
+    path: '/api/v1/users',
+    description: 'Create a new user',
+    action: 'Create user',
+    href: '/admin/users#create-user',
+  },
+  {
+    method: 'PUT',
+    path: '/api/v1/users/{id}',
+    description: 'Update user by id',
+    action: 'Update user',
+    href: '/admin/users#update-user',
+  },
+  {
+    method: 'DELETE',
+    path: '/api/v1/users/{id}',
+    description: 'Delete user by id',
+    action: 'Delete user',
+    href: '/admin/users#delete-user',
+  },
+];
 
 export default function AdminHome() {
-  const [payload, setPayload] = useState(null);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const load = async () => {
-      try {
-        const response = await fetch(`${apiBase}/api/v1/admin`);
-        if (!response.ok) {
-          throw new Error(`Request failed with ${response.status}`);
-        }
-        const data = await response.json();
-        if (isMounted) {
-          setPayload(data);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Unable to load data.');
-        }
-      }
-    };
-
-    load();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   return (
-    <main className="container">
-      <div className="card">
-        <p className="eyebrow">Admin endpoint</p>
-        <h1>HomeAdminEndpoint response</h1>
+    <main className="container container--start container--full">
+      <div className="card card--full">
+        <p className="eyebrow">Admin API</p>
+        <h1>Admin routes menu</h1>
         <p>
-          This page calls <code>{`${apiBase}/api/v1/admin`}</code> to validate
-          the admin API is available.
+          These links are generated from the existing user routes in
+          <code> config/routes.php </code>.
         </p>
-        {error ? (
-          <p>Unable to reach the API: {error}</p>
-        ) : payload ? (
-          <div>
-            <p>Status: {payload.status}</p>
-            <p>Message: {payload.message}</p>
+
+        <section className="panel">
+          <h2>User endpoints</h2>
+          <div className="list">
+            {userApiRoutes.map((route) => (
+              <div key={`${route.method}-${route.path}`} className="list-item">
+                <p>
+                  <strong>{route.method}</strong> <code>{route.path}</code>
+                </p>
+                <p className="muted">{route.description}</p>
+                <div className="actions">
+                  <a className="primary" href={route.href}>
+                    {route.action}
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
-        ) : (
-          <p>Loading response…</p>
-        )}
+        </section>
+
         <div className="actions">
           <a className="ghost" href="/">
             Back to overview
-          </a>
-          <a className="primary" href="/admin/permissions">
-            Manage permissions
-          </a>
-          <a className="primary" href="/public">
-            View public API status
           </a>
         </div>
       </div>
