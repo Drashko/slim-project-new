@@ -80,6 +80,9 @@ $resolveBuildPath = static function (string $path) use ($projectRoot): string {
 
 $defaultCacheDir = $resolveBuildPath($_ENV['APP_CACHE_DIR'] ?? 'tmp/var');
 $cacheEnabled = !$environment->isDevelopment();
+if (PHP_SAPI === 'cli') {
+    $cacheEnabled = false;
+}
 
 error_reporting(E_ALL);
 ini_set('display_errors', $boolean($_ENV['APP_DEBUG'] ?? 0));
