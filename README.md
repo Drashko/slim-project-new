@@ -64,10 +64,13 @@ using the `casbin_rule` table.
 
 ### Request headers used by the middleware
 
-- `X-Subject`: Primary subject identifier (user id, role, or service id).
+- `Authorization: Bearer <jwt>`: Primary authentication mechanism. The JWT is
+  verified and the first role claim is used as the Casbin subject.
+- `X-Subject`: Optional override for trusted internal calls where the subject is
+  injected by infrastructure.
 - `X-Client-Id`: Fallback subject for server-to-server calls.
-- `Authorization: Bearer <subject>`: Optional bearer value used as a subject
-  when `X-Subject` and `X-Client-Id` are missing.
+- `X-API-Key`: Static key for non-authenticated public calls (maps to `guest`
+  subject when it matches `X_API_KEY` from environment).
 - `X-Scope`: Optional scope string (defaults to `api`).
 
 ### Example policy entry (database row)

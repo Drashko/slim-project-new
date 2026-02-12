@@ -17,6 +17,7 @@ use App\Integration\Casbin\CasbinRuleRepository;
 use App\Integration\Casbin\DoctrineAdapter;
 use App\Integration\Http\NotFoundHandler;
 use App\Integration\Logger\LoggerFactory;
+use App\Integration\Middleware\CasbinAuthorizationMiddleware;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
 use Casbin\Enforcer;
@@ -99,6 +100,19 @@ return [
         $container->get(CasbinRuleRepository::class)
     ),
 
+
+    CasbinAuthorizationMiddleware::class => static function (ContainerInterface $container): CasbinAuthorizationMiddleware {
+        $authSettings = (array) ($container->get('settings')['auth'] ?? []);
+
+        return new CasbinAuthorizationMiddleware(
+            $container->get(Enforcer::class),
+            $container->get(ResponseFactoryInterface::class),
+            $container->get(TokenVerifier::class),
+            'api',
+            (string) ($authSettings['x_api_key'] ?? ''),
+        );
+    },
+
     Enforcer::class => static function (ContainerInterface $container): Enforcer {
         $settings = (array) ($container->get('settings')['casbin'] ?? []);
         $modelPath = (string) ($settings['model_path'] ?? __DIR__ . '/../config/casbin/model.conf');
@@ -148,7 +162,7 @@ return [
 
 
     TokenEncoder::class => static function (ContainerInterface $container): TokenEncoder {
-        $secret = $_ENV['TOKEN_SECRET'] ?? $_SERVER['TOKEN_SECRET'] ?? null;
+        $secret = $_ENV['JWT_SECRET'] ?? $_SERVER['JWT_SECRET'] ?? $_ENV['TOKEN_SECRET'] ?? $_SERVER['TOKEN_SECRET'] ?? null;
         if ($secret === null || $secret === '') {
             $secret = 'dev-secret-key';
         }

@@ -154,6 +154,9 @@ return [
     'casbin' => [
         'model_path' => $resolveBuildPath($_ENV['CASBIN_MODEL_PATH'] ?? 'config/casbin/model.conf'),
     ],
+    'auth' => [
+        'x_api_key' => $_ENV['X_API_KEY'] ?? $_SERVER['X_API_KEY'] ?? '',
+    ],
     'pagination' => [
         'default_per_page' => max(1, (int) ($_ENV['DEFAULT_PER_PAGE'] ?? 10)),
         'admin_users_per_page' => max(1, (int) ($_ENV['ADMIN_USERS_PER_PAGE'] ?? 0)),
