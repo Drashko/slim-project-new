@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\API\Endpoint\V1\User\CreateUserEndpoint;
 use App\API\Endpoint\V1\User\GetUserEndpoint;
 use App\API\Endpoint\V1\User\ListUsersEndpoint;
+use App\API\Endpoint\V1\User\UpdateUserEndpoint;
 use App\Integration\Middleware\CasbinAuthorizationMiddleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,8 +26,7 @@ return static function (App $app): void {
             $versionGroup->delete('/users/{id}', [CreateUserEndpoint::class, 'create'])->setName('api.v1.delete-user');//create user
             $versionGroup->get('/users', [ListUsersEndpoint::class, 'list'])->setName('api.v1.get-user-list');///get all users
             $versionGroup->get('/users/{id}', [GetUserEndpoint::class, 'index'])->setName('api.v1.get-user');//get one user by id
-            $versionGroup->put('/users/{id}', [GetUserEndpoint::class, 'index'])->setName('api.v1.update-user');//get one user by id
+            $versionGroup->put('/users/{id}', [UpdateUserEndpoint::class, 'update'])->setName('api.v1.update-user');//update user by id
         })->add(CasbinAuthorizationMiddleware::class);
     });
 };
-
