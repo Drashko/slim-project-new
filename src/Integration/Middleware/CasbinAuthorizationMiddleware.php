@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Integration\Middleware;
 
+use App\Domain\Shared\DomainException;
+use App\Domain\Token\TokenVerifier;
 use Casbin\Enforcer;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -17,7 +19,9 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
     public function __construct(
         private Enforcer $enforcer,
         private ResponseFactoryInterface $responseFactory,
+        private TokenVerifier $tokenVerifier,
         private string $defaultScope = 'api',
+        private string $guestApiKey = '',
         private string $unauthorizedMessage = 'Unauthorized',
         private string $forbiddenMessage = 'Forbidden'
     ) {
@@ -33,43 +37,69 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
             return $handler->handle($request);
         }
 
-        $subject = $this->resolveSubject($request);
-        $scope = $this->resolveScope($request);
-        $object = $this->resolveObject($request);
-        $action = strtoupper($request->getMethod());
+        $authContext = $this->resolveSubject($request);
+        if ($authContext['error'] !== null) {
+            return $this->respondWithError(401, $authContext['error']);
+        }
 
+        $subject = $authContext['subject'];
         if ($subject === null) {
             return $this->respondWithError(401, $this->unauthorizedMessage);
         }
 
+        $scope = $this->resolveScope($request);
+        $object = $this->resolveObject($request);
+        $action = strtoupper($request->getMethod());
+
         if ($this->enforcer->enforce($subject, $object, $action, $scope)) {
-            return $handler->handle($request);
+            return $handler->handle($request->withAttribute('auth.subject', $subject));
         }
 
         return $this->respondWithError(403, $this->forbiddenMessage);
     }
 
-    private function resolveSubject(ServerRequestInterface $request): ?string
+    /**
+     * @return array{subject:?string,error:?string}
+     */
+    private function resolveSubject(ServerRequestInterface $request): array
     {
         $subject = trim($request->getHeaderLine('X-Subject'));
         if ($subject !== '') {
-            return $subject;
+            return ['subject' => $subject, 'error' => null];
+        }
+
+        $authorization = $request->getHeaderLine('Authorization');
+        if (preg_match('/Bearer\s+(.+)$/i', $authorization, $matches) === 1) {
+            $token = trim($matches[1]);
+            if ($token === '') {
+                return ['subject' => null, 'error' => $this->unauthorizedMessage];
+            }
+
+            try {
+                $identity = $this->tokenVerifier->verify($token);
+            } catch (DomainException) {
+                return ['subject' => null, 'error' => $this->unauthorizedMessage];
+            }
+
+            $roles = $identity->getRoles();
+            if ($roles !== []) {
+                return ['subject' => (string) $roles[0], 'error' => null];
+            }
+
+            return ['subject' => sprintf('user:%s', $identity->getUserId()), 'error' => null];
         }
 
         $clientId = trim($request->getHeaderLine('X-Client-Id'));
         if ($clientId !== '') {
-            return $clientId;
+            return ['subject' => $clientId, 'error' => null];
         }
 
-        $authorization = $request->getHeaderLine('Authorization');
-        if (preg_match('/Bearer\s+(.*)$/i', $authorization, $matches)) {
-            $tokenSubject = trim($matches[1]);
-            if ($tokenSubject !== '') {
-                return $tokenSubject;
-            }
+        $providedApiKey = trim($request->getHeaderLine('X-API-Key'));
+        if ($providedApiKey !== '' && $this->guestApiKey !== '' && hash_equals($this->guestApiKey, $providedApiKey)) {
+            return ['subject' => 'guest', 'error' => null];
         }
 
-        return 'anonymous';
+        return ['subject' => null, 'error' => null];
     }
 
     private function resolveScope(ServerRequestInterface $request): string
@@ -108,6 +138,6 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
         return $response
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope');
+            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope, X-API-Key');
     }
 }
