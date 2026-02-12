@@ -3,6 +3,12 @@ import { useState } from 'react';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
+const apiHeaders = {
+  'Content-Type': 'application/json',
+  'X-Subject': process.env.NEXT_PUBLIC_API_SUBJECT ?? 'user:1',
+  'X-Scope': process.env.NEXT_PUBLIC_API_SCOPE ?? 'api',
+};
+
 export default function AdminUsersListPage() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
@@ -10,11 +16,15 @@ export default function AdminUsersListPage() {
   const loadUsers = async () => {
     setError('');
     try {
-      const response = await fetch(`${apiBase}/api/v1/users`);
+      const response = await fetch(`${apiBase}/api/v1/users`, {
+        headers: apiHeaders,
+      });
+
+      const data = await response.json().catch(() => null);
       if (!response.ok) {
-        throw new Error(`Request failed with ${response.status}`);
+        throw new Error(data?.message ?? `Request failed with ${response.status}`);
       }
-      const data = await response.json();
+
       setUsers(Array.isArray(data) ? data : data.users ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load users.');
