@@ -22,6 +22,7 @@ class CreateUserEndpoint
     {
     }
 
+<<<<<<< codex/implement-user-listing-and-management
     /**
      * @param array<string, mixed> $args
      */
@@ -29,6 +30,10 @@ class CreateUserEndpoint
     {
         unset($args);
 
+=======
+    public function create(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+>>>>>>> dev
         try {
             $payload = $this->readPayload($request);
 
