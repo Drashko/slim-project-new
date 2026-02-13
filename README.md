@@ -71,7 +71,11 @@ using the `casbin_rule` table.
 - `X-Client-Id`: Fallback subject for server-to-server calls.
 - `X-API-Key`: Static key for non-authenticated public calls (maps to `guest`
   subject when it matches `X_API_KEY` from environment).
+- `api_key` cookie (configurable via `API_KEY_COOKIE_NAME`): HttpOnly cookie
+  alternative for the same guest API-key flow.
 - `X-Scope`: Optional scope string (defaults to `api`).
+
+For browser clients, prefer sending the API key via an HttpOnly cookie and `fetch(..., { credentials: 'include' })` instead of exposing it to JavaScript.
 
 ### Example policy entry (database row)
 
