@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="https://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping https://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="App\Domain\User\UserRole" table="user_role">
+        <id name="id" type="integer" column="id">
+            <generator strategy="AUTO" />
+        </id>
+        <many-to-one field="user" target-entity="App\Domain\User\User" inversed-by="roleAssignments">
+            <join-column name="user_id" referenced-column-name="id" nullable="false" on-delete="CASCADE" />
+        </many-to-one>
+        <field name="role" type="string" length="64" nullable="false" />
+        <unique-constraints>
+            <unique-constraint columns="user_id,role" name="uniq_user_role"/>
+        </unique-constraints>
+    </entity>
+</doctrine-mapping>
