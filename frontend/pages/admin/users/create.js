@@ -3,6 +3,12 @@ import { useState } from 'react';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
+const apiHeaders = {
+  'Content-Type': 'application/json',
+  'X-Subject': process.env.NEXT_PUBLIC_API_SUBJECT ?? 'admin',
+  'X-Scope': process.env.NEXT_PUBLIC_API_SCOPE ?? 'api',
+};
+
 const initialForm = {
   name: '',
   email: '',
@@ -22,7 +28,7 @@ export default function AdminUsersCreatePage() {
     try {
       const response = await fetch(`${apiBase}/api/v1/users`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders,
         body: JSON.stringify(form),
         credentials: 'include',
       });

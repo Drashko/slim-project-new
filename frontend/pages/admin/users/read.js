@@ -4,6 +4,12 @@ import AdminAsideNav from '../../../components/AdminAsideNav';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
+const apiHeaders = {
+  'Content-Type': 'application/json',
+  'X-Subject': process.env.NEXT_PUBLIC_API_SUBJECT ?? 'admin',
+  'X-Scope': process.env.NEXT_PUBLIC_API_SCOPE ?? 'api',
+};
+
 export default function AdminUsersReadPage() {
   const router = useRouter();
   const [userId, setUserId] = useState('');
@@ -32,7 +38,7 @@ export default function AdminUsersReadPage() {
     }
 
     try {
-      const response = await fetch(`${apiBase}/api/v1/users/${userId.trim()}`, { credentials: 'include' });
+      const response = await fetch(`${apiBase}/api/v1/users/${userId.trim()}`, { headers: apiHeaders, credentials: 'include' });
       if (!response.ok) {
         throw new Error(`Request failed with ${response.status}`);
       }
