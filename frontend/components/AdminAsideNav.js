@@ -4,10 +4,7 @@ const adminLinks = [
   { href: '/admin', label: 'Admin Home', icon: '🏠' },
   { href: '/admin/users', label: 'Users List', icon: '👥' },
   { href: '/admin/users/create', label: 'Create User', icon: '➕' },
-  { href: '/admin/users/read', label: 'Read User', icon: '🔎' },
-  { href: '/admin/users/update', label: 'Update User', icon: '✏️' },
-  { href: '/admin/users/delete', label: 'Delete User', icon: '🗑️' },
-  { href: '/admin/permissions', label: 'Permissions', icon: '🛡️' },
+  { href: '/admin/permissions', label: 'Casbin Rules', icon: '🛡️' },
 ];
 
 export default function AdminAsideNav() {

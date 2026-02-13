@@ -29,17 +29,17 @@ final readonly class DoctrineAdapter implements Adapter
      */
     private function resolvePolicyLineLoader(): callable
     {
-        $method = new ReflectionMethod(AdapterHelper::class, 'loadPolicyLine');
-
-        if ($method->isStatic()) {
-            return static function (string $line, Model $model): void {
-                AdapterHelper::loadPolicyLine($line, $model);
-            };
-        }
-
         $helper = new class {
             use AdapterHelper;
         };
+
+        $method = new ReflectionMethod($helper, 'loadPolicyLine');
+
+        if ($method->isStatic()) {
+            return static function (string $line, Model $model) use ($helper): void {
+                $helper::loadPolicyLine($line, $model);
+            };
+        }
 
         return static function (string $line, Model $model) use ($helper): void {
             $helper->loadPolicyLine($line, $model);

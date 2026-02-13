@@ -1,12 +1,25 @@
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import AdminAsideNav from '../../../components/AdminAsideNav';
-import { useState } from 'react';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
 export default function AdminUsersDeletePage() {
+  const router = useRouter();
   const [userId, setUserId] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    if (!router.isReady) {
+      return;
+    }
+
+    const queryId = router.query.id;
+    if (typeof queryId === 'string' && queryId.trim()) {
+      setUserId(queryId.trim());
+    }
+  }, [router.isReady, router.query.id]);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -39,20 +52,19 @@ export default function AdminUsersDeletePage() {
     <main className="container container--start container--full">
       <div className="admin-layout">
         <div className="card card--full">
-        <p className="eyebrow">Admin / Users</p>
-        <h1>Delete user</h1>
-        <p>Simple delete page for <code>DELETE /api/v1/users/{'{id}'}</code>.</p>
+          <p className="eyebrow">Admin / Users</p>
+          <h1>Delete user</h1>
 
-        <form className="panel" onSubmit={submit}>
-          <label className="input-group">
-            User id
-            <input value={userId} onChange={(event) => setUserId(event.target.value)} required />
-          </label>
-          <button className="primary" type="submit">Delete user</button>
-        </form>
+          <form className="panel" onSubmit={submit}>
+            <label className="input-group">
+              User id
+              <input value={userId} onChange={(event) => setUserId(event.target.value)} required />
+            </label>
+            <button className="primary" type="submit">Delete user</button>
+          </form>
 
-        {error ? <p className="notice notice--error">{error}</p> : null}
-        {success ? <p className="notice notice--success">{success}</p> : null}
+          {error ? <p className="notice notice--error">{error}</p> : null}
+          {success ? <p className="notice notice--success">{success}</p> : null}
         </div>
         <AdminAsideNav />
       </div>
