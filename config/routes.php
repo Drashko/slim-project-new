@@ -20,7 +20,8 @@ return static function (App $app): void {
         return $response
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope, X-API-Key');
+            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope, X-API-Key')
+            ->withHeader('Access-Control-Allow-Credentials', 'true');
     });
 
     $app->group('/api', function (RouteCollectorProxy $group): void {

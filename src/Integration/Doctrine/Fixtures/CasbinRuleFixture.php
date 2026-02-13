@@ -22,7 +22,6 @@ final class CasbinRuleFixture implements FixtureInterface
             ['p', ['admin', '/api/v1/users/{id}', 'GET|PUT|PATCH', 'api']],
             ['p', ['customer', '/api/v1/users/{id}', 'GET', 'api']],
             ['p', ['user', '/api/v1/users/{id}', 'GET', 'api']],
-            ['p', ['guest', '/api/v1/public*', 'GET', 'api']],
         ];
 
         foreach ($rules as [$ptype, $values]) {

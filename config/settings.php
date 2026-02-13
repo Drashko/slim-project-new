@@ -156,6 +156,7 @@ return [
     ],
     'auth' => [
         'x_api_key' => $_ENV['X_API_KEY'] ?? $_SERVER['X_API_KEY'] ?? '',
+        'api_key_cookie_name' => $_ENV['API_KEY_COOKIE_NAME'] ?? $_SERVER['API_KEY_COOKIE_NAME'] ?? 'api_key',
         'roles' => array_values(array_filter(array_map(
             static fn(string $role): string => strtolower(trim($role)),
             explode(',', (string) ($_ENV['AUTH_ROLES'] ?? 'user,customer,admin,super_admin'))

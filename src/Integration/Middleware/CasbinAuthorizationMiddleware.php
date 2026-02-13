@@ -22,6 +22,7 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
         private TokenVerifier $tokenVerifier,
         private string $defaultScope = 'api',
         private string $guestApiKey = '',
+        private string $apiKeyCookieName = 'api_key',
         private string $unauthorizedMessage = 'Unauthorized',
         private string $forbiddenMessage = 'Forbidden'
     ) {
@@ -100,6 +101,11 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
             return ['subjects' => [$clientId], 'error' => null];
         }
 
+        $cookieApiKey = trim((string) ($request->getCookieParams()[$this->apiKeyCookieName] ?? ''));
+        if ($cookieApiKey !== '' && $this->guestApiKey !== '' && hash_equals($this->guestApiKey, $cookieApiKey)) {
+            return ['subjects' => ['guest'], 'error' => null];
+        }
+
         $providedApiKey = trim($request->getHeaderLine('X-API-Key'));
         if ($providedApiKey !== '' && $this->guestApiKey !== '' && hash_equals($this->guestApiKey, $providedApiKey)) {
             return ['subjects' => ['guest'], 'error' => null];
@@ -144,6 +150,7 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
         return $response
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope, X-API-Key');
+            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope, X-API-Key')
+            ->withHeader('Access-Control-Allow-Credentials', 'true');
     }
 }
