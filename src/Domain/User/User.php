@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\User;
 
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 
 class User implements UserInterface
@@ -16,9 +18,9 @@ class User implements UserInterface
     private string $passwordHash;
 
     /**
-     * @var UserRole[]
+     * @var Collection<int, UserRole>
      */
-    private array $roleAssignments = [];
+    private Collection $roleAssignments;
 
     private int $rolesVersion = 1;
 
@@ -31,6 +33,7 @@ class User implements UserInterface
     public function __construct(string $email, string $plainPassword, array $roles = ['user'], string $status = 'Active')
     {
         $this->id = Uuid::v4()->toRfc4122();
+        $this->roleAssignments = new ArrayCollection();
         $this->setEmail($email);
         $this->changePassword($plainPassword);
         $this->setRoles($roles);
@@ -114,9 +117,9 @@ class User implements UserInterface
             return;
         }
 
-        $this->roleAssignments = [];
+        $this->roleAssignments->clear();
         foreach ($normalized as $role) {
-            $this->roleAssignments[] = new UserRole($this, $role);
+            $this->roleAssignments->add(new UserRole($this, $role));
         }
 
         if ($currentRoles !== []) {
