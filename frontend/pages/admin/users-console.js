@@ -37,7 +37,7 @@ export default function AdminUsersPage() {
   const listUsers = async () => {
     setListError('');
     try {
-      const response = await fetch(`${apiBase}/api/v1/users`);
+      const response = await fetch(`${apiBase}/api/v1/users`, { credentials: 'include' });
       if (!response.ok) {
         throw new Error(`Request failed with ${response.status}`);
       }
@@ -57,7 +57,7 @@ export default function AdminUsersPage() {
     }
 
     try {
-      const response = await fetch(`${apiBase}/api/v1/users/${lookupId.trim()}`);
+      const response = await fetch(`${apiBase}/api/v1/users/${lookupId.trim()}`, { credentials: 'include' });
       if (!response.ok) {
         throw new Error(`Request failed with ${response.status}`);
       }
@@ -78,6 +78,7 @@ export default function AdminUsersPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(createForm),
+        credentials: 'include',
       });
 
       const data = await response.json().catch(() => null);
@@ -109,6 +110,7 @@ export default function AdminUsersPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateForm),
+        credentials: 'include',
       });
 
       const data = await response.json().catch(() => null);
@@ -137,6 +139,7 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch(`${apiBase}/api/v1/users/${deleteId.trim()}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       const data = await response.json().catch(() => null);

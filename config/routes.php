@@ -20,11 +20,23 @@ return static function (App $app): void {
         return $response
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope, X-API-Key');
+            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope, X-API-Key')
+            ->withHeader('Access-Control-Allow-Credentials', 'true');
     });
 
     $app->group('/api', function (RouteCollectorProxy $group): void {
         $group->group('/v1', function (RouteCollectorProxy $versionGroup): void {
+            $versionGroup->get('/public', function (ServerRequestInterface $request, ResponseInterface $response): ResponseInterface {
+                unset($request);
+
+                $response->getBody()->write((string) json_encode([
+                    'status' => 'ok',
+                    'message' => 'Public API is available.',
+                ], JSON_UNESCAPED_UNICODE));
+
+                return $response->withHeader('Content-Type', 'application/json');
+            })->setName('api.v1.public');
+
             $versionGroup->post('/users', [CreateUserEndpoint::class, 'create'])->setName('api.v1.create-user');
             $versionGroup->delete('/users/{id}', [DeleteUserEndpoint::class, 'delete'])->setName('api.v1.delete-user');
             $versionGroup->get('/users', [ListUsersEndpoint::class, 'list'])->setName('api.v1.get-user-list');

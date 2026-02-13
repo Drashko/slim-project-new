@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const publicApiPath = '/api/v1/public';
 
 export default function PublicHome() {
   const [payload, setPayload] = useState(null);
@@ -11,7 +12,7 @@ export default function PublicHome() {
 
     const load = async () => {
       try {
-        const response = await fetch(`${apiBase}/api/v1`);
+        const response = await fetch(`${apiBase}${publicApiPath}`, { credentials: 'include' });
         if (!response.ok) {
           throw new Error(`Request failed with ${response.status}`);
         }
@@ -39,7 +40,7 @@ export default function PublicHome() {
         <p className="eyebrow">Public endpoint</p>
         <h1>HomeEndpoint response</h1>
         <p>
-          This page calls <code>{`${apiBase}/api/v1`}</code> to confirm the
+          This page calls <code>{`${apiBase}${publicApiPath}`}</code> to confirm the
           public API is available.
         </p>
         {error ? (
