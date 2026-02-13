@@ -93,6 +93,8 @@ class User implements UserInterface
      */
     public function getRoles(): array
     {
+        $this->ensureRoleAssignmentsInitialized();
+
         $roles = [];
         foreach ($this->roleAssignments as $assignment) {
             $roles[] = $assignment->getRole();
@@ -111,6 +113,8 @@ class User implements UserInterface
      */
     public function setRoles(array $roles): void
     {
+        $this->ensureRoleAssignmentsInitialized();
+
         $normalized = $this->normalizeRoles($roles);
         $currentRoles = $this->getRoles();
         if ($normalized === $currentRoles) {
@@ -163,6 +167,14 @@ class User implements UserInterface
     public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+
+    private function ensureRoleAssignmentsInitialized(): void
+    {
+        if (!isset($this->roleAssignments)) {
+            $this->roleAssignments = new ArrayCollection();
+        }
     }
 
     private function touch(): void
