@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\User;
 
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 
 class User implements UserInterface
@@ -16,9 +18,9 @@ class User implements UserInterface
     private string $passwordHash;
 
     /**
-     * @var string[]
+     * @var Collection<int, UserRole>
      */
-    private array $roles = [];
+    private Collection $roleAssignments;
 
     private int $rolesVersion = 1;
 
@@ -28,12 +30,13 @@ class User implements UserInterface
 
     private DateTimeImmutable $updatedAt;
 
-    public function __construct(string $email, string $plainPassword, array $roles = ['ROLE_USER'], string $status = 'Active')
+    public function __construct(string $email, string $plainPassword, array $roles = ['user'], string $status = 'Active')
     {
         $this->id = Uuid::v4()->toRfc4122();
+        $this->roleAssignments = new ArrayCollection();
         $this->setEmail($email);
         $this->changePassword($plainPassword);
-        $this->roles = $this->normalizeRoles($roles);
+        $this->setRoles($roles);
         $this->setStatus($status);
         $this->createdAt = new DateTimeImmutable('now');
         $this->updatedAt = $this->createdAt;
@@ -90,7 +93,12 @@ class User implements UserInterface
      */
     public function getRoles(): array
     {
-        return $this->roles;
+        $roles = [];
+        foreach ($this->roleAssignments as $assignment) {
+            $roles[] = $assignment->getRole();
+        }
+
+        return array_values(array_unique($roles));
     }
 
     public function getRolesVersion(): int
@@ -104,12 +112,30 @@ class User implements UserInterface
     public function setRoles(array $roles): void
     {
         $normalized = $this->normalizeRoles($roles);
-        if ($normalized === $this->roles) {
+        $currentRoles = $this->getRoles();
+        if ($normalized === $currentRoles) {
             return;
         }
 
-        $this->roles = $normalized;
-        $this->rolesVersion++;
+        $target = array_fill_keys($normalized, true);
+
+        foreach ($this->roleAssignments->toArray() as $assignment) {
+            if (!isset($target[$assignment->getRole()])) {
+                $this->roleAssignments->removeElement($assignment);
+            }
+        }
+
+        $existingRoles = array_fill_keys($this->getRoles(), true);
+        foreach ($normalized as $role) {
+            if (!isset($existingRoles[$role])) {
+                $this->roleAssignments->add(new UserRole($this, $role));
+            }
+        }
+
+        if ($currentRoles !== []) {
+            $this->rolesVersion++;
+        }
+
         $this->touch();
     }
 
@@ -152,12 +178,16 @@ class User implements UserInterface
     {
         $normalized = [];
         foreach ($roles as $role) {
-            $value = strtoupper(trim((string) $role));
+            $value = strtolower(trim((string) $role));
             if ($value !== '') {
-                $normalized[] = $value;
+                $normalized[$value] = $value;
             }
         }
 
-        return array_values(array_unique($normalized));
+        if ($normalized === []) {
+            $normalized['user'] = 'user';
+        }
+
+        return array_values($normalized);
     }
 }
