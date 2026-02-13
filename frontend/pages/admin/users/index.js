@@ -18,6 +18,7 @@ export default function AdminUsersListPage() {
     try {
       const response = await fetch(`${apiBase}/api/v1/users`, {
         headers: apiHeaders,
+        credentials: 'include',
       });
 
       const data = await response.json().catch(() => null);

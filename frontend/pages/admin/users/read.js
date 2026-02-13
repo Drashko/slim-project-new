@@ -32,7 +32,7 @@ export default function AdminUsersReadPage() {
     }
 
     try {
-      const response = await fetch(`${apiBase}/api/v1/users/${userId.trim()}`);
+      const response = await fetch(`${apiBase}/api/v1/users/${userId.trim()}`, { credentials: 'include' });
       if (!response.ok) {
         throw new Error(`Request failed with ${response.status}`);
       }

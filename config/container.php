@@ -113,6 +113,7 @@ return [
             $container->get(TokenVerifier::class),
             'api',
             (string) ($authSettings['x_api_key'] ?? ''),
+            (string) ($authSettings['api_key_cookie_name'] ?? 'api_key'),
         );
     },
 

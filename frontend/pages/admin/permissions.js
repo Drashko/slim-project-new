@@ -49,6 +49,7 @@ export default function AdminPermissions() {
     try {
       const response = await fetch(`${apiBase}/api/v1/admin/permissions`, {
         headers,
+        credentials: 'include',
       });
       if (!response.ok) {
         throw new Error(`Request failed with ${response.status}`);
@@ -87,6 +88,7 @@ export default function AdminPermissions() {
           action: form.action.toUpperCase(),
           scope: form.scope || 'api',
         }),
+        credentials: 'include',
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) {
@@ -129,6 +131,7 @@ export default function AdminPermissions() {
           ...headers,
         },
         body: JSON.stringify(parsed),
+        credentials: 'include',
       });
 
       const data = await response.json().catch(() => null);

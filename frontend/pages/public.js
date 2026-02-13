@@ -12,7 +12,7 @@ export default function PublicHome() {
 
     const load = async () => {
       try {
-        const response = await fetch(`${apiBase}${publicApiPath}`);
+        const response = await fetch(`${apiBase}${publicApiPath}`, { credentials: 'include' });
         if (!response.ok) {
           throw new Error(`Request failed with ${response.status}`);
         }
