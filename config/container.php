@@ -114,6 +114,7 @@ return [
             'api',
             (string) ($authSettings['x_api_key'] ?? ''),
             (string) ($authSettings['api_key_cookie_name'] ?? 'api_key'),
+            (array) (($container->get('settings')['cors']['allowed_origins'] ?? ['http://localhost:3000'])),
         );
     },
 

@@ -23,6 +23,7 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
         private string $defaultScope = 'api',
         private string $guestApiKey = '',
         private string $apiKeyCookieName = 'api_key',
+        private array $allowedOrigins = ['http://localhost:3000'],
         private string $unauthorizedMessage = 'Unauthorized',
         private string $forbiddenMessage = 'Forbidden'
     ) {
@@ -31,7 +32,7 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         if (strtoupper($request->getMethod()) === 'OPTIONS') {
-            return $this->withCorsHeaders($this->responseFactory->createResponse(200));
+            return $this->withCorsHeaders($request, $this->responseFactory->createResponse(200));
         }
 
         if ($this->hasNoPolicies()) {
@@ -40,12 +41,12 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
 
         $authContext = $this->resolveSubjects($request);
         if ($authContext['error'] !== null) {
-            return $this->respondWithError(401, $authContext['error']);
+            return $this->respondWithError(401, $authContext['error'], $request);
         }
 
         $subjects = $authContext['subjects'];
         if ($subjects === []) {
-            return $this->respondWithError(401, $this->unauthorizedMessage);
+            return $this->respondWithError(401, $this->unauthorizedMessage, $request);
         }
 
         $scope = $this->resolveScope($request);
@@ -58,7 +59,7 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
             }
         }
 
-        return $this->respondWithError(403, $this->forbiddenMessage);
+        return $this->respondWithError(403, $this->forbiddenMessage, $request);
     }
 
     /**
@@ -128,7 +129,7 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
         return $route ? $route->getPattern() : $request->getUri()->getPath();
     }
 
-    private function respondWithError(int $status, string $message): ResponseInterface
+    private function respondWithError(int $status, string $message, ?ServerRequestInterface $request = null): ResponseInterface
     {
         $response = $this->responseFactory->createResponse($status);
         $response->getBody()->write(json_encode([
@@ -136,7 +137,7 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
             'message' => $message,
         ], JSON_UNESCAPED_SLASHES) ?: '');
 
-        return $this->withCorsHeaders($response)->withHeader('Content-Type', 'application/json');
+        return $this->withCorsHeaders($request, $response)->withHeader('Content-Type', 'application/json');
     }
 
     private function hasNoPolicies(): bool
@@ -145,12 +146,27 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
             && $this->enforcer->getGroupingPolicy() === [];
     }
 
-    private function withCorsHeaders(ResponseInterface $response): ResponseInterface
+    private function withCorsHeaders(?ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
+        $origin = trim((string) ($request?->getHeaderLine('Origin') ?? ''));
+        $allowOrigin = $this->resolveAllowedOrigin($origin);
+
         return $response
-            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Origin', $allowOrigin)
+            ->withHeader('Vary', 'Origin')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
             ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope, X-API-Key')
             ->withHeader('Access-Control-Allow-Credentials', 'true');
+    }
+
+    private function resolveAllowedOrigin(string $origin): string
+    {
+        $allowedOrigins = $this->allowedOrigins === [] ? ['http://localhost:3000'] : $this->allowedOrigins;
+
+        if ($origin !== '' && in_array($origin, $allowedOrigins, true)) {
+            return $origin;
+        }
+
+        return (string) $allowedOrigins[0];
     }
 }
