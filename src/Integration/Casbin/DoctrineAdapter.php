@@ -7,6 +7,7 @@ namespace App\Integration\Casbin;
 use Casbin\Model\Model;
 use Casbin\Persist\Adapter;
 use Casbin\Persist\AdapterHelper;
+use ReflectionMethod;
 
 final readonly class DoctrineAdapter implements Adapter
 {
@@ -16,9 +17,31 @@ final readonly class DoctrineAdapter implements Adapter
 
     public function loadPolicy(Model $model): void
     {
+        $loader = $this->resolvePolicyLineLoader();
+
         foreach ($this->repository->all() as $rule) {
-            AdapterHelper::loadPolicyLine($rule->toPolicyLine(), $model);
+            $loader($rule->toPolicyLine(), $model);
         }
+    }
+
+    /**
+     * @return callable(string, Model):void
+     */
+    private function resolvePolicyLineLoader(): callable
+    {
+        $method = new ReflectionMethod(AdapterHelper::class, 'loadPolicyLine');
+
+        if ($method->isStatic()) {
+            return static function (string $line, Model $model): void {
+                AdapterHelper::loadPolicyLine($line, $model);
+            };
+        }
+
+        $helper = new AdapterHelper();
+
+        return static function (string $line, Model $model) use ($helper): void {
+            $helper->loadPolicyLine($line, $model);
+        };
     }
 
     public function savePolicy(Model $model): void

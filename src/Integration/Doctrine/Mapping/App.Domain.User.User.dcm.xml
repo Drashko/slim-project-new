@@ -6,10 +6,15 @@
         <id name="id" type="guid" column="id" />
         <field name="email" type="string" length="180" unique="true" />
         <field name="passwordHash" type="string" length="255" />
-        <field name="roles" type="json" />
         <field name="rolesVersion" type="integer" />
         <field name="status" type="string" length="32" />
         <field name="createdAt" type="datetime_immutable" />
         <field name="updatedAt" type="datetime_immutable" />
+        <one-to-many field="roleAssignments" target-entity="App\Domain\User\UserRole" mapped-by="user" orphan-removal="true" fetch="EAGER">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-many>
     </entity>
 </doctrine-mapping>
