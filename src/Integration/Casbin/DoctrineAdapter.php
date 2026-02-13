@@ -37,7 +37,9 @@ final readonly class DoctrineAdapter implements Adapter
             };
         }
 
-        $helper = new AdapterHelper();
+        $helper = new class {
+            use AdapterHelper;
+        };
 
         return static function (string $line, Model $model) use ($helper): void {
             $helper->loadPolicyLine($line, $model);
