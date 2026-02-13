@@ -55,14 +55,14 @@ final class UpdateUserCommand
     {
         $normalized = [];
         foreach ($roles as $role) {
-            $role = strtoupper(trim((string) $role));
+            $role = strtolower(trim((string) $role));
             if ($role !== '') {
                 $normalized[$role] = $role;
             }
         }
 
         if ($normalized === []) {
-            $normalized['ROLE_USER'] = 'ROLE_USER';
+            $normalized['user'] = 'user';
         }
 
         return array_values($normalized);
