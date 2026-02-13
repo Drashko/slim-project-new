@@ -30,7 +30,7 @@ class CreateUserEndpoint
             $command = new CreateUserCommand(
                 (string) ($payload['email'] ?? ''),
                 (string) ($payload['password'] ?? ''),
-                is_array($payload['roles'] ?? null) ? $payload['roles'] : ['ROLE_USER'],
+                is_array($payload['roles'] ?? null) ? $payload['roles'] : ['user'],
                 isset($payload['status']) ? (string) $payload['status'] : 'Active',
             );
 

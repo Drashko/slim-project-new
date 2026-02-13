@@ -6,6 +6,7 @@ namespace App\Feature\Admin\User\Handler;
 
 use App\Domain\Shared\DomainException;
 use App\Domain\Shared\Event\DomainEventDispatcherInterface;
+use App\Domain\User\RoleCatalog;
 use App\Domain\User\Event\UserUpdatedEvent;
 use App\Domain\User\UserInterface;
 use App\Domain\User\UserRepositoryInterface;
@@ -15,7 +16,8 @@ final readonly class AssignRoleHandler
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
-        private DomainEventDispatcherInterface $eventDispatcher
+        private DomainEventDispatcherInterface $eventDispatcher,
+        private RoleCatalog $roleCatalog
     )
     {
     }
@@ -28,7 +30,7 @@ final readonly class AssignRoleHandler
         }
 
         if ($this->rolesDiffer($user->getRoles(), $command->getRoles())) {
-            $user->setRoles($command->getRoles());
+            $user->setRoles($this->roleCatalog->assertAllowed($command->getRoles()));
             $this->userRepository->flush();
 
             $this->eventDispatcher->dispatch(UserUpdatedEvent::fromUser($user, ['roles']));
@@ -43,7 +45,7 @@ final readonly class AssignRoleHandler
      */
     private function rolesDiffer(array $current, array $updated): bool
     {
-        return array_values(array_unique(array_map('strtoupper', $current)))
-            !== array_values(array_unique(array_map('strtoupper', $updated)));
+        return array_values(array_unique(array_map('strtolower', $current)))
+            !== array_values(array_unique(array_map('strtolower', $updated)));
     }
 }
