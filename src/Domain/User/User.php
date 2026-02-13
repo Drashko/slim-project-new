@@ -117,14 +117,25 @@ class User implements UserInterface
             return;
         }
 
-        $this->roleAssignments->clear();
+        $target = array_fill_keys($normalized, true);
+
+        foreach ($this->roleAssignments->toArray() as $assignment) {
+            if (!isset($target[$assignment->getRole()])) {
+                $this->roleAssignments->removeElement($assignment);
+            }
+        }
+
+        $existingRoles = array_fill_keys($this->getRoles(), true);
         foreach ($normalized as $role) {
-            $this->roleAssignments->add(new UserRole($this, $role));
+            if (!isset($existingRoles[$role])) {
+                $this->roleAssignments->add(new UserRole($this, $role));
+            }
         }
 
         if ($currentRoles !== []) {
             $this->rolesVersion++;
         }
+
         $this->touch();
     }
 
