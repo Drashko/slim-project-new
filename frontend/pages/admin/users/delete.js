@@ -4,6 +4,12 @@ import AdminAsideNav from '../../../components/AdminAsideNav';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
+const apiHeaders = {
+  'Content-Type': 'application/json',
+  'X-Subject': process.env.NEXT_PUBLIC_API_SUBJECT ?? 'admin',
+  'X-Scope': process.env.NEXT_PUBLIC_API_SCOPE ?? 'api',
+};
+
 export default function AdminUsersDeletePage() {
   const router = useRouter();
   const [userId, setUserId] = useState('');
@@ -34,6 +40,7 @@ export default function AdminUsersDeletePage() {
     try {
       const response = await fetch(`${apiBase}/api/v1/users/${userId.trim()}`, {
         method: 'DELETE',
+        headers: apiHeaders,
         credentials: 'include',
       });
 
