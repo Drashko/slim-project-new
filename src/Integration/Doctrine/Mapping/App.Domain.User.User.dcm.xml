@@ -10,6 +10,11 @@
         <field name="status" type="string" length="32" />
         <field name="createdAt" type="datetime_immutable" />
         <field name="updatedAt" type="datetime_immutable" />
-        <one-to-many field="roleAssignments" target-entity="App\Domain\User\UserRole" mapped-by="user" orphan-removal="true" fetch="EAGER" cascade="persist,remove" />
+        <one-to-many field="roleAssignments" target-entity="App\Domain\User\UserRole" mapped-by="user" orphan-removal="true" fetch="EAGER">
+            <cascade>
+                <cascade-persist/>
+                <cascade-remove/>
+            </cascade>
+        </one-to-many>
     </entity>
 </doctrine-mapping>
