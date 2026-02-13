@@ -156,6 +156,11 @@ return [
     ],
     'auth' => [
         'x_api_key' => $_ENV['X_API_KEY'] ?? $_SERVER['X_API_KEY'] ?? '',
+        'roles' => array_values(array_filter(array_map(
+            static fn(string $role): string => strtolower(trim($role)),
+            explode(',', (string) ($_ENV['AUTH_ROLES'] ?? 'user,customer,admin,super_admin'))
+        ), static fn(string $role): bool => $role !== '')),
+        'default_role' => strtolower(trim((string) ($_ENV['AUTH_DEFAULT_ROLE'] ?? 'user'))),
     ],
     'pagination' => [
         'default_per_page' => max(1, (int) ($_ENV['DEFAULT_PER_PAGE'] ?? 10)),

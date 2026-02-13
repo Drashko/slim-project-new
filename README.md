@@ -65,7 +65,7 @@ using the `casbin_rule` table.
 ### Request headers used by the middleware
 
 - `Authorization: Bearer <jwt>`: Primary authentication mechanism. The JWT is
-  verified and the first role claim is used as the Casbin subject.
+  verified and all role claims are evaluated as Casbin subjects.
 - `X-Subject`: Optional override for trusted internal calls where the subject is
   injected by infrastructure.
 - `X-Client-Id`: Fallback subject for server-to-server calls.
@@ -76,8 +76,8 @@ using the `casbin_rule` table.
 ### Example policy entry (database row)
 
 ```
-p, role_admin, /api/v1/admin, GET, api
-g, user:1, role_admin
+p, admin, /api/v1/users, GET, api
+p, super_admin, /api/v1/*, GET|POST|PUT|PATCH|DELETE, api
 ```
 
 ### Example API call
@@ -89,3 +89,7 @@ curl -H "X-Subject: user:1" -H "X-Scope: api" http://localhost:8080/api/v1/admin
 Policies are stored in the `casbin_rule` table via a Doctrine-backed Casbin
 adapter configured in `config/container.php`, sharing the same Doctrine
 connection settings defined in `config/settings.php`.
+
+User roles are persisted in the `user_role` table and are loaded into JWT role
+claims during login. Allowed roles are configured via `AUTH_ROLES` (default:
+`user,customer,admin,super_admin`) with `AUTH_DEFAULT_ROLE` for fallback.

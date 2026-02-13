@@ -12,6 +12,8 @@ use App\Domain\Token\RefreshTokenRepositoryInterface;
 use App\Domain\Token\TokenEncoder;
 use App\Domain\Token\TokenVerifier;
 use App\Domain\User\UserRepositoryInterface;
+use App\Domain\User\UserRoleRepositoryInterface;
+use App\Domain\User\RoleCatalog;
 use App\Integration\Helper\ImageStorage;
 use App\Integration\Casbin\CasbinRuleRepository;
 use App\Integration\Casbin\DoctrineAdapter;
@@ -20,6 +22,7 @@ use App\Integration\Logger\LoggerFactory;
 use App\Integration\Middleware\CasbinAuthorizationMiddleware;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
+use App\Integration\Repository\Doctrine\UserRoleRepository;
 use Casbin\Enforcer;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
@@ -161,6 +164,25 @@ return [
     },
 
 
+
+    RoleCatalog::class => static function (ContainerInterface $container): RoleCatalog {
+        $authSettings = (array) ($container->get('settings')['auth'] ?? []);
+        $roles = array_values(array_unique(array_map(
+            static fn(string $role): string => strtolower(trim($role)),
+            (array) ($authSettings['roles'] ?? ['user', 'customer', 'admin', 'super_admin'])
+        )));
+        $defaultRole = strtolower(trim((string) ($authSettings['default_role'] ?? 'user')));
+        if ($defaultRole === '') {
+            $defaultRole = 'user';
+        }
+
+        if (!in_array($defaultRole, $roles, true)) {
+            $roles[] = $defaultRole;
+        }
+
+        return new RoleCatalog($roles, $defaultRole);
+    },
+
     TokenEncoder::class => static function (ContainerInterface $container): TokenEncoder {
         $secret = $_ENV['JWT_SECRET'] ?? $_SERVER['JWT_SECRET'] ?? $_ENV['TOKEN_SECRET'] ?? $_SERVER['TOKEN_SECRET'] ?? null;
         if ($secret === null || $secret === '') {
@@ -185,6 +207,11 @@ return [
     UserRepositoryInterface::class => static fn(ContainerInterface $container): UserRepositoryInterface => new UserRepository(
         $container->get(EntityManagerInterface::class)
     ),
+
+    UserRoleRepositoryInterface::class => static fn(ContainerInterface $container): UserRoleRepositoryInterface => new UserRoleRepository(
+        $container->get(EntityManagerInterface::class)
+    ),
+
 
     ImageStorage::class => static function (ContainerInterface $container): ImageStorage {
         $config = (array) ($container->get('settings')['uploads']['ads'] ?? []);

@@ -14,10 +14,10 @@ final class UserFixture implements FixtureInterface
         $repository = $entityManager->getRepository(User::class);
 
         $users = [
-            ['email' => 'admin@example.com', 'password' => 'admin123', 'roles' => ['ROLE_ADMIN', 'ROLE_USER']],
-            ['email' => 'api@example.com', 'password' => 'api123', 'roles' => ['ROLE_API']],
-            ['email' => 'jane.doe@example.com', 'password' => 'user123', 'roles' => ['ROLE_USER']],
-            ['email' => 'ops@example.com', 'password' => 'ops123', 'roles' => ['ROLE_ADMIN', 'ROLE_USER']],
+            ['email' => 'admin@example.com', 'password' => 'admin123', 'roles' => ['super_admin', 'admin']],
+            ['email' => 'api@example.com', 'password' => 'api123', 'roles' => ['admin']],
+            ['email' => 'jane.doe@example.com', 'password' => 'user123', 'roles' => ['user']],
+            ['email' => 'ops@example.com', 'password' => 'ops123', 'roles' => ['super_admin', 'admin']],
         ];
 
         foreach ($users as $userData) {

@@ -14,9 +14,9 @@ final class ValidateRegisterInput
     /**
      * @param string[] $allowedRoles
      */
-    public function __construct(array $allowedRoles = ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_API'])
+    public function __construct(array $allowedRoles = ['user', 'customer', 'admin', 'super_admin'])
     {
-        $this->allowedRoles = array_map('strtoupper', $allowedRoles);
+        $this->allowedRoles = array_map(static fn(string $role): string => strtolower(trim($role)), $allowedRoles);
     }
 
     /**
@@ -38,7 +38,7 @@ final class ValidateRegisterInput
         }
 
         foreach ($input->getRoles() as $role) {
-            if (!in_array(strtoupper($role), $this->allowedRoles, true)) {
+            if (!in_array(strtolower($role), $this->allowedRoles, true)) {
                 $errors['roles'] = 'One or more roles are not permitted.';
                 break;
             }

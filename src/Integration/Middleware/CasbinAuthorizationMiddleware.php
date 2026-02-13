@@ -37,13 +37,13 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
             return $handler->handle($request);
         }
 
-        $authContext = $this->resolveSubject($request);
+        $authContext = $this->resolveSubjects($request);
         if ($authContext['error'] !== null) {
             return $this->respondWithError(401, $authContext['error']);
         }
 
-        $subject = $authContext['subject'];
-        if ($subject === null) {
+        $subjects = $authContext['subjects'];
+        if ($subjects === []) {
             return $this->respondWithError(401, $this->unauthorizedMessage);
         }
 
@@ -51,55 +51,61 @@ final readonly class CasbinAuthorizationMiddleware implements MiddlewareInterfac
         $object = $this->resolveObject($request);
         $action = strtoupper($request->getMethod());
 
-        if ($this->enforcer->enforce($subject, $object, $action, $scope)) {
-            return $handler->handle($request->withAttribute('auth.subject', $subject));
+        foreach ($subjects as $subject) {
+            if ($this->enforcer->enforce($subject, $object, $action, $scope)) {
+                return $handler->handle($request->withAttribute('auth.subject', $subject));
+            }
         }
 
         return $this->respondWithError(403, $this->forbiddenMessage);
     }
 
     /**
-     * @return array{subject:?string,error:?string}
+     * @return array{subjects:string[],error:?string}
      */
-    private function resolveSubject(ServerRequestInterface $request): array
+    private function resolveSubjects(ServerRequestInterface $request): array
     {
         $subject = trim($request->getHeaderLine('X-Subject'));
         if ($subject !== '') {
-            return ['subject' => $subject, 'error' => null];
+            return ['subjects' => [$subject], 'error' => null];
         }
 
         $authorization = $request->getHeaderLine('Authorization');
         if (preg_match('/Bearer\s+(.+)$/i', $authorization, $matches) === 1) {
             $token = trim($matches[1]);
             if ($token === '') {
-                return ['subject' => null, 'error' => $this->unauthorizedMessage];
+                return ['subjects' => [], 'error' => $this->unauthorizedMessage];
             }
 
             try {
                 $identity = $this->tokenVerifier->verify($token);
             } catch (DomainException) {
-                return ['subject' => null, 'error' => $this->unauthorizedMessage];
+                return ['subjects' => [], 'error' => $this->unauthorizedMessage];
             }
 
-            $roles = $identity->getRoles();
+            $roles = array_values(array_unique(array_map(
+                static fn(string $role): string => strtolower(trim($role)),
+                $identity->getRoles()
+            )));
+
             if ($roles !== []) {
-                return ['subject' => (string) $roles[0], 'error' => null];
+                return ['subjects' => $roles, 'error' => null];
             }
 
-            return ['subject' => sprintf('user:%s', $identity->getUserId()), 'error' => null];
+            return ['subjects' => [sprintf('user:%s', $identity->getUserId())], 'error' => null];
         }
 
         $clientId = trim($request->getHeaderLine('X-Client-Id'));
         if ($clientId !== '') {
-            return ['subject' => $clientId, 'error' => null];
+            return ['subjects' => [$clientId], 'error' => null];
         }
 
         $providedApiKey = trim($request->getHeaderLine('X-API-Key'));
         if ($providedApiKey !== '' && $this->guestApiKey !== '' && hash_equals($this->guestApiKey, $providedApiKey)) {
-            return ['subject' => 'guest', 'error' => null];
+            return ['subjects' => ['guest'], 'error' => null];
         }
 
-        return ['subject' => null, 'error' => null];
+        return ['subjects' => [], 'error' => null];
     }
 
     private function resolveScope(ServerRequestInterface $request): string
