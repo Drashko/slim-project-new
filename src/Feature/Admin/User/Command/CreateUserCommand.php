@@ -12,7 +12,7 @@ final class CreateUserCommand
     public function __construct(
         private readonly string $email,
         private readonly string $password,
-        private array $roles = ['ROLE_USER'],
+        private array $roles = ['user'],
         private readonly string $status = 'Active'
     ) {
         $this->roles = $this->normalizeRoles($roles);
@@ -49,14 +49,14 @@ final class CreateUserCommand
     {
         $normalized = [];
         foreach ($roles as $role) {
-            $role = strtoupper(trim((string) $role));
+            $role = strtolower(trim((string) $role));
             if ($role !== '') {
                 $normalized[$role] = $role;
             }
         }
 
         if ($normalized === []) {
-            $normalized['ROLE_USER'] = 'ROLE_USER';
+            $normalized['user'] = 'user';
         }
 
         return array_values($normalized);
