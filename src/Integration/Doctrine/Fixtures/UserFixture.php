@@ -18,6 +18,7 @@ final class UserFixture implements FixtureInterface
             ['email' => 'api@example.com', 'password' => 'api123', 'roles' => ['admin']],
             ['email' => 'jane.doe@example.com', 'password' => 'user123', 'roles' => ['user']],
             ['email' => 'ops@example.com', 'password' => 'ops123', 'roles' => ['super_admin', 'admin']],
+            ['email' => 'customer@example.com', 'password' => 'customer123', 'roles' => ['customer']],
         ];
 
         foreach ($users as $userData) {
