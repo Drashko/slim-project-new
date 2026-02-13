@@ -50,27 +50,41 @@ export default function AdminUsersListPage() {
               <button type="button" className="ghost" onClick={loadUsers}>Опресни списъка</button>
             </div>
             {error ? <p className="notice notice--error">{error}</p> : null}
-            <div className="list">
-              {users.length === 0 ? (
-                <p className="muted">Няма заредени потребители.</p>
-              ) : (
-                users.map((user, index) => {
-                  const id = user.id ?? user.uuid ?? index;
-                  return (
-                    <div className="list-item" key={id}>
-                      <h4>{user.name ?? user.email ?? `User ${id}`}</h4>
-                      <p className="muted">ID: <code>{String(id)}</code></p>
-                      {user.email ? <p>Email: {user.email}</p> : null}
-                      <div className="actions">
-                        <a className="ghost" href={`/admin/users/read?id=${encodeURIComponent(String(id))}`}>Детайли</a>
-                        <a className="ghost" href={`/admin/users/update?id=${encodeURIComponent(String(id))}`}>Промяна</a>
-                        <a className="ghost" href={`/admin/users/delete?id=${encodeURIComponent(String(id))}`}>Изтриване</a>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+            {users.length === 0 ? (
+              <p className="muted">Няма заредени потребители.</p>
+            ) : (
+              <div className="users-table-wrap">
+                <table className="users-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Име</th>
+                      <th>Email</th>
+                      <th>Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user, index) => {
+                      const id = user.id ?? user.uuid ?? index;
+                      return (
+                        <tr key={id}>
+                          <td><code>{String(id)}</code></td>
+                          <td>{user.name ?? '—'}</td>
+                          <td>{user.email ?? '—'}</td>
+                          <td>
+                            <div className="users-table-actions">
+                              <a className="ghost" href={`/admin/users/read?id=${encodeURIComponent(String(id))}`}>Детайли</a>
+                              <a className="ghost" href={`/admin/users/update?id=${encodeURIComponent(String(id))}`}>Промяна</a>
+                              <a className="ghost" href={`/admin/users/delete?id=${encodeURIComponent(String(id))}`}>Изтриване</a>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
         </div>
         <AdminAsideNav />
