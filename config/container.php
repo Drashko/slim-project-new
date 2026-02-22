@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Domain\Role\RoleCatalog;
+use App\Domain\Role\UserRoleRepositoryInterface;
 use App\Domain\Shared\Clock;
 use App\Domain\Shared\Event\DomainEventDispatcherInterface;
 use App\Domain\Shared\Event\InMemoryDomainEventDispatcher;
@@ -10,11 +12,9 @@ use App\Domain\Token\RefreshTokenRepositoryInterface;
 use App\Domain\Token\TokenEncoder;
 use App\Domain\Token\TokenVerifier;
 use App\Domain\User\UserRepositoryInterface;
-use App\Domain\User\UserRoleRepositoryInterface;
-use App\Domain\User\RoleCatalog;
-use App\Integration\Helper\ImageStorage;
 use App\Integration\Casbin\CasbinRuleRepository;
 use App\Integration\Casbin\DoctrineAdapter;
+use App\Integration\Helper\ImageStorage;
 use App\Integration\Http\NotFoundHandler;
 use App\Integration\Logger\LoggerFactory;
 use App\Integration\Middleware\CasbinAuthorizationMiddleware;

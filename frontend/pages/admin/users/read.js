@@ -36,7 +36,7 @@ export default function AdminUsersReadPage() {
     }
 
     try {
-      const response = await fetch(`${apiBase}/api/v1/users/${userId.trim()}`, { headers: apiHeaders, credentials: 'include' });
+      const response = await fetch(`${apiBase}/api/v1/admin/users/${userId.trim()}`, { headers: apiHeaders, credentials: 'include' });
       if (!response.ok) {
         throw new Error(`Request failed with ${response.status}`);
       }

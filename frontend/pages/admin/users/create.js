@@ -24,7 +24,7 @@ export default function AdminUsersCreatePage() {
     setSuccess('');
 
     try {
-      const response = await fetch(`${apiBase}/api/v1/users`, {
+      const response = await fetch(`${apiBase}/api/v1/admin/users`, {
         method: 'POST',
         headers: apiHeaders,
         body: JSON.stringify(form),

@@ -15,7 +15,7 @@ export default function AdminUsersListPage() {
   const loadUsers = async () => {
     setError('');
     try {
-      const response = await fetch(`${apiBase}/api/v1/users`, {
+      const response = await fetch(`${apiBase}/api/v1/admin/users`, {
         headers: apiHeaders,
         credentials: 'include',
       });

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Integration\Repository\Doctrine;
 
-use App\Domain\User\UserRole;
-use App\Domain\User\UserRoleInterface;
-use App\Domain\User\UserRoleRepositoryInterface;
+use App\Domain\Role\UserRole;
+use App\Domain\Role\UserRoleInterface;
+use App\Domain\Role\UserRoleRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 

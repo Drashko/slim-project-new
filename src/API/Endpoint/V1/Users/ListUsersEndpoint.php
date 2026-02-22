@@ -28,11 +28,10 @@ class ListUsersEndpoint
                 $this->userRepository->all()
             );
 
-
             return $this->respondWithJson($response, ['users' => $users]);
 
-        } catch (Throwable) {
-            return $this->respondWithJson($response, ['message' => 'Unable to list users.'], 500);
+        } catch (Throwable $exception) {
+            return $this->respondWithJson($response, ['message' => $exception->getMessage()], 500);
         }
     }
 

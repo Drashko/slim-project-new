@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Feature\User\Handler;
 
+use App\Domain\Role\RoleCatalog;
 use App\Domain\Shared\DomainException;
 use App\Domain\Shared\Event\DomainEventDispatcherInterface;
-use App\Domain\User\RoleCatalog;
 use App\Domain\User\Event\UserCreatedEvent;
 use App\Domain\User\User;
 use App\Domain\User\UserInterface;

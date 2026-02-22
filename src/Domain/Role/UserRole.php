@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\User;
+namespace App\Domain\Role;
+
+use App\Domain\User\User;
+use App\Domain\User\UserInterface;
 
 final class UserRole implements UserRoleInterface
 {
