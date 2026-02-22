@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\User;
 
+use App\Domain\Role\UserRole;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

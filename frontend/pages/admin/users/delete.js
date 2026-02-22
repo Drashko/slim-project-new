@@ -36,7 +36,7 @@ export default function AdminUsersDeletePage() {
     }
 
     try {
-      const response = await fetch(`${apiBase}/api/v1/users/${userId.trim()}`, {
+      const response = await fetch(`${apiBase}/api/v1/admin/users/${userId.trim()}`, {
         method: 'DELETE',
         headers: apiHeaders,
         credentials: 'include',

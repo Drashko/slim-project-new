@@ -244,36 +244,67 @@ button.primary:hover {
 }
 
 .admin-aside {
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  background: #fff;
-  padding: 18px;
+  border: 1px solid #bfdbfe;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  padding: 20px;
   display: grid;
-  gap: 12px;
+  gap: 14px;
   height: fit-content;
+  box-shadow: 0 10px 30px rgba(30, 64, 175, 0.08);
 }
 
 .admin-aside-nav {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .admin-aside-link {
   text-decoration: none;
-  border: 1px solid #e2e8f0;
-  color: #334155;
-  border-radius: 0;
+  border: 1px solid #dbeafe;
+  color: #1e3a8a;
+  border-radius: 12px;
   padding: 10px 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-weight: 600;
+  background: #eff6ff;
+  transition: all 0.2s ease;
+}
+
+.admin-aside-link:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+.admin-aside-link-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.admin-aside-link-icon svg {
+  width: 16px;
+  height: 16px;
 }
 
 .admin-aside-link--active {
-  border-color: #4338ca;
-  color: #312e81;
-  background: #eef2ff;
+  border-color: #2563eb;
+  color: #1e3a8a;
+  background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%);
+  box-shadow: inset 3px 0 0 #2563eb;
+}
+
+.admin-aside-link--active .admin-aside-link-icon {
+  background: #2563eb;
+  color: #ffffff;
 }
 
 .users-table-wrap {

@@ -42,7 +42,7 @@ export default function AdminUsersUpdatePage() {
     }
 
     try {
-      const response = await fetch(`${apiBase}/api/v1/users/${userId.trim()}`, {
+      const response = await fetch(`${apiBase}/api/v1/admin/users/${userId.trim()}`, {
         method: 'PUT',
         headers: apiHeaders,
         body: JSON.stringify(form),
