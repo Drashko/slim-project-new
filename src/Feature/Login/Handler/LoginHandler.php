@@ -46,7 +46,8 @@ final readonly class LoginHandler
 
         $refreshToken = $this->generateRefreshToken();
         $refreshExpiresAt = $issuedAt->add(new DateInterval(sprintf('PT%dS', $this->refreshTokenTtl)));
-        $this->refreshTokenRepository->persist($refreshToken, $identity->getUserId(), $refreshExpiresAt);
+        // Create a new refresh family (familyId is generated inside entity on first persist)
+        $this->refreshTokenRepository->persist($refreshToken, $identity->getUserId(), $refreshExpiresAt, null);
 
         return [
             'access_token' => $accessToken->getToken(),

@@ -19,38 +19,59 @@ final class RefreshTokenRepository implements RefreshTokenRepositoryInterface
         $this->repository = $entityManager->getRepository(RefreshToken::class);
     }
 
-    public function persist(string $token, string $userId, DateTimeImmutable $expiresAt): RefreshToken
+    public function persist(string $plainToken, string $userId, DateTimeImmutable $expiresAt, ?string $familyId = null): RefreshToken
     {
-        $entity = new RefreshToken($token, $userId, $expiresAt);
+        $tokenHash = hash('sha256', $plainToken);
+        $entity = new RefreshToken($tokenHash, $userId, $expiresAt, $familyId);
         $this->entityManager->persist($entity);
         $this->entityManager->flush();
 
         return $entity;
     }
 
-    public function find(string $token): ?RefreshToken
+    public function find(string $plainToken): ?RefreshToken
     {
+        $tokenHash = hash('sha256', $plainToken);
         /** @var RefreshToken|null $entity */
-        $entity = $this->repository->find($token);
+        $entity = $this->repository->findOneBy(['tokenHash' => $tokenHash]);
 
         return $entity;
     }
 
-    public function revoke(string $token): void
+    public function revokeById(string $id, DateTimeImmutable $now, ?string $replacedBy = null): void
     {
-        $entity = $this->find($token);
-        if ($entity !== null) {
-            $this->entityManager->remove($entity);
-            $this->entityManager->flush();
+        /** @var RefreshToken|null $entity */
+        $entity = $this->repository->find($id);
+        if ($entity === null) {
+            return;
         }
+
+        $entity->revoke($now, $replacedBy);
+        $this->entityManager->flush();
+    }
+
+    public function revokeFamily(string $familyId, DateTimeImmutable $now): int
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        $q = $qb
+            ->update(RefreshToken::class, 'rt')
+            ->set('rt.revokedAt', ':now')
+            ->where('rt.familyId = :familyId')
+            ->andWhere('rt.revokedAt IS NULL')
+            ->setParameter('now', $now)
+            ->setParameter('familyId', $familyId)
+            ->getQuery();
+
+        return (int) $q->execute();
     }
 
     public function purgeExpired(DateTimeImmutable $now): int
     {
+        // purge expired & revoked tokens
         $qb = $this->entityManager->createQueryBuilder();
         $query = $qb
             ->delete(RefreshToken::class, 'rt')
-            ->where('rt.expiresAt <= :now')
+            ->where('rt.expiresAt <= :now OR rt.revokedAt IS NOT NULL')
             ->setParameter('now', $now)
             ->getQuery();
 

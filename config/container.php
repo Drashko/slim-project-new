@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Domain\Ad\AdRepositoryInterface;
-use App\Domain\Category\CategoryRepositoryInterface;
 use App\Domain\Shared\Clock;
 use App\Domain\Shared\Event\DomainEventDispatcherInterface;
 use App\Domain\Shared\Event\InMemoryDomainEventDispatcher;
@@ -20,10 +18,13 @@ use App\Integration\Casbin\DoctrineAdapter;
 use App\Integration\Http\NotFoundHandler;
 use App\Integration\Logger\LoggerFactory;
 use App\Integration\Middleware\CasbinAuthorizationMiddleware;
+use App\Integration\Middleware\InternalSignatureMiddleware;
+use App\Integration\Middleware\JwtAuthMiddleware;
+use App\Integration\Middleware\LoginRateLimitMiddleware;
+use App\Integration\Middleware\RefreshRateLimitMiddleware;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
 use App\Integration\Repository\Doctrine\UserRoleRepository;
-use Casbin\Enforcer;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -105,16 +106,47 @@ return [
 
 
     CasbinAuthorizationMiddleware::class => static function (ContainerInterface $container): CasbinAuthorizationMiddleware {
-        $authSettings = (array) ($container->get('settings')['auth'] ?? []);
-
         return new CasbinAuthorizationMiddleware(
             $container->get(Enforcer::class),
             $container->get(ResponseFactoryInterface::class),
-            $container->get(TokenVerifier::class),
-            'api',
-            (string) ($authSettings['x_api_key'] ?? ''),
-            (string) ($authSettings['api_key_cookie_name'] ?? 'api_key'),
-            (array) (($container->get('settings')['cors']['allowed_origins'] ?? ['http://localhost:3000'])),
+            'api'
+        );
+    },
+
+    JwtAuthMiddleware::class => static fn(ContainerInterface $container): JwtAuthMiddleware => new JwtAuthMiddleware(
+        $container->get(TokenVerifier::class),
+        $container->get(ResponseFactoryInterface::class)
+    ),
+
+    InternalSignatureMiddleware::class => static function (ContainerInterface $container): InternalSignatureMiddleware {
+        $secret = $_ENV['INTERNAL_HMAC_SECRET'] ?? $_SERVER['INTERNAL_HMAC_SECRET'] ?? '';
+
+        return new InternalSignatureMiddleware(
+            (string) $secret,
+            $container->get(ResponseFactoryInterface::class),
+            (int) ($_ENV['INTERNAL_HMAC_MAX_SKEW'] ?? 60)
+        );
+    },
+
+    LoginRateLimitMiddleware::class => static function (ContainerInterface $container): LoginRateLimitMiddleware {
+        $limit = (int) ($_ENV['AUTH_LOGIN_RATE_LIMIT'] ?? 10);
+        $ttl = (int) ($_ENV['AUTH_LOGIN_RATE_TTL'] ?? 60);
+
+        return new LoginRateLimitMiddleware(
+            $container->get(ResponseFactoryInterface::class),
+            $limit,
+            $ttl
+        );
+    },
+
+    RefreshRateLimitMiddleware::class => static function (ContainerInterface $container): RefreshRateLimitMiddleware {
+        $limit = (int) ($_ENV['AUTH_REFRESH_RATE_LIMIT'] ?? 60);
+        $ttl = (int) ($_ENV['AUTH_REFRESH_RATE_TTL'] ?? 60);
+
+        return new RefreshRateLimitMiddleware(
+            $container->get(ResponseFactoryInterface::class),
+            $limit,
+            $ttl
         );
     },
 

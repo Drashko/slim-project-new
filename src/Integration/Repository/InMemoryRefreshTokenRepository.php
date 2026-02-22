@@ -13,33 +13,56 @@ final class InMemoryRefreshTokenRepository implements RefreshTokenRepositoryInte
     /**
      * @var array<string,RefreshToken>
      */
-    private array $tokens = [];
+    private array $tokensByHash = [];
 
-    public function persist(string $token, string $userId, DateTimeImmutable $expiresAt): RefreshToken
+    public function persist(string $plainToken, string $userId, DateTimeImmutable $expiresAt, ?string $familyId = null): RefreshToken
     {
-        $refreshToken = new RefreshToken($token, $userId, $expiresAt);
-        $this->tokens[$token] = $refreshToken;
+        $hash = hash('sha256', $plainToken);
+        $refreshToken = new RefreshToken($hash, $userId, $expiresAt, $familyId);
+        $this->tokensByHash[$hash] = $refreshToken;
 
         return $refreshToken;
     }
 
-    public function find(string $token): ?RefreshToken
+    public function find(string $plainToken): ?RefreshToken
     {
-        return $this->tokens[$token] ?? null;
+        $hash = hash('sha256', $plainToken);
+
+        return $this->tokensByHash[$hash] ?? null;
     }
 
-    public function revoke(string $token): void
+    public function revokeById(string $id, DateTimeImmutable $now, ?string $replacedBy = null): void
     {
-        unset($this->tokens[$token]);
+        foreach ($this->tokensByHash as $hash => $token) {
+            if ($token->getId() === $id) {
+                $token->revoke($now, $replacedBy);
+                $this->tokensByHash[$hash] = $token;
+                return;
+            }
+        }
+    }
+
+    public function revokeFamily(string $familyId, DateTimeImmutable $now): int
+    {
+        $count = 0;
+        foreach ($this->tokensByHash as $hash => $token) {
+            if ($token->getFamilyId() === $familyId && !$token->isRevoked()) {
+                $token->revoke($now);
+                $this->tokensByHash[$hash] = $token;
+                $count++;
+            }
+        }
+
+        return $count;
     }
 
     public function purgeExpired(DateTimeImmutable $now): int
     {
         $removed = 0;
 
-        foreach ($this->tokens as $token => $refreshToken) {
-            if ($refreshToken->isExpired($now)) {
-                unset($this->tokens[$token]);
+        foreach ($this->tokensByHash as $hash => $refreshToken) {
+            if ($refreshToken->isExpired($now) || $refreshToken->isRevoked()) {
+                unset($this->tokensByHash[$hash]);
                 $removed++;
             }
         }

@@ -8,11 +8,26 @@ use DateTimeImmutable;
 
 interface RefreshTokenRepositoryInterface
 {
-    public function persist(string $token, string $userId, DateTimeImmutable $expiresAt): RefreshToken;
+    /**
+     * Stores a refresh token (plain token provided) by hashing it before persisting.
+     * Returns the persisted entity.
+     */
+    public function persist(string $plainToken, string $userId, DateTimeImmutable $expiresAt, ?string $familyId = null): RefreshToken;
 
-    public function find(string $token): ?RefreshToken;
+    /**
+     * Finds a refresh token by hashing the provided plain token.
+     */
+    public function find(string $plainToken): ?RefreshToken;
 
-    public function revoke(string $token): void;
+    /**
+     * Marks a refresh token revoked.
+     */
+    public function revokeById(string $id, DateTimeImmutable $now, ?string $replacedBy = null): void;
+
+    /**
+     * Revokes the whole family (session) by family id.
+     */
+    public function revokeFamily(string $familyId, DateTimeImmutable $now): int;
 
     public function purgeExpired(DateTimeImmutable $now): int;
 }

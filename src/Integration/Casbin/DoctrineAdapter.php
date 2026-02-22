@@ -26,6 +26,7 @@ final readonly class DoctrineAdapter implements Adapter
 
     /**
      * @return callable(string, Model):void
+     * @throws \ReflectionException
      */
     private function resolvePolicyLineLoader(): callable
     {
@@ -35,15 +36,10 @@ final readonly class DoctrineAdapter implements Adapter
 
         $method = new ReflectionMethod($helper, 'loadPolicyLine');
 
-        if ($method->isStatic()) {
-            return static function (string $line, Model $model) use ($helper): void {
-                $helper::loadPolicyLine($line, $model);
-            };
-        }
-
         return static function (string $line, Model $model) use ($helper): void {
             $helper->loadPolicyLine($line, $model);
         };
+
     }
 
     public function savePolicy(Model $model): void

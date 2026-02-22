@@ -2,12 +2,10 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import AdminAsideNav from '../../../components/AdminAsideNav';
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const apiBase = '';
 
 const apiHeaders = {
   'Content-Type': 'application/json',
-  'X-Subject': process.env.NEXT_PUBLIC_API_SUBJECT ?? 'admin',
-  'X-Scope': process.env.NEXT_PUBLIC_API_SCOPE ?? 'api',
 };
 
 export default function AdminUsersReadPage() {

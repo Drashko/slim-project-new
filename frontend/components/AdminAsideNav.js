@@ -17,12 +17,7 @@ export default function AdminAsideNav() {
         {adminLinks.map((link) => {
           const isActive = router.pathname === link.href;
           return (
-            <a
-              key={link.href}
-              href={link.href}
-              className={`admin-aside-link${isActive ? ' admin-aside-link--active' : ''}`}
-              aria-current={isActive ? 'page' : undefined}
-            >
+            <a key={link.href} href={link.href} className={`admin-aside-link${isActive ? ' admin-aside-link--active' : ''}`} aria-current={isActive ? 'page' : undefined}>
               <span aria-hidden="true">{link.icon}</span>
               <span>{link.label}</span>
             </a>
