@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import AppLogo from './AppLogo';
 
 const adminLinks = [
   { href: '/admin', label: 'Admin Home', icon: 'home' },
@@ -51,6 +52,7 @@ export default function AdminAsideNav() {
 
   return (
     <aside className="admin-aside" aria-label="Admin navigation">
+      <AppLogo href="/admin" className="admin-aside__logo" ariaLabel="BrightPHP admin home" />
       <p className="eyebrow">Navigation</p>
       <nav className="admin-aside-nav">
         {adminLinks.map((link) => {
