@@ -134,6 +134,7 @@ body {
 
 .container--full {
   padding: 24px;
+  align-items: flex-start;
 }
 
 .list-item {
