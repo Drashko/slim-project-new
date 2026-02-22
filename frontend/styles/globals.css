@@ -14,8 +14,11 @@
   --md-shadow: 0 10px 30px rgba(103, 80, 164, 0.12);
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+  border-radius: 0 !important;
 }
 
 body {
@@ -254,7 +257,7 @@ button:hover,
 
 @media (min-width: 1100px) {
   .admin-layout {
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 180px minmax(0, 1fr);
     grid-template-areas: 'aside main';
     align-items: start;
   }
@@ -272,16 +275,16 @@ button:hover,
   border: 1px solid var(--md-outline);
   border-radius: 24px;
   background: var(--md-surface);
-  padding: 20px;
+  padding: 12px;
   display: grid;
-  gap: 14px;
+  gap: 8px;
   height: fit-content;
   box-shadow: var(--md-shadow);
 }
 
 .admin-aside-nav {
   display: grid;
-  gap: 10px;
+  gap: 6px;
 }
 
 .admin-aside-link {
@@ -289,10 +292,11 @@ button:hover,
   border: 1px solid #e4ddf3;
   color: #4f378b;
   border-radius: 14px;
-  padding: 10px 12px;
+  padding: 7px 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  font-size: 0.82rem;
   font-weight: 600;
   background: #fbf8ff;
 }
@@ -303,8 +307,8 @@ button:hover,
 }
 
 .admin-aside-link-icon {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
   border-radius: 10px;
   display: inline-flex;
   align-items: center;
@@ -314,8 +318,8 @@ button:hover,
 }
 
 .admin-aside-link-icon svg {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
 }
 
 .admin-aside-link--active {
