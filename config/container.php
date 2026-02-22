@@ -2,64 +2,48 @@
 
 declare(strict_types=1);
 
-use App\Domain\Auth\RefreshTokenRepositoryInterface;
-use App\Domain\Auth\TokenEncoder;
-use App\Domain\Auth\TokenVerifier;
-use App\Domain\Ad\AdRepositoryInterface;
-use App\Domain\Category\CategoryRepositoryInterface;
-use App\Domain\Permission\PermissionRepositoryInterface;
-use App\Domain\Role\RoleRepositoryInterface;
+use App\Domain\Shared\Clock;
 use App\Domain\Shared\Event\DomainEventDispatcherInterface;
 use App\Domain\Shared\Event\InMemoryDomainEventDispatcher;
 use App\Domain\Shared\Event\LoggingDomainEventDispatcher;
-use App\Domain\Shared\Clock;
+use App\Domain\Token\RefreshTokenRepositoryInterface;
+use App\Domain\Token\TokenEncoder;
+use App\Domain\Token\TokenVerifier;
 use App\Domain\User\UserRepositoryInterface;
-use App\Integration\Logger\LoggerFactory;
+use App\Domain\User\UserRoleRepositoryInterface;
+use App\Domain\User\RoleCatalog;
 use App\Integration\Helper\ImageStorage;
-use App\Integration\Middleware\LocalizationMiddleware;
-use App\Integration\Rbac\Policy;
-use App\Integration\Repository\Doctrine\PermissionRepository;
+use App\Integration\Casbin\CasbinRuleRepository;
+use App\Integration\Casbin\DoctrineAdapter;
+use App\Integration\Http\NotFoundHandler;
+use App\Integration\Logger\LoggerFactory;
+use App\Integration\Middleware\CasbinAuthorizationMiddleware;
+use App\Integration\Middleware\InternalSignatureMiddleware;
+use App\Integration\Middleware\JwtAuthMiddleware;
+use App\Integration\Middleware\LoginRateLimitMiddleware;
+use App\Integration\Middleware\RefreshRateLimitMiddleware;
 use App\Integration\Repository\Doctrine\RefreshTokenRepository;
-use App\Integration\Repository\Doctrine\RoleRepository;
-use App\Integration\Repository\Doctrine\AdRepository;
-use App\Integration\Repository\Doctrine\CategoryRepository;
 use App\Integration\Repository\Doctrine\UserRepository;
-use App\Integration\Routing\PathLocalizer;
-use App\Integration\View\Plates\RbacExtension;
-use App\Integration\View\Plates\ReactExtension;
-use App\Integration\View\TemplateRenderer;
+use App\Integration\Repository\Doctrine\UserRoleRepository;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
-use Laminas\Permissions\Rbac\Rbac as LaminasRbac;
-use Laminas\Permissions\Rbac\Role as LaminasRole;
-use League\Plates\Engine;
-use Mezzio\Authorization\AuthorizationInterface;
-use Mezzio\Authorization\Rbac\LaminasRbac as MezzioLaminasRbac;
-use Odan\Session\PhpSession;
-use Odan\Session\SessionInterface;
-use Odan\Session\SessionManagerInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Slim\App;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
-use Slim\Flash\Messages;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Psr7\Factory\ResponseFactory;
-use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
-use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Form\Forms;
-use Symfony\Component\Security\Csrf\CsrfTokenManager;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Csrf\TokenStorage\NativeSessionTokenStorage;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Translation\Loader\JsonFileLoader;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 return [
@@ -70,10 +54,20 @@ return [
     EntityManagerInterface::class => static function (ContainerInterface $container): EntityManagerInterface {
         $settings = $container->get('settings')['doctrine'] ?? [];
         $metaDirs = (array) ($settings['metadata_dirs'] ?? []);
-        $config = ORMSetup::createAttributeMetadataConfiguration(
+        $config = ORMSetup::createXMLMetadataConfiguration(
             $metaDirs,
             (bool) ($settings['dev_mode'] ?? false)
         );
+
+        $cacheSettings = (array) ($settings['cache'] ?? []);
+        if (!empty($cacheSettings['enabled'])) {
+            $namespace = (string) ($cacheSettings['namespace'] ?? 'doctrine');
+            $cacheDir = (string) ($cacheSettings['dir'] ?? '');
+            $cache = new FilesystemAdapter($namespace, 0, $cacheDir !== '' ? $cacheDir : null);
+            $config->setMetadataCache($cache);
+            $config->setQueryCache($cache);
+            $config->setResultCache($cache);
+        }
 
         if (!empty($settings['cache_dir'])) {
             $config->setProxyDir(rtrim((string) $settings['cache_dir'], '/'));
@@ -95,26 +89,76 @@ return [
         return $entityManager;
     },
 
-    SessionInterface::class => static function (ContainerInterface $container): SessionInterface {
-        $session = new PhpSession($container->get('settings')['session']);
+    CacheInterface::class => static function (ContainerInterface $container): CacheInterface {
+        $settings = (array) ($container->get('settings')['cache'] ?? []);
+        $cacheDir = (string) ($settings['dir'] ?? '');
 
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            $session->start();
-        }
-
-        return $session;
+        return new FilesystemAdapter('app', 0, $cacheDir !== '' ? $cacheDir : null);
     },
 
-    SessionManagerInterface::class => static function (ContainerInterface $container): SessionInterface {
-        return $container->get(SessionInterface::class);
+    CasbinRuleRepository::class => static fn(ContainerInterface $container): CasbinRuleRepository => new CasbinRuleRepository(
+        $container->get(EntityManagerInterface::class)
+    ),
+
+    DoctrineAdapter::class => static fn(ContainerInterface $container): DoctrineAdapter => new DoctrineAdapter(
+        $container->get(CasbinRuleRepository::class)
+    ),
+
+
+    CasbinAuthorizationMiddleware::class => static function (ContainerInterface $container): CasbinAuthorizationMiddleware {
+        return new CasbinAuthorizationMiddleware(
+            $container->get(Enforcer::class),
+            $container->get(ResponseFactoryInterface::class),
+            'api'
+        );
     },
 
-    Messages::class => static function (ContainerInterface $container): Messages {
-        // Ensure the PHP session is active before creating flash messages
-        $container->get(SessionInterface::class);
+    JwtAuthMiddleware::class => static fn(ContainerInterface $container): JwtAuthMiddleware => new JwtAuthMiddleware(
+        $container->get(TokenVerifier::class),
+        $container->get(ResponseFactoryInterface::class)
+    ),
 
-        return new Messages();
+    InternalSignatureMiddleware::class => static function (ContainerInterface $container): InternalSignatureMiddleware {
+        $secret = $_ENV['INTERNAL_HMAC_SECRET'] ?? $_SERVER['INTERNAL_HMAC_SECRET'] ?? '';
+
+        return new InternalSignatureMiddleware(
+            (string) $secret,
+            $container->get(ResponseFactoryInterface::class),
+            (int) ($_ENV['INTERNAL_HMAC_MAX_SKEW'] ?? 60)
+        );
     },
+
+    LoginRateLimitMiddleware::class => static function (ContainerInterface $container): LoginRateLimitMiddleware {
+        $limit = (int) ($_ENV['AUTH_LOGIN_RATE_LIMIT'] ?? 10);
+        $ttl = (int) ($_ENV['AUTH_LOGIN_RATE_TTL'] ?? 60);
+
+        return new LoginRateLimitMiddleware(
+            $container->get(ResponseFactoryInterface::class),
+            $limit,
+            $ttl
+        );
+    },
+
+    RefreshRateLimitMiddleware::class => static function (ContainerInterface $container): RefreshRateLimitMiddleware {
+        $limit = (int) ($_ENV['AUTH_REFRESH_RATE_LIMIT'] ?? 60);
+        $ttl = (int) ($_ENV['AUTH_REFRESH_RATE_TTL'] ?? 60);
+
+        return new RefreshRateLimitMiddleware(
+            $container->get(ResponseFactoryInterface::class),
+            $limit,
+            $ttl
+        );
+    },
+
+    Enforcer::class => static function (ContainerInterface $container): Enforcer {
+        $settings = (array) ($container->get('settings')['casbin'] ?? []);
+        $modelPath = (string) ($settings['model_path'] ?? __DIR__ . '/../config/casbin/model.conf');
+
+        $adapter = $container->get(DoctrineAdapter::class);
+
+        return new Enforcer($modelPath, $adapter);
+    },
+
 
     LoggerFactory::class => static fn(ContainerInterface $container): LoggerFactory => new LoggerFactory(
         $container->get('settings')['logger']
@@ -132,26 +176,10 @@ return [
         );
     },
 
-    PathLocalizer::class => static function (ContainerInterface $container): PathLocalizer {
-        $localization = $container->get('settings')['localization'] ?? [];
-
-        return new PathLocalizer((array) ($localization['route_paths'] ?? []));
-    },
-
-    TranslatorInterface::class => static function (ContainerInterface $container): TranslatorInterface {
-        $settings = $container->get('settings')['localization'] ?? [];
-        $defaultLocale = (string) ($settings['default_locale'] ?? 'en');
+    TranslatorInterface::class => static function (): TranslatorInterface {
+        $defaultLocale = 'en';
         $translator = new Translator($defaultLocale);
         $translator->addLoader('json', new JsonFileLoader());
-
-        $paths = $settings['paths'] ?? [];
-        foreach ($paths as $locale => $path) {
-            if (!is_string($path) || $path === '' || !is_file($path)) {
-                continue;
-            }
-
-            $translator->addResource('json', $path, (string) $locale);
-        }
 
         $translator->setFallbackLocales([$defaultLocale]);
 
@@ -169,31 +197,28 @@ return [
             ->getValidator();
     },
 
-    CsrfTokenManagerInterface::class => static fn(): CsrfTokenManagerInterface => new CsrfTokenManager(
-        null,
-        new NativeSessionTokenStorage()
-    ),
 
-    FormFactoryInterface::class => static function (ContainerInterface $container): FormFactoryInterface {
-        return Forms::createFormFactoryBuilder()
-            ->addExtension(new CsrfExtension($container->get(CsrfTokenManagerInterface::class)))
-            ->addExtension(new ValidatorExtension($container->get(ValidatorInterface::class)))
-            ->getFormFactory();
-    },
 
-    LocalizationMiddleware::class => static function (ContainerInterface $container): LocalizationMiddleware {
-        $settings = $container->get('settings')['localization'] ?? [];
+    RoleCatalog::class => static function (ContainerInterface $container): RoleCatalog {
+        $authSettings = (array) ($container->get('settings')['auth'] ?? []);
+        $roles = array_values(array_unique(array_map(
+            static fn(string $role): string => strtolower(trim($role)),
+            (array) ($authSettings['roles'] ?? ['user', 'customer', 'admin', 'super_admin'])
+        )));
+        $defaultRole = strtolower(trim((string) ($authSettings['default_role'] ?? 'user')));
+        if ($defaultRole === '') {
+            $defaultRole = 'user';
+        }
 
-        return new LocalizationMiddleware(
-            $container->get(TranslatorInterface::class),
-            $container->get(SessionInterface::class),
-            (array) ($settings['supported_locales'] ?? ['en' => 'English']),
-            (string) ($settings['default_locale'] ?? 'en')
-        );
+        if (!in_array($defaultRole, $roles, true)) {
+            $roles[] = $defaultRole;
+        }
+
+        return new RoleCatalog($roles, $defaultRole);
     },
 
     TokenEncoder::class => static function (ContainerInterface $container): TokenEncoder {
-        $secret = $_ENV['TOKEN_SECRET'] ?? $_SERVER['TOKEN_SECRET'] ?? null;
+        $secret = $_ENV['JWT_SECRET'] ?? $_SERVER['JWT_SECRET'] ?? $_ENV['TOKEN_SECRET'] ?? $_SERVER['TOKEN_SECRET'] ?? null;
         if ($secret === null || $secret === '') {
             $secret = 'dev-secret-key';
         }
@@ -208,71 +233,6 @@ return [
         $container->get(Clock::class)
     ),
 
-    LaminasRbac::class => static function (ContainerInterface $container): LaminasRbac {
-        $settings = (array) $container->get('settings');
-        $rbacSettings = (array) ($settings['rbac'] ?? []);
-        $roleDefinitions = (array) ($rbacSettings['roles'] ?? []);
-
-        $normalizeRole = static function (mixed $role): ?string {
-            if (!is_string($role)) {
-                return null;
-            }
-            $role = strtoupper(trim($role));
-            return $role === '' ? null : $role;
-        };
-
-        $normalizeAbility = static function (mixed $ability): ?string {
-            if (!is_string($ability)) {
-                return null;
-            }
-            $ability = strtolower(trim($ability));
-            return $ability === '' ? null : $ability;
-        };
-
-        $rbac = new LaminasRbac();
-        $rbac->setCreateMissingRoles(true);
-
-        foreach ($roleDefinitions as $name => $definition) {
-            $roleName = $normalizeRole($name);
-            if ($roleName === null) {
-                continue;
-            }
-
-            $role = $rbac->hasRole($roleName) ? $rbac->getRole($roleName) : new LaminasRole($roleName);
-
-            $permissions = [];
-            foreach ((array) ($definition['permissions'] ?? []) as $permission) {
-                $normalizedPermission = $normalizeAbility($permission);
-                if ($normalizedPermission !== null) {
-                    $permissions[$normalizedPermission] = true;
-                }
-            }
-
-            foreach (array_keys($permissions) as $permission) {
-                $role->addPermission($permission);
-            }
-
-            $parents = [];
-            foreach ((array) ($definition['children'] ?? []) as $parentRole) {
-                $normalizedParent = $normalizeRole($parentRole);
-                if ($normalizedParent !== null) {
-                    $parents[] = $normalizedParent;
-                }
-            }
-
-            $rbac->addRole($role, $parents === [] ? null : $parents);
-        }
-
-        return $rbac;
-    },
-
-    AuthorizationInterface::class => static function (ContainerInterface $container): AuthorizationInterface {
-        return new MezzioLaminasRbac($container->get(LaminasRbac::class));
-    },
-
-    Policy::class => static fn(ContainerInterface $container): Policy => new Policy(
-        $container->get(LaminasRbac::class)
-    ),
 
     RefreshTokenRepositoryInterface::class => static fn(ContainerInterface $container): RefreshTokenRepositoryInterface => new RefreshTokenRepository(
         $container->get(EntityManagerInterface::class)
@@ -282,21 +242,10 @@ return [
         $container->get(EntityManagerInterface::class)
     ),
 
-    RoleRepositoryInterface::class => static fn(ContainerInterface $container): RoleRepositoryInterface => new RoleRepository(
+    UserRoleRepositoryInterface::class => static fn(ContainerInterface $container): UserRoleRepositoryInterface => new UserRoleRepository(
         $container->get(EntityManagerInterface::class)
     ),
 
-    PermissionRepositoryInterface::class => static fn(ContainerInterface $container): PermissionRepositoryInterface => new PermissionRepository(
-        $container->get(EntityManagerInterface::class)
-    ),
-
-    AdRepositoryInterface::class => static fn(ContainerInterface $container): AdRepositoryInterface => new AdRepository(
-        $container->get(EntityManagerInterface::class)
-    ),
-
-    CategoryRepositoryInterface::class => static fn(ContainerInterface $container): CategoryRepositoryInterface => new CategoryRepository(
-        $container->get(EntityManagerInterface::class)
-    ),
 
     ImageStorage::class => static function (ContainerInterface $container): ImageStorage {
         $config = (array) ($container->get('settings')['uploads']['ads'] ?? []);
@@ -305,177 +254,6 @@ return [
 
         return new ImageStorage($path, $publicPrefix);
     },
-
-    Engine::class => static function (ContainerInterface $container): Engine {
-        $settings = $container->get('settings')['templates'];
-        $engine = new Engine($settings['path'], $settings['extension'] ?? 'php');
-
-        $engine
-            ->addFolder('layout', $settings['path'] . '/layout')
-            ->addFolder('front', $settings['path'] . '/front')
-            ->addFolder('auth', $settings['path'] . '/auth')
-            ->addFolder('admin', $settings['path'] . '/admin')
-            ->addFolder('profile', $settings['path'] . '/profile');
-
-        $engine->addData([
-            'flash' => $container->get(Messages::class),
-        ]);
-
-        $translator = $container->get(TranslatorInterface::class);
-        $localization = $container->get('settings')['localization'] ?? [];
-        $supportedLocales = (array) ($localization['supported_locales'] ?? ['en' => 'English']);
-        $pathLocalizer = $container->get(PathLocalizer::class);
-
-        $engine->registerFunction('trans', function (
-            string $id,
-            array $parameters = [],
-            ?string $domain = null,
-            ?string $locale = null
-        ) use ($translator): string {
-            return $translator->trans($id, $parameters, $domain, $locale);
-        });
-
-        $engine->registerFunction('current_locale', static function () use ($translator): string {
-            return $translator->getLocale();
-        });
-
-        $engine->registerFunction('available_locales', static function () use ($supportedLocales): array {
-            return $supportedLocales;
-        });
-
-        $engine->registerFunction('locale_name', static function (string $locale) use ($supportedLocales): string {
-            return $supportedLocales[$locale] ?? $locale;
-        });
-
-        $engine->registerFunction('locale_url', static function (?string $path = null, ?string $locale = null, ?string $scope = null) use ($supportedLocales, $translator, $container, $pathLocalizer): string {
-            $normalizeLocale = static function (mixed $value) use ($supportedLocales): ?string {
-                if (!is_string($value) || $value === '') {
-                    return null;
-                }
-
-                $normalized = strtolower(str_replace('_', '-', $value));
-                if (array_key_exists($normalized, $supportedLocales)) {
-                    return $normalized;
-                }
-
-                $short = substr($normalized, 0, 2);
-                if ($short !== '' && array_key_exists($short, $supportedLocales)) {
-                    return $short;
-                }
-
-                return null;
-            };
-
-            $scopeKey = null;
-            if ($scope === 'admin') {
-                $scopeKey = 'locale_admin';
-            } elseif ($scope === 'public') {
-                $scopeKey = 'locale_public';
-            }
-
-            $scopedLocale = null;
-            if ($scopeKey !== null && $container->has(SessionInterface::class)) {
-                $sessionLocale = $container->get(SessionInterface::class)->get($scopeKey);
-                $scopedLocale = $normalizeLocale($sessionLocale);
-            }
-
-            $targetLocale = $normalizeLocale($locale);
-            if ($targetLocale === null && $scopedLocale !== null) {
-                $targetLocale = $scopedLocale;
-            }
-
-            if ($targetLocale === null) {
-                $targetLocale = $normalizeLocale($translator->getLocale());
-            }
-
-            if ($targetLocale === null) {
-                $targetLocale = $normalizeLocale(array_key_first($supportedLocales));
-            }
-
-            if ($targetLocale === null) {
-                $targetLocale = 'en';
-            }
-
-            $normalizedPath = $path ?? '';
-            $normalizedPath = trim($normalizedPath);
-
-            if ($normalizedPath === '' || $normalizedPath === '/') {
-                return '/' . $targetLocale;
-            }
-
-            $translatedPath = $pathLocalizer->prefix($normalizedPath, $targetLocale);
-
-            if ($translatedPath === '') {
-                return '/' . $targetLocale;
-            }
-
-            return $translatedPath;
-        });
-
-        $engine->registerFunction('locale_switch_url', static function (string $locale) use ($supportedLocales, $pathLocalizer): string {
-            if (!array_key_exists($locale, $supportedLocales)) {
-                return '#';
-            }
-
-            $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
-            $parts = parse_url($requestUri);
-            $path = isset($parts['path']) && $parts['path'] !== '' ? $parts['path'] : '/';
-            $segments = array_values(array_filter(
-                explode('/', trim($path, '/')),
-                static fn(string $segment): bool => $segment !== ''
-            ));
-
-            if ($segments !== []) {
-                $candidate = strtolower($segments[0]);
-                if (array_key_exists($candidate, $supportedLocales)) {
-                    array_shift($segments);
-                }
-            }
-
-            $newPath = '/' . $locale;
-            $remainingPath = implode('/', $segments);
-            $canonicalPath = $pathLocalizer->canonicalize($remainingPath);
-            $newPath = $pathLocalizer->prefix($canonicalPath, $locale);
-
-            $queryParams = [];
-            if (!empty($parts['query'])) {
-                parse_str((string) $parts['query'], $queryParams);
-            }
-
-            unset($queryParams['lang']);
-            $queryString = http_build_query($queryParams);
-
-            if ($queryString !== '') {
-                $newPath .= '?' . $queryString;
-            }
-
-            return $newPath;
-        });
-
-        $reactSettings = (array) ($container->get('settings')['react'] ?? []);
-        $reactEntry = (string) ($reactSettings['entry'] ?? 'src/main.jsx');
-        $reactManifest = (string) ($reactSettings['manifest_path'] ?? '');
-        $reactPublicPrefix = (string) ($reactSettings['public_prefix'] ?? '/assets/react/');
-        $reactDevServer = trim((string) ($reactSettings['dev_server'] ?? ''));
-
-        $engine->loadExtension(new ReactExtension(
-            $reactEntry,
-            $reactManifest,
-            $reactPublicPrefix,
-            $reactDevServer
-        ));
-
-        $engine->loadExtension(new RbacExtension(
-            $container->get(Policy::class),
-            $container->get(SessionInterface::class)
-        ));
-
-        return $engine;
-    },
-
-    TemplateRenderer::class => static fn(ContainerInterface $container): TemplateRenderer => new TemplateRenderer(
-        $container->get(Engine::class)
-    ),
 
     App::class => static function (ContainerInterface $container): App {
         AppFactory::setContainer($container);
@@ -492,7 +270,7 @@ return [
             ->addFileHandler($settings['log_file'] ?? 'error.log')
             ->createLogger();
 
-        return new ErrorMiddleware(
+        $middleware = new ErrorMiddleware(
             $app->getCallableResolver(),
             $app->getResponseFactory(),
             (bool) $settings['display_error_details'],
@@ -500,5 +278,14 @@ return [
             (bool) $settings['log_error_details'],
             $logger
         );
+
+        $middleware->setErrorHandler(
+            HttpNotFoundException::class,
+            new NotFoundHandler(
+                $container->get(ResponseFactoryInterface::class),
+            ),
+        );
+
+        return $middleware;
     },
 ];

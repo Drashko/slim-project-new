@@ -12,7 +12,7 @@ final readonly class RegisterUserCommand
     public function __construct(
         private string $email,
         private string $password,
-        private array  $roles = ['ROLE_USER']
+        private array  $roles = ['user']
     ) {
     }
 

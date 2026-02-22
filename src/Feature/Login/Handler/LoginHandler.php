@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Feature\Login\Handler;
 
-use App\Feature\Login\Command\LoginCommand;
-
-use App\Domain\Auth\Identity;
-use App\Domain\Auth\RefreshTokenRepositoryInterface;
-use App\Domain\Auth\TokenClaims;
-use App\Domain\Auth\TokenEncoder;
 use App\Domain\Shared\Clock;
 use App\Domain\Shared\DomainException;
+use App\Domain\Token\Identity;
+use App\Domain\Token\RefreshTokenRepositoryInterface;
+use App\Domain\Token\TokenClaims;
+use App\Domain\Token\TokenEncoder;
 use App\Domain\User\UserRepositoryInterface;
+use App\Feature\Login\Command\LoginCommand;
 use DateInterval;
 use Exception;
 
@@ -38,7 +37,7 @@ final readonly class LoginHandler
             throw new DomainException('Invalid credentials provided.');
         }
 
-        $identity = new Identity($user->getId(), $user->getEmail(), $user->getRoles());
+        $identity = new Identity($user->getId(), $user->getEmail(), $user->getRoles(), $user->getRolesVersion());
 
         $issuedAt = $this->clock->now();
         $expiresAt = $issuedAt->add(new DateInterval(sprintf('PT%dS', $this->accessTokenTtl)));
@@ -47,7 +46,8 @@ final readonly class LoginHandler
 
         $refreshToken = $this->generateRefreshToken();
         $refreshExpiresAt = $issuedAt->add(new DateInterval(sprintf('PT%dS', $this->refreshTokenTtl)));
-        $this->refreshTokenRepository->persist($refreshToken, $identity->getUserId(), $refreshExpiresAt);
+        // Create a new refresh family (familyId is generated inside entity on first persist)
+        $this->refreshTokenRepository->persist($refreshToken, $identity->getUserId(), $refreshExpiresAt, null);
 
         return [
             'access_token' => $accessToken->getToken(),

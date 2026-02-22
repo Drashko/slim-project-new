@@ -8,6 +8,7 @@ use App\Feature\Register\Command\RegisterUserCommand;
 
 use App\Domain\Shared\DomainException;
 use App\Domain\Shared\Event\DomainEventDispatcherInterface;
+use App\Domain\User\RoleCatalog;
 use App\Domain\User\Event\UserCreatedEvent;
 use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
@@ -16,7 +17,8 @@ final readonly class RegisterUserHandler
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
-        private DomainEventDispatcherInterface $eventDispatcher
+        private DomainEventDispatcherInterface $eventDispatcher,
+        private RoleCatalog $roleCatalog
     )
     {
     }
@@ -28,7 +30,8 @@ final readonly class RegisterUserHandler
             throw new DomainException('User with this email already exists.');
         }
 
-        $user = new User($command->getEmail(), $command->getPassword(), $command->getRoles());
+        $roles = $this->roleCatalog->assertAllowed($command->getRoles());
+        $user = new User($command->getEmail(), $command->getPassword(), $roles);
         $this->userRepository->add($user);
         $this->userRepository->flush();
 

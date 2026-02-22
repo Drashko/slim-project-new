@@ -5,41 +5,35 @@ declare(strict_types=1);
 namespace App\Domain\User;
 
 use DateTimeImmutable;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'users')]
 class User implements UserInterface
 {
-    #[ORM\Id]
-    #[ORM\Column(type: 'guid')]
     private string $id;
 
-    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private string $email;
 
-    #[ORM\Column(type: 'string', length: 255)]
     private string $passwordHash;
 
     /**
-     * @var string[]
+     * @var Collection<int, UserRole>
      */
-    #[ORM\Column(type: 'json')]
-    private array $roles = [];
+    private Collection $roleAssignments;
 
-    #[ORM\Column(type: 'string', length: 32)]
+    private int $rolesVersion = 1;
+
     private string $status = 'Active';
 
-    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $updatedAt;
 
-    public function __construct(string $email, string $plainPassword, array $roles = ['ROLE_USER'], string $status = 'Active')
+    public function __construct(string $email, string $plainPassword, array $roles = ['user'], string $status = 'Active')
     {
         $this->id = Uuid::v4()->toRfc4122();
+        $this->roleAssignments = new ArrayCollection();
         $this->setEmail($email);
         $this->changePassword($plainPassword);
         $this->setRoles($roles);
@@ -99,7 +93,19 @@ class User implements UserInterface
      */
     public function getRoles(): array
     {
-        return $this->roles;
+        $this->ensureRoleAssignmentsInitialized();
+
+        $roles = [];
+        foreach ($this->roleAssignments as $assignment) {
+            $roles[] = $assignment->getRole();
+        }
+
+        return array_values(array_unique($roles));
+    }
+
+    public function getRolesVersion(): int
+    {
+        return $this->rolesVersion;
     }
 
     /**
@@ -107,12 +113,33 @@ class User implements UserInterface
      */
     public function setRoles(array $roles): void
     {
-        $normalized = [];
-        foreach ($roles as $role) {
-            $normalized[] = strtoupper((string) $role);
+        $this->ensureRoleAssignmentsInitialized();
+
+        $normalized = $this->normalizeRoles($roles);
+        $currentRoles = $this->getRoles();
+        if ($normalized === $currentRoles) {
+            return;
         }
 
-        $this->roles = array_values(array_unique($normalized));
+        $target = array_fill_keys($normalized, true);
+
+        foreach ($this->roleAssignments->toArray() as $assignment) {
+            if (!isset($target[$assignment->getRole()])) {
+                $this->roleAssignments->removeElement($assignment);
+            }
+        }
+
+        $existingRoles = array_fill_keys($this->getRoles(), true);
+        foreach ($normalized as $role) {
+            if (!isset($existingRoles[$role])) {
+                $this->roleAssignments->add(new UserRole($this, $role));
+            }
+        }
+
+        if ($currentRoles !== []) {
+            $this->rolesVersion++;
+        }
+
         $this->touch();
     }
 
@@ -142,8 +169,37 @@ class User implements UserInterface
         return $this->updatedAt;
     }
 
+
+    private function ensureRoleAssignmentsInitialized(): void
+    {
+        if (!isset($this->roleAssignments)) {
+            $this->roleAssignments = new ArrayCollection();
+        }
+    }
+
     private function touch(): void
     {
         $this->updatedAt = new DateTimeImmutable('now');
+    }
+
+    /**
+     * @param string[] $roles
+     * @return string[]
+     */
+    private function normalizeRoles(array $roles): array
+    {
+        $normalized = [];
+        foreach ($roles as $role) {
+            $value = strtolower(trim((string) $role));
+            if ($value !== '') {
+                $normalized[$value] = $value;
+            }
+        }
+
+        if ($normalized === []) {
+            $normalized['user'] = 'user';
+        }
+
+        return array_values($normalized);
     }
 }

@@ -10,10 +10,41 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $containerBuilder = new ContainerBuilder();
 $containerBuilder->addDefinitions(__DIR__ . '/container.php');
 
+$settings = require __DIR__ . '/settings.php';
+$containerCache = (array) ($settings['container']['cache'] ?? []);
+$containerProxies = (array) ($settings['container']['proxies'] ?? []);
+
+if (!empty($containerCache['enabled']) && !empty($containerCache['path'])) {
+    $cachePath = (string) $containerCache['path'];
+    if (!is_dir($cachePath)) {
+        mkdir($cachePath, 0775, true);
+    }
+    $containerBuilder->enableCompilation($cachePath);
+}
+
+if (!empty($containerProxies['enabled']) && !empty($containerProxies['path'])) {
+    $proxyPath = (string) $containerProxies['path'];
+    if (!is_dir($proxyPath)) {
+        mkdir($proxyPath, 0775, true);
+    }
+    $containerBuilder->writeProxiesToFile(true, $proxyPath);
+}
+
 $container = $containerBuilder->build();
 
 /** @var App $app */
 $app = $container->get(App::class);
+
+$settings = (array) $container->get('settings');
+$routeCache = (array) ($settings['route_cache'] ?? []);
+if (!empty($routeCache['enabled']) && !empty($routeCache['path'])) {
+    $cachePath = (string) $routeCache['path'];
+    $cacheDir = dirname($cachePath);
+    if (!is_dir($cacheDir)) {
+        mkdir($cacheDir, 0775, true);
+    }
+    $app->getRouteCollector()->setCacheFile($cachePath);
+}
 
 (require __DIR__ . '/routes.php')($app);
 (require __DIR__ . '/middleware.php')($app);

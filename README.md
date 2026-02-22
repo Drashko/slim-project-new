@@ -39,45 +39,11 @@ Start the PHP development server from the project root and point it at the
 `public/` directory:
 
 ```bash
-php -S 0.0.0.0:8080 -t public public/index.php
+php -S 0.0.0.0:8080 -t home home/index.php
 ```
 
 You can then open <http://localhost:8080> in your browser for the public home
 page, or <http://localhost:8080/admin> for the admin dashboard.
-
-## Building the React bundle
-
-The repository still ships with the Vite-powered React scaffolding used to
-preview the role and permission data rendered in the RBAC templates. If you
-extend the demo with your own React mounts, generate the production assets by
-running:
-
-```bash
-npm run build
-```
-
-The first run automatically installs the React dependencies into the
-`frontend/` workspace before executing the Vite build. If you prefer to manage
-the installation yourself you can run `npm run frontend:install` once and
-subsequent `npm --prefix frontend run build` commands will skip the automatic
-step.
-
-The build output is written to `public/assets/react/` by default and is
-automatically picked up by the PHP templates when present.
-
-You can customise the output directory and the public URL that Slim uses to
-serve the bundles by setting the following environment variables in your root
-`.env` file before building:
-
-```dotenv
-REACT_ASSET_BUILD_PATH="/absolute/or/project-relative/path/to/output"
-REACT_ASSET_PUBLIC_PREFIX="/custom/public/prefix/"
-```
-
-Relative paths are resolved from the project root, matching the PHP
-configuration. If the resolved path points inside `frontend/public`, the Vite
-configuration skips copying the static assets from that directory to avoid
-recursive nesting of generated folders.
 
 ## Running tests
 
@@ -87,43 +53,47 @@ Once dependencies are installed you can execute the PHPUnit test suite:
 composer test
 ```
 
-## Checking permissions in Plates templates
+## Casbin authorization flow
 
-Templates rendered through the custom Plates integration expose a `can`
-function for RBAC checks. It resolves the caller’s roles and defers to the
-shared `Policy` service so authorization is consistent across the app. The
-helper is registered by `App\Integration\View\Plates\RbacExtension` and
-supports an optional subject argument when you need to evaluate another user or
-a specific role set.
+API authorization is handled by a Casbin enforcer registered in the container
+and applied as middleware to the `/api/v1` route group. The default model lives
+in `config/casbin/model.conf` and ships with a simple RBAC + scope matcher that
+supports path patterns, HTTP methods, and a scope segment for client or
+server-to-server use cases. Policies are persisted in the database via Doctrine
+using the `casbin_rule` table.
 
-```php
-<?php if ($this->can('admin.access')): ?>
-    <!-- Render admin navigation when the current user has the ability -->
-<?php endif; ?>
+### Request headers used by the middleware
 
-<?php if ($this->can('admin.users.manage', $user ?? null)): ?>
-    <!-- Check against an explicit user/role payload rather than the session -->
-<?php endif; ?>
+- `Authorization: Bearer <jwt>`: Primary authentication mechanism. The JWT is
+  verified and all role claims are evaluated as Casbin subjects.
+- `X-Subject`: Optional override for trusted internal calls where the subject is
+  injected by infrastructure.
+- `X-Client-Id`: Fallback subject for server-to-server calls.
+- `X-API-Key`: Static key for non-authenticated public calls (maps to `guest`
+  subject when it matches `X_API_KEY` from environment).
+- `api_key` cookie (configurable via `API_KEY_COOKIE_NAME`): HttpOnly cookie
+  alternative for the same guest API-key flow.
+- `X-Scope`: Optional scope string (defaults to `api`).
 
-<?php if ($this->can('admin.users.view')): ?>
-    <!-- Hide or show a users listing card in the admin area -->
-    <?= $this->insert('admin::users/card') ?>
-<?php else: ?>
-    <p class="text-muted">You do not have permission to view users.</p>
-<?php endif; ?>
+For browser clients, prefer sending the API key via an HttpOnly cookie and `fetch(..., { credentials: 'include' })` instead of exposing it to JavaScript.
+
+### Example policy entry (database row)
+
+```
+p, admin, /api/v1/users, GET, api
+p, super_admin, /api/v1/*, GET|POST|PUT|PATCH|DELETE, api
 ```
 
-Under the hood the helper:
+### Example API call
 
-- Pulls the current user array from the session when no subject is provided.
-- Accepts `App\Domain\Auth\Identity` instances, associative arrays with a
-  `roles` key, plain role lists, or stringable values and normalizes them into a
-  role array.
-- Lowercases and trims the requested ability before delegating to the RBAC
-  policy’s `isGranted` check, so `can('Admin.Access')` matches the `admin.access`
-  rule.
+```
+curl -H "X-Subject: user:1" -H "X-Scope: api" http://localhost:8080/api/v1/admin
+```
 
-Providing an invalid ability or role returns `false`, allowing templates to
-fail closed without throwing. This mirrors the behavior used by the API layer’s
-authorization middleware, so a `can` check in Plates reflects the same decision
-as a server-side guard.
+Policies are stored in the `casbin_rule` table via a Doctrine-backed Casbin
+adapter configured in `config/container.php`, sharing the same Doctrine
+connection settings defined in `config/settings.php`.
+
+User roles are persisted in the `user_role` table and are loaded into JWT role
+claims during login. Allowed roles are configured via `AUTH_ROLES` (default:
+`user,customer,admin,super_admin`) with `AUTH_DEFAULT_ROLE` for fallback.

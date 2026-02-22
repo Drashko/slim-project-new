@@ -61,24 +61,10 @@ $normalizeServerVersion = static function (?string $version): ?string {
     return $version;
 };
 
-$normalizePublicPrefix = static function (?string $prefix): string {
-    if ($prefix === null) {
-        return '/assets/react/';
-    }
-
-    $normalized = trim(str_replace('\\', '/', $prefix));
-
-    if ($normalized === '') {
-        return '/assets/react/';
-    }
-
-    return rtrim($normalized, '/') . '/';
-};
-
 $appEnv = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'prod';
 $environment = new AppEnvironment($appEnv);
 
-$appSnakeName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME'] ?? 'slim_access_control'));
+$appSnakeName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME'] ?? 'slim_app'));
 
 $resolveBuildPath = static function (string $path) use ($projectRoot): string {
     if ($path === '') {
@@ -92,14 +78,20 @@ $resolveBuildPath = static function (string $path) use ($projectRoot): string {
     return rtrim($projectRoot, '/\\') . '/' . ltrim(str_replace('\\', '/', $path), '/');
 };
 
-$reactBuildPath = $resolveBuildPath($_ENV['REACT_ASSET_BUILD_PATH'] ?? 'public/assets/react');
-$reactPublicPrefix = $normalizePublicPrefix($_ENV['REACT_ASSET_PUBLIC_PREFIX'] ?? '/assets/react/');
+$defaultCacheDir = $resolveBuildPath($_ENV['APP_CACHE_DIR'] ?? 'tmp/var');
+$isCli = PHP_SAPI === 'cli';
+$cacheEnabled = !$environment->isDevelopment();
+if ($isCli) {
+    $cacheEnabled = false;
+}
+
+$doctrineCacheEnabled = !$isCli
+    && $boolean($_ENV['DOCTRINE_CACHE_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false'));
 
 error_reporting(E_ALL);
 ini_set('display_errors', $boolean($_ENV['APP_DEBUG'] ?? 0));
 
 return [
-    'session' => ['name' => 'webapp'],
     'public' => __DIR__ . '/../public',
     'error' => [
         'display_error_details' => $boolean($_ENV['APP_DEBUG'] ?? 0),
@@ -114,21 +106,30 @@ return [
         'level' => Level::Debug,
         'file_permission' => 0775,
     ],
-    'templates' => [
-        'path' => __DIR__ . '/../templates',
-        'extension' => 'php',
+    'route_cache' => [
+        'enabled' => $boolean($_ENV['ROUTE_CACHE_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false')),
+        'path' => $resolveBuildPath($_ENV['ROUTE_CACHE_PATH'] ?? ($defaultCacheDir . '/routes.cache.php')),
+    ],
+    'container' => [
+        'cache' => [
+            'enabled' => $boolean($_ENV['DI_CACHE_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false')),
+            'path' => $resolveBuildPath($_ENV['DI_CACHE_DIR'] ?? ($defaultCacheDir . '/container')),
+        ],
+        'proxies' => [
+            'enabled' => $boolean($_ENV['DI_PROXY_ENABLED'] ?? ($cacheEnabled ? 'true' : 'false')),
+            'path' => $resolveBuildPath($_ENV['DI_PROXY_DIR'] ?? ($defaultCacheDir . '/container/proxies')),
+        ],
     ],
     'doctrine' => [
         'dev_mode' => $environment->isDevelopment(),
-        'cache_dir' => __DIR__ . '/tmp/var/doctrine',
+        'cache_dir' => $resolveBuildPath($_ENV['DOCTRINE_PROXY_DIR'] ?? ($defaultCacheDir . '/doctrine/proxies')),
+        'cache' => [
+            'enabled' => $doctrineCacheEnabled,
+            'dir' => $resolveBuildPath($_ENV['DOCTRINE_CACHE_DIR'] ?? ($defaultCacheDir . '/doctrine/cache')),
+            'namespace' => $_ENV['DOCTRINE_CACHE_NAMESPACE'] ?? $appSnakeName,
+        ],
         'metadata_dirs' => [
-            __DIR__ . '/../src/Domain/Auth',
-            __DIR__ . '/../src/Domain/User',
-            __DIR__ . '/../src/Domain/Role',
-            __DIR__ . '/../src/Domain/Permission',
-            __DIR__ . '/../src/Domain/Category',
-            __DIR__ . '/../src/Domain/Shared',
-            __DIR__ . '/../src/Domain/Ad',
+            __DIR__ . '/../src/Integration/Doctrine/Mapping',
         ],
         'connection' => [
             'driver' => $normalizeDoctrineDriver($_ENV['DB_DRIVER'] ?? null),
@@ -136,7 +137,7 @@ return [
             'port' => $_ENV['DB_PORT'] ?? 3306,
             'dbname' => $environment->isTest()
                 ? ($_ENV['TEST_DB_NAME'] ?? 'slim_access_test')
-                : ($_ENV['DB_NAME'] ?? 'slim_access'),
+                : ($_ENV['DB_NAME'] ?? 'slim_app_test'),
             'user' => $_ENV['DB_USER'] ?? 'root',
             'password' => $_ENV['DB_PASS'] ?? '',
             'charset' => $_ENV['DB_CHARSET'] ?? 'utf8mb4',
@@ -150,50 +151,27 @@ return [
             'public_prefix' => '/uploads/ads/',
         ],
     ],
-    'localization' => [
-        'default_locale' => 'en',
-        'supported_locales' => [
-            'en' => 'English',
-            'bg' => 'Български',
-        ],
-        'paths' => [
-            'en' => __DIR__ . '/../translations/en.json',
-            'bg' => __DIR__ . '/../translations/bg.json',
-        ],
-        'route_paths' => [],
+    'casbin' => [
+        'model_path' => $resolveBuildPath($_ENV['CASBIN_MODEL_PATH'] ?? 'config/casbin/model.conf'),
     ],
-    'rbac' => [
-        'roles' => [
-            'ROLE_USER' => [
-                'permissions' => [
-                    'profile.view',
-                ],
-            ],
-            'ROLE_API' => [
-                'permissions' => [
-                    'api.access',
-                    'auth.refresh',
-                ],
-            ],
-            'ROLE_ADMIN' => [
-                'children' => ['ROLE_USER'],
-                'permissions' => [
-                    'admin.access',
-                    'admin.users.manage',
-                    'admin.roles.manage',
-                    'admin.permissions.manage',
-                    'admin.permissions.publish',
-                    'admin.audit.view',
-                ],
-            ],
-        ],
+    'cors' => [
+        'allowed_origins' => array_values(array_filter(array_map(
+            static fn(string $origin): string => trim($origin),
+            explode(',', (string) ($_ENV['CORS_ALLOWED_ORIGINS'] ?? 'http://localhost:3000'))
+        ), static fn(string $origin): bool => $origin !== '')),
     ],
-    'react' => [
-        'entry' => 'src/main.jsx',
-        'build_path' => $reactBuildPath,
-        'manifest_path' => rtrim($reactBuildPath, '/\\') . '/manifest.json',
-        'public_prefix' => $reactPublicPrefix,
-        'dev_server' => rtrim((string) ($_ENV['REACT_DEV_SERVER'] ?? ''), '/'),
+    'auth' => [
+        'x_api_key' => $_ENV['X_API_KEY'] ?? $_SERVER['X_API_KEY'] ?? '',
+        'api_key_cookie_name' => $_ENV['API_KEY_COOKIE_NAME'] ?? $_SERVER['API_KEY_COOKIE_NAME'] ?? 'api_key',
+        'roles' => array_values(array_filter(array_map(
+            static fn(string $role): string => strtolower(trim($role)),
+            explode(',', (string) ($_ENV['AUTH_ROLES'] ?? 'user,customer,admin,super_admin'))
+        ), static fn(string $role): bool => $role !== '')),
+        'default_role' => strtolower(trim((string) ($_ENV['AUTH_DEFAULT_ROLE'] ?? 'user'))),
+    ],
+    'pagination' => [
+        'default_per_page' => max(1, (int) ($_ENV['DEFAULT_PER_PAGE'] ?? 10)),
+        'admin_users_per_page' => max(1, (int) ($_ENV['ADMIN_USERS_PER_PAGE'] ?? 0)),
     ],
     'commands' => [],
 ];
