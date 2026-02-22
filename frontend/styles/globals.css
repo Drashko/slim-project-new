@@ -5,13 +5,13 @@
   font-family: 'Inter', 'Roboto', system-ui, -apple-system, sans-serif;
   background: #f4f6fb;
   color: #1f2937;
-  --md-primary: #6750a4;
-  --md-primary-container: #eaddff;
+  --md-primary: #1d4ed8;
+  --md-primary-container: #dbeafe;
   --md-on-primary: #ffffff;
   --md-surface: #ffffff;
-  --md-surface-2: #f8f5ff;
-  --md-outline: #d5d0e0;
-  --md-shadow: 0 10px 30px rgba(103, 80, 164, 0.12);
+  --md-surface-2: #f8fbff;
+  --md-outline: #bfdbfe;
+  --md-shadow: 0 10px 30px rgba(29, 78, 216, 0.12);
 }
 
 *,
@@ -106,7 +106,7 @@ p {
 }
 
 code {
-  background: #ebe7f5;
+  background: #dbeafe;
   padding: 2px 6px;
   border-radius: 6px;
 }
@@ -138,7 +138,7 @@ code {
 .input-group input:focus {
   outline: none;
   border-color: var(--md-primary);
-  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.15);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
 }
 
 .panel {
@@ -177,14 +177,14 @@ code {
   padding: 10px 12px;
   border-radius: 12px;
   background: #fff;
-  border: 1px solid #e7e3ef;
+  border: 1px solid #dbeafe;
 }
 
 .rule {
   padding: 10px 12px;
   border-radius: 12px;
   background: #fff;
-  border: 1px dashed #d7d1e6;
+  border: 1px dashed #bfdbfe;
 }
 
 .notice {
@@ -232,14 +232,14 @@ button.ghost,
 button.primary {
   background: var(--md-primary);
   color: var(--md-on-primary);
-  box-shadow: 0 4px 14px rgba(103, 80, 164, 0.3);
+  box-shadow: 0 4px 14px rgba(29, 78, 216, 0.3);
 }
 
 .actions a.ghost,
 button.ghost,
 .users-table-actions a.ghost {
-  border-color: #d5d0e0;
-  color: #4b3c73;
+  border-color: #bfdbfe;
+  color: #1e3a8a;
   background: #fff;
 }
 
@@ -289,8 +289,8 @@ button:hover,
 
 .admin-aside-link {
   text-decoration: none;
-  border: 1px solid #e4ddf3;
-  color: #4f378b;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
   border-radius: 14px;
   padding: 7px 8px;
   display: flex;
@@ -298,12 +298,12 @@ button:hover,
   gap: 6px;
   font-size: 0.82rem;
   font-weight: 600;
-  background: #fbf8ff;
+  background: #eff6ff;
 }
 
 .admin-aside-link:hover {
-  background: #f3ecff;
-  border-color: #d2c6f5;
+  background: #dbeafe;
+  border-color: #93c5fd;
 }
 
 .admin-aside-link-icon {
@@ -324,8 +324,8 @@ button:hover,
 
 .admin-aside-link--active {
   border-color: var(--md-primary);
-  color: #35275c;
-  background: linear-gradient(90deg, #f0e5ff 0%, #faf6ff 100%);
+  color: #1e3a8a;
+  background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%);
   box-shadow: inset 3px 0 0 var(--md-primary);
 }
 
@@ -352,20 +352,20 @@ button:hover,
 .users-table td {
   text-align: left;
   padding: 12px 14px;
-  border-bottom: 1px solid #ece7f4;
+  border-bottom: 1px solid #dbeafe;
   vertical-align: middle;
 }
 
 .users-table th {
-  background: #f7f2fc;
-  color: #564b73;
+  background: #eff6ff;
+  color: #334155;
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .users-table tbody tr:hover {
-  background: #faf7ff;
+  background: #f8fbff;
 }
 
 .users-table tbody tr:last-child td {
