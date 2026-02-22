@@ -3,9 +3,17 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping https://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
     <entity name="App\Domain\Token\RefreshToken" table="refresh_tokens">
-        <id name="token" type="string" column="token" length="128" />
+        <id name="id" type="guid" column="id" />
+        <field name="tokenHash" type="string" column="tokenHash" length="64" unique="true" />
+        <field name="familyId" type="guid" column="familyId" />
         <field name="userId" type="guid" column="userId" />
         <field name="expiresAt" type="datetime_immutable" />
         <field name="createdAt" type="datetime_immutable" />
+        <field name="revokedAt" type="datetime_immutable" nullable="true" />
+        <field name="replacedBy" type="guid" nullable="true" />
+        <indexes>
+            <index columns="familyId" name="idx_refresh_family" />
+            <index columns="userId" name="idx_refresh_user" />
+        </indexes>
     </entity>
 </doctrine-mapping>

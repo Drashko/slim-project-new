@@ -39,8 +39,14 @@ final readonly class RefreshHandler
             throw new DomainException('Refresh token not found.');
         }
 
+        // Reuse detection: if a refresh token was already revoked, someone is replaying it.
+        if ($stored->isRevoked()) {
+            $this->refreshTokenRepository->revokeFamily($stored->getFamilyId(), $this->clock->now());
+            throw new DomainException('Refresh token reuse detected. Session revoked.');
+        }
+
         if ($stored->isExpired($this->clock->now())) {
-            $this->refreshTokenRepository->revoke($stored->getToken());
+            $this->refreshTokenRepository->revokeById($stored->getId(), $this->clock->now(), null);
             throw new DomainException('Refresh token expired.');
         }
 
@@ -57,10 +63,10 @@ final readonly class RefreshHandler
         $accessToken = $this->tokenEncoder->encode($claims);
 
         // rotate refresh token
-        $this->refreshTokenRepository->revoke($stored->getToken());
         $newRefreshToken = bin2hex(random_bytes(64));
         $refreshExpiresAt = $issuedAt->add(new DateInterval(sprintf('PT%dS', $this->refreshTokenTtl)));
-        $this->refreshTokenRepository->persist($newRefreshToken, $identity->getUserId(), $refreshExpiresAt);
+        $newEntity = $this->refreshTokenRepository->persist($newRefreshToken, $identity->getUserId(), $refreshExpiresAt, $stored->getFamilyId());
+        $this->refreshTokenRepository->revokeById($stored->getId(), $issuedAt, $newEntity->getId());
 
         return [
             'access_token' => $accessToken->getToken(),

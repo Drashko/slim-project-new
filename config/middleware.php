@@ -15,7 +15,6 @@ return static function (App $app): void {
     ), static fn(string $origin): bool => $origin !== ''));
     $app->addBodyParsingMiddleware();
     $app->addRoutingMiddleware();
-    $app->add(StaticAssetCacheMiddleware::class);
     $app->add(ErrorMiddleware::class);
 
     $app->add(function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($allowedOrigins) {
@@ -27,7 +26,7 @@ return static function (App $app): void {
             ->withHeader('Access-Control-Allow-Origin', $allowOrigin)
             ->withHeader('Vary', 'Origin')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Subject, X-Scope, X-API-Key')
+            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
             ->withHeader('Access-Control-Allow-Credentials', 'true');
     });
 };
