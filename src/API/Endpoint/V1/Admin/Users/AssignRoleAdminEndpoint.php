@@ -2,7 +2,7 @@
 
 namespace App\API\Endpoint\V1\Admin\Users;
 
-class UpdateUserEndpoint
+class AssignRoleAdminEndpoint
 {
 
 }

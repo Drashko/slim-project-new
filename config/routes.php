@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\API\Endpoint\Auth\LoginEndpoint;
 use App\API\Endpoint\Auth\LogoutEndpoint;
 use App\API\Endpoint\Auth\RefreshEndpoint;
+use App\API\Endpoint\V1\Admin\Users\ListUsersAdminEndpoint;
 use App\API\Endpoint\V1\Users\CreateUserEndpoint;
 use App\API\Endpoint\V1\Users\DeleteUserEndpoint;
 use App\API\Endpoint\V1\Users\GetUserEndpoint;
@@ -60,7 +61,7 @@ return static function (App $app): void {
             $versionGroup->get('/users/{id}', [GetUserEndpoint::class, 'index'])->setName('api.v1.get-user');
             $versionGroup->put('/users/{id}', [UpdateUserEndpoint::class, 'update'])->setName('api.v1.update-user');
             //admin section
-            $versionGroup->get('/admin/users', [UserAdminEndpoint::class])->setName('api.v1.admin.create-user');
+            $versionGroup->get('/admin/users', [ListUsersAdminEndpoint::class])->setName('api.v1.admin.create-user');
 
         })
             ->add(CasbinAuthorizationMiddleware::class)
